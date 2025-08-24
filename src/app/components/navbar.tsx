@@ -44,7 +44,7 @@ export default function Header() {
     return (
         <nav className={`fixed z-[1000] w-full mx-auto px-25 py-4 transition-colors duration-300 flex items-center justify-between ${navbarScrolled ? "bg-white text-foreground border-b-1 border-[#CCCC]" : "bg-transparent"}`}>
             <Link href="#" className="flex items-center">
-                <Image src="/Logo.png" alt="Logo" width={70} height={70} />
+                <Image src="/Logo.png" alt="Logo" width={60} height={60}/>
                 <h1 className={clsx("font-[700] text-[15px] leading-5 transition-colors", navbarScrolled ? "text-black" : "text-white")}>SMITH <br /> ORIGIN</h1>
             </Link>
             <div className="flex items-center gap-6">
@@ -74,17 +74,20 @@ export default function Header() {
                                         <NavigationMenuContentLink asChild>
                                             <Link href="#">Speaker</Link>
                                         </NavigationMenuContentLink>
+                                        <NavigationMenuContentLink asChild>
+                                            <Link href="#">Deskmat</Link>
+                                        </NavigationMenuContentLink>
                                     </li>
                                 </ul>
                             </NavigationMenuContent>
                         </NavigationMenuItem>
                     </NavigationMenuList>
                 </NavigationMenu>
-                <form action="POST" className="bg-background py-3 px-5 text-[12px] flex items-center gap-3 rounded-full border-1 border-[#CCCCC] mr-2">
+                <form action="POST" className={clsx("bg-background/30 py-3 px-5 text-[12px] text-background flex items-center gap-3 rounded-full mr-2", navbarScrolled ? "border-1 border-[#CCCCC]" : "border-none")}>
                     <label htmlFor="search">
-                        <SearchIcon className="w-[20px] h-[20px]" />
+                        <SearchIcon className={clsx("w-[20px] h-[20px]", navbarScrolled ? "text-foreground" : "text-background")} />
                     </label>
-                    <input type="text" placeholder="Search..." className="outline-none border-none text-foreground" id="search" />
+                    <input type="text" placeholder="Search..." className={clsx("outline-none border-none", navbarScrolled ? "text-foreground placeholder-foreground" : "text-background placeholder-background")} id="search" />
                 </form>
                 <Button className="bg-button text-white font-[500] py-6" radius="full" startContent={<SignIn />}>
                     Sign In
