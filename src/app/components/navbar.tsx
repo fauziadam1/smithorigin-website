@@ -13,6 +13,8 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Button } from "@heroui/button";
+import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi';
+import clsx from "clsx"
 
 export const SignIn = () => {
     return (
@@ -24,56 +26,70 @@ export const SignIn = () => {
 };
 
 export default function Header() {
+
+    const [navbarScrolled, setNavbarScrolled] = React.useState(false);
+
+    React.useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > window.innerHeight - 80) {
+                setNavbarScrolled(true);
+            } else {
+                setNavbarScrolled(false);
+            }
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     return (
-        <nav className="fixed z-[1000] w-full mx-auto px-25 py-4">
-            <div className="flex items-center justify-between">
-                <Link href="#" className="flex items-center">
-                    <Image src="/Logo.png" alt="Logo" width={70} height={70} />
-                    <h1 className="text-white font-[700] text-[15px] leading-5">SMITH <br /> ORIGIN</h1>
-                </Link>
-                <div className="flex items-center">
-                    <NavigationMenu viewport={false} className="px-5">
-                        <NavigationMenuList>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                                    <Link href="/docs">Home</Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                                    <Link href="/docs">Forum</Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuTrigger>Category</NavigationMenuTrigger>
-                                <NavigationMenuContent>
-                                    <ul className="grid w-[100px] gap-4">
-                                        <li>
-                                            <NavigationMenuContentLink asChild>
-                                                <Link href="#">Keyboard</Link>
-                                            </NavigationMenuContentLink>
-                                            <NavigationMenuContentLink asChild>
-                                                <Link href="#">Mouse</Link>
-                                            </NavigationMenuContentLink>
-                                            <NavigationMenuContentLink asChild>
-                                                <Link href="#">Speaker</Link>
-                                            </NavigationMenuContentLink>
-                                        </li>
-                                    </ul>
-                                </NavigationMenuContent>
-                            </NavigationMenuItem>
-                        </NavigationMenuList>
-                    </NavigationMenu>
-                    <div>
-                        <form action="POST" className="bg-background ">
-                            <input type="text" placeholder="Search..."/>
-                        </form>
-                    </div>
-                    <Button className="bg-button text-white font-[500] py-6" radius="full" startContent={<SignIn />}>
-                        Sign In
-                    </Button>
-                </div>
+        <nav className={`fixed z-[1000] w-full mx-auto px-25 py-4 transition-colors duration-300 flex items-center justify-between ${navbarScrolled ? "bg-white text-foreground border-b-1 border-[#CCCC]" : "bg-transparent"}`}>
+            <Link href="#" className="flex items-center">
+                <Image src="/Logo.png" alt="Logo" width={70} height={70} />
+                <h1 className={clsx("font-[700] text-[15px] leading-5 transition-colors", navbarScrolled ? "text-black" : "text-white")}>SMITH <br /> ORIGIN</h1>
+            </Link>
+            <div className="flex items-center gap-6">
+                <NavigationMenu viewport={false}>
+                    <NavigationMenuList>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild className={clsx(navigationMenuTriggerStyle(), navbarScrolled ? "text-black" : "text-white")}>
+                                <Link href="/docs">Home</Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild className={clsx(navigationMenuTriggerStyle(), navbarScrolled ? "text-black" : "text-white")}>
+                                <Link href="/docs">Forum</Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger className={clsx(navbarScrolled ? "text-black" : "text-white")}>Category</NavigationMenuTrigger>
+                            <NavigationMenuContent>
+                                <ul className="grid w-[100px] gap-4">
+                                    <li>
+                                        <NavigationMenuContentLink asChild>
+                                            <Link href="#">Keyboard</Link>
+                                        </NavigationMenuContentLink>
+                                        <NavigationMenuContentLink asChild>
+                                            <Link href="#">Mouse</Link>
+                                        </NavigationMenuContentLink>
+                                        <NavigationMenuContentLink asChild>
+                                            <Link href="#">Speaker</Link>
+                                        </NavigationMenuContentLink>
+                                    </li>
+                                </ul>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
+                </NavigationMenu>
+                <form action="POST" className="bg-background py-3 px-5 text-[12px] flex items-center gap-3 rounded-full border-1 border-[#CCCCC] mr-2">
+                    <label htmlFor="search">
+                        <SearchIcon className="w-[20px] h-[20px]" />
+                    </label>
+                    <input type="text" placeholder="Search..." className="outline-none border-none text-foreground" id="search" />
+                </form>
+                <Button className="bg-button text-white font-[500] py-6" radius="full" startContent={<SignIn />}>
+                    Sign In
+                </Button>
             </div>
-        </nav>
+        </nav >
     )
 }
