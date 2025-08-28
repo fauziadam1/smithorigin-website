@@ -27,7 +27,7 @@ export default function Home() {
               Start Shopping
             </Button>
           </div>
-          <Image src="/Logo.png" alt="Logo" width={330} height={330} className="hidden lg:block xl:translate-x-5 xl:w-80 lg:w-70"/>
+          <Image src="/Logo.png" alt="Logo" width={330} height={330} className="hidden lg:block xl:translate-x-5 xl:w-80 lg:w-70" />
         </div>
       </section>
       <section className="bg-background w-full h-screen ">
@@ -77,6 +77,15 @@ export default function Home() {
                 </CardContent>
               </CardHeader>
             </Card>
+
+            <div>
+              <h1 className="">Top Product</h1>
+              <Card className="w-[250px] h-[350px] p-0 translate-y-50">
+                <CardContent className="p-0">
+                  <Image src="/Product1.jpg" alt="product" width={250} height={250}></Image>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>

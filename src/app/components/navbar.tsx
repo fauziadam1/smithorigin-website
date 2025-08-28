@@ -53,34 +53,18 @@ export default function Header() {
                         <NavigationMenuList>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={clsx(navigationMenuTriggerStyle(), navbarScrolled ? "text-black" : "text-white")}>
-                                    <Link href="/docs">Home</Link>
+                                    <Link href="/">Home</Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={clsx(navigationMenuTriggerStyle(), navbarScrolled ? "text-black" : "text-white")}>
-                                    <Link href="/docs">Forum</Link>
+                                    <Link href="/">Forum</Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <NavigationMenuTrigger className={clsx(navbarScrolled ? "text-black" : "text-white")}>Category</NavigationMenuTrigger>
-                                <NavigationMenuContent>
-                                    <ul className="grid w-[100px] gap-4">
-                                        <li>
-                                            <NavigationMenuContentLink asChild>
-                                                <Link href="#">Keyboard</Link>
-                                            </NavigationMenuContentLink>
-                                            <NavigationMenuContentLink asChild>
-                                                <Link href="#">Mouse</Link>
-                                            </NavigationMenuContentLink>
-                                            <NavigationMenuContentLink asChild>
-                                                <Link href="#">Speaker</Link>
-                                            </NavigationMenuContentLink>
-                                            <NavigationMenuContentLink asChild>
-                                                <Link href="#">Deskmat</Link>
-                                            </NavigationMenuContentLink>
-                                        </li>
-                                    </ul>
-                                </NavigationMenuContent>
+                                <NavigationMenuLink asChild className={clsx(navigationMenuTriggerStyle(), navbarScrolled ? "text-black" : "text-white")}>
+                                    <Link href="/">Product</Link>
+                                </NavigationMenuLink>
                             </NavigationMenuItem>
                         </NavigationMenuList>
                     </NavigationMenu>
