@@ -1,14 +1,8 @@
+'use client'
 import { Button } from "@heroui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Button as Btn } from "@/components/ui/button"
 import Image from "next/image";
+import { CardProduct, CardBrand } from "./components/card";
 
 export default function Home() {
   return (
@@ -33,61 +27,31 @@ export default function Home() {
       <section className="bg-background w-full h-screen ">
         <div className="container mx-auto px-10">
           <div className="-translate-y-20">
-            <Card className="max-w-5xl mx-auto">
-              <CardHeader>
-                <CardTitle className="text-center pb-4">
-                  <h1 className="text-lg md:text-xl">Brand We Have</h1>
-                </CardTitle>
-                <CardContent className="grid grid-cols-5 place-items-center gap-5">
-                  <Image
-                    src="/Logo Aula.png"
-                    alt="Brand Logo"
-                    width={150}
-                    height={150}
-                    className="w-12 h-12 sm:w-16 sm:h-16 md:w-30 md:h-30 object-contain"
-                  />
-                  <Image
-                    src="/Logo Leobog.png"
-                    alt="Brand Logo"
-                    width={150}
-                    height={150}
-                    className="w-12 h-12 sm:w-16 sm:h-16 md:w-30 md:h-30 object-contain"
-                  />
-                  <Image
-                    src="/Logo Vortex.png"
-                    alt="Brand Logo"
-                    width={150}
-                    height={150}
-                    className="w-12 h-12 sm:w-16 sm:h-16 md:w-30 md:h-30 object-contain"
-                  />
-                  <Image
-                    src="/Logo WK.png"
-                    alt="Brand Logo"
-                    width={150}
-                    height={150}
-                    className="w-12 h-12 sm:w-16 sm:h-16 md:w-30 md:h-30 object-contain"
-                  />
-                  <Image
-                    src="/Logo MCHOSE.png"
-                    alt="Brand Logo"
-                    width={150}
-                    height={150}
-                    className="w-12 h-12 sm:w-16 sm:h-16 md:w-30 md:h-30 object-contain"
-                  />
-                </CardContent>
-              </CardHeader>
-            </Card>
+            <CardBrand />
 
-            <div>
-              <h1 className="">Top Product</h1>
-              <Card className="w-[250px] h-[350px] p-0 translate-y-50">
-                <CardContent className="p-0">
-                  <Image src="/Product1.jpg" alt="product" width={250} height={250}></Image>
-                </CardContent>
-              </Card>
+            <div className="grid grid-cols-3 grid-rows-2 gap-4 bg-black">
+              <Image src="/Keyboard.jpg" alt="Logo" width={330} height={330} className="row-span-2 w-full" />
+              <Image src="/Mouse.jpg" alt="Logo" width={330} height={330} className="" />
+              <Image src="/KeyCaps.jpg" alt="Logo" width={330} height={330} className="col-start-2" />
+              <Image src="/Headset.jpg" alt="Logo" width={330} height={330} className="row-span-2 col-start-3 row-start-1 w-full" />
+            </div>
+
+            <div className="translate-y-40">
+              <h1 className="mb-6 font-[700] text-2xl">Best Seller</h1>
+              <div className="grid grid-cols-6 gap-4">
+                <CardProduct />
+                <CardProduct />
+                <CardProduct />
+                <CardProduct />
+                <CardProduct />
+                <CardProduct />
+              </div>
             </div>
           </div>
         </div>
+      </section>
+      <section className="w-full h-screen bg-background">
+
       </section>
     </div>
   );

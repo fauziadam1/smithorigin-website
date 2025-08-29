@@ -138,5 +138,22 @@ body {
 
 .bg-hero {
   background-image: url('/Image1.jpg');
+}
 
+.header-top-product::before,
+.header-top-product::after {
+  content: "";
+  position: absolute;
+  background-color: #ccc;
+  width: 40%;
+  height: 1px;
+  top: 15px;
+}
+
+.header-top-product::after {
+  left: 0;
+}
+
+.header-top-product::before {
+  right: 0;
 }
