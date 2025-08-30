@@ -1,6 +1,6 @@
 'use client'
 import { Button } from "@heroui/button";
-import { Button as Btn } from "@/components/ui/button"
+import Carousel from "./components/swiper";
 import Image from "next/image";
 import { CardProduct, CardBrand } from "./components/card";
 
@@ -28,14 +28,7 @@ export default function Home() {
         <div className="container mx-auto px-10">
           <div className="-translate-y-20">
             <CardBrand />
-
-            <div className="grid grid-cols-3 grid-rows-2 gap-4 bg-black">
-              <Image src="/Keyboard.jpg" alt="Logo" width={330} height={330} className="row-span-2 w-full" />
-              <Image src="/Mouse.jpg" alt="Logo" width={330} height={330} className="" />
-              <Image src="/KeyCaps.jpg" alt="Logo" width={330} height={330} className="col-start-2" />
-              <Image src="/Headset.jpg" alt="Logo" width={330} height={330} className="row-span-2 col-start-3 row-start-1 w-full" />
-            </div>
-
+            <Carousel/>
             <div className="translate-y-40">
               <h1 className="mb-6 font-[700] text-2xl">Best Seller</h1>
               <div className="grid grid-cols-6 gap-4">
