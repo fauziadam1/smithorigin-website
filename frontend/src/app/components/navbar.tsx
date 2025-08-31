@@ -4,12 +4,9 @@ import Link from "next/link"
 import * as React from "react"
 import {
     NavigationMenu,
-    NavigationMenuContent,
     NavigationMenuItem,
-    NavigationMenuContentLink,
     NavigationMenuLink,
     NavigationMenuList,
-    NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 import { Button } from "@heroui/button";
@@ -34,7 +31,7 @@ export default function Header() {
     }, []);
 
     return (
-        <nav className={`fixed z-[1000] w-full mx-auto py-6 transition-colors duration-300 ${navbarScrolled ? "bg-white text-foreground border-b-1 border-[#CCCC]" : "bg-transparent"}`}>
+        <nav className={`fixed z-[1000] w-full mx-auto py-6 transition-colors duration-300 ${navbarScrolled ? "bg-white text-foreground border-b border" : "bg-transparent"}`}>
             <div className="container mx-auto px-10 flex items-center justify-between">
                 <Link href="#" className="flex items-center gap-2">
                     <Image src="/Logo.png" alt="Logo" width={50} height={50} />

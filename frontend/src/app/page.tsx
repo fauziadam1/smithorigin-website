@@ -5,6 +5,7 @@ import Image from "next/image";
 import { CardBrand } from "./components/card";
 import { ProductTabs } from "./components/productTabs";
 import { SuggestCard } from "./components/suggestCard";
+import { RatingCard } from "./components/ratingCard";
 
 
 export default function Home() {
@@ -27,18 +28,13 @@ export default function Home() {
           <Image src="/Logo.png" alt="Logo" width={330} height={330} className="hidden lg:block xl:translate-x-5 xl:w-80 lg:w-70" />
         </div>
       </section>
-      <section className="w-full h-screen">
-        <div className="container mx-auto px-10">
-          <div className="-translate-y-20">
-            <CardBrand />
-            <Carousel />
-          </div>
-        </div>
-      </section>
-      <section className="w-full h-screen bg-background pt-30">
-        <div className="container mx-auto px-10">
-            <ProductTabs />
-            <SuggestCard />
+      <section className="w-full pt">
+        <div className="container mx-auto flex flex-col gap-20 px-10 relative">
+          <CardBrand />
+          <Carousel />
+          <ProductTabs />
+          <SuggestCard />
+          <RatingCard/>
         </div>
       </section>
     </div>

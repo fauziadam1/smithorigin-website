@@ -156,20 +156,17 @@ body {
   background-image: url('/Image1.jpg');
 }
 
+.header-top-product {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
 .header-top-product::before,
 .header-top-product::after {
   content: "";
-  position: absolute;
-  background-color: #ccc;
-  width: 40%;
+  flex: 1;
   height: 1px;
-  top: 15px;
-}
-
-.header-top-product::after {
-  left: 0;
-}
-
-.header-top-product::before {
-  right: 0;
+  background-color: #ccc;
 }

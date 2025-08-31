@@ -9,11 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@heroui/button": "^2.2.24",
     "@heroui/react": "^2.8.2",
     "@heroui/system": "^2.4.20",
     "@heroui/tabs": "^2.2.21",
     "@heroui/theme": "^2.4.20",
+    "@mui/material": "^7.3.1",
+    "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-navigation-menu": "^1.2.14",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",

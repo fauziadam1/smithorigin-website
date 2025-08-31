@@ -38,7 +38,7 @@ export function CardProduct() {
 
 export function CardBrand() {
     return (
-        <div>
+        <div className="-translate-y-15">
             <Card className="max-w-5xl mx-auto">
                 <CardHeader>
                     <CardTitle className="text-center pb-4">
