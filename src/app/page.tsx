@@ -2,7 +2,9 @@
 import { Button } from "@heroui/button";
 import Carousel from "./components/swiper";
 import Image from "next/image";
-import { CardProduct, CardBrand } from "./components/card";
+import { CardBrand } from "./components/card";
+import { ProductTabs } from "./components/productTabs";
+
 
 export default function Home() {
   return (
@@ -24,27 +26,16 @@ export default function Home() {
           <Image src="/Logo.png" alt="Logo" width={330} height={330} className="hidden lg:block xl:translate-x-5 xl:w-80 lg:w-70" />
         </div>
       </section>
-      <section className="bg-background w-full h-screen ">
+      <section className="bg-background w-full h-screen">
         <div className="container mx-auto px-10">
           <div className="-translate-y-20">
             <CardBrand />
-            <Carousel/>
-            <div className="translate-y-40">
-              <h1 className="mb-6 font-[700] text-2xl">Best Seller</h1>
-              <div className="grid grid-cols-6 gap-4">
-                <CardProduct />
-                <CardProduct />
-                <CardProduct />
-                <CardProduct />
-                <CardProduct />
-                <CardProduct />
-              </div>
-            </div>
+            <Carousel />
           </div>
         </div>
       </section>
-      <section className="w-full h-screen bg-background">
-
+      <section className="w-full h-screen bg-background pt-30">
+        <ProductTabs/>
       </section>
     </div>
   );
