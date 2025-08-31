@@ -12,7 +12,7 @@ export default function Carousel() {
         <div className="w-full mx-auto translate-y-30">
             <Swiper
                 modules={[Pagination, Autoplay]}
-                autoplay={{ delay: 500000, disableOnInteraction: false }}
+                autoplay={{ delay: 5000, disableOnInteraction: false }}
                 spaceBetween={20}
                 slidesPerView={1}
                 grabCursor={true}

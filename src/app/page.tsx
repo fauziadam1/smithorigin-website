@@ -4,6 +4,7 @@ import Carousel from "./components/swiper";
 import Image from "next/image";
 import { CardBrand } from "./components/card";
 import { ProductTabs } from "./components/productTabs";
+import { RatingCard } from "./components/suggestCard";
 
 
 export default function Home() {
@@ -26,7 +27,7 @@ export default function Home() {
           <Image src="/Logo.png" alt="Logo" width={330} height={330} className="hidden lg:block xl:translate-x-5 xl:w-80 lg:w-70" />
         </div>
       </section>
-      <section className="bg-background w-full h-screen">
+      <section className="w-full h-screen">
         <div className="container mx-auto px-10">
           <div className="-translate-y-20">
             <CardBrand />
@@ -35,7 +36,10 @@ export default function Home() {
         </div>
       </section>
       <section className="w-full h-screen bg-background pt-30">
-        <ProductTabs/>
+        <div className="container mx-auto px-10">
+            <ProductTabs />
+            {/* <RatingCard /> */}
+        </div>
       </section>
     </div>
   );
