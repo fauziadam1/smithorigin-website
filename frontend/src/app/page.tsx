@@ -4,7 +4,7 @@ import Carousel from "./components/swiper";
 import Image from "next/image";
 import { CardBrand } from "./components/card";
 import { ProductTabs } from "./components/productTabs";
-import { RatingCard } from "./components/suggestCard";
+import { SuggestCard } from "./components/suggestCard";
 
 
 export default function Home() {
@@ -38,7 +38,7 @@ export default function Home() {
       <section className="w-full h-screen bg-background pt-30">
         <div className="container mx-auto px-10">
             <ProductTabs />
-            {/* <RatingCard /> */}
+            <SuggestCard />
         </div>
       </section>
     </div>
