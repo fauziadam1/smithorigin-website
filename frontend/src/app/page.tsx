@@ -29,7 +29,7 @@ export default function Home() {
         </div>
       </section>
       <section className="w-full pt">
-        <div className="container mx-auto flex flex-col gap-20 px-10 relative">
+        <div className="container mx-auto flex flex-col gap-40 px-10 relative">
           <CardBrand />
           <Carousel />
           <ProductTabs />
