@@ -6,6 +6,7 @@ import { CardBrand } from "./components/card";
 import { ProductTabs } from "./components/productTabs";
 import { SuggestCard } from "./components/suggestCard";
 import { RatingCard } from "./components/ratingCard";
+import { Footer } from "./components/footer";
 
 
 export default function Home() {
@@ -28,7 +29,7 @@ export default function Home() {
           <Image src="/Logo.png" alt="Logo" width={330} height={330} className="hidden lg:block xl:translate-x-5 xl:w-80 lg:w-70" />
         </div>
       </section>
-      <section className="w-full pt">
+      <section className="w-full pb-20">
         <div className="container mx-auto flex flex-col gap-40 px-10 relative">
           <CardBrand />
           <Carousel />
@@ -36,6 +37,9 @@ export default function Home() {
           <SuggestCard />
           <RatingCard/>
         </div>
+      </section>
+      <section>
+        <Footer/>
       </section>
     </div>
   );
