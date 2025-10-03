@@ -34,7 +34,7 @@ export function RatingCard() {
                     {Array.from({ length: 5 }).map((_, index) =>
                         <CarouselItem key={index} className="md:basis-1/4 ">
                             <div>
-                                <Card className="w-72">
+                                <Card className="w-85 h-75">
                                     <CardHeader className="flex items-center gap-4">
                                         <Avatar className="w-13 h-13">
                                             <AvatarImage src="" alt="Profil" />

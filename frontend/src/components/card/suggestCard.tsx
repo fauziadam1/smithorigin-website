@@ -11,7 +11,7 @@ import {
     Box,
     Truck,
     GamePad
-} from "./logoSVG";
+} from "../logoSVG";
 
 export function SuggestCard() {
 

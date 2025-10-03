@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
+import { Image as Img } from "@heroui/react";
 import { Button } from "@heroui/button";
 import { BsStarFill as IsFilled } from 'react-icons/bs';
 import { BsStar as Filled } from 'react-icons/bs';
@@ -21,7 +22,7 @@ export function CardProduct() {
     return (
         <div className="w-[250px] 2xl:w-[230px] md:w-[190px] relative">
             <Link href="#">
-                <Image src="/Product1.jpg" alt="product" width={250} height={250} />
+                <Img isZoomed src="/Product1.jpg" alt="product" width={250} height={250} />
                 <div className="py-3 grid gap-1">
                     <p className="text-[15px] truncate inline-block">Weikav WK75 - 3 Mode - 75% - South Face RGB </p>
                     <div className="flex items-baseline gap-2">
