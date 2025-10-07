@@ -40,7 +40,7 @@ export default function Header() {
         "fixed z-[1000] w-full mx-auto py-6 transition-colors duration-300",
         isHome 
             ? (navbarScrolled ? "bg-white text-foreground border-b border" : "bg-transparent")
-            : "bg-white text-foreground border-b border" // halaman selain Home langsung putih
+            : "bg-white text-foreground border-b border"
     );
 
     return (

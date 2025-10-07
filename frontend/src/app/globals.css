@@ -13,6 +13,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-button: var(--button);
+  --color-buttonForeground: var(--buttonForeground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -55,6 +56,7 @@
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --button: #930819;
+  --buttonForeground: #fff3f4;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -146,7 +148,8 @@
   }
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
