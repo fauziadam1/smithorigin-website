@@ -9,7 +9,7 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
     navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
+} from "../ui/navigation-menu"
 import { Button } from "@heroui/button";
 import { SignIn } from "../logoSVG"
 import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi';

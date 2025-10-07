@@ -7,12 +7,12 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
+} from "../../../../components/ui/card"
 import { BsFillKeyboardFill as KeyboardIcon } from 'react-icons/bs';
 import { RiChatNewLine as ChatPlus } from 'react-icons/ri';
 import { BsClock as Clock } from 'react-icons/bs';
 import { Button } from "@heroui/button";
-import ForumDiscussion from '@/components/card/ForumCard';
+import ForumDiscussion from '../../../../components/card/ForumCard';
 import Link from 'next/link';
 import Image from 'next/image';
 

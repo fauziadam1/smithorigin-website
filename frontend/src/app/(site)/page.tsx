@@ -1,10 +1,10 @@
-import Carousel from "@/components/swiper";
-import HeaderSection from "@/components/hero";
-import { CardBrand } from "@/components/card/card";
-import { ProductTabs } from "@/components/productTabs";
-import { RatingCard } from "@/components/card/ratingCard";
-import { SuggestCard } from "@/components/card/suggestCard";
-import { ButtonCategory} from "@/components/button/btnCategory";
+import Carousel from "../../../components/swiper";
+import HeaderSection from "../../../components/hero";
+import { CardBrand } from "../../../components/card/card";
+import { ProductTabs } from "../../../components/productTabs";
+import { RatingCard } from "../../../components/card/ratingCard";
+import { SuggestCard } from "../../../components/card/suggestCard";
+import { ButtonCategory} from "../../../components/button/btnCategory";
 
 export default async function Home() {
   return (

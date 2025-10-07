@@ -2,7 +2,7 @@ import {
     Avatar,
     AvatarFallback,
     AvatarImage,
-} from "@/components/ui/avatar"
+} from "../ui/avatar"
 import {
     Card,
     CardAction,
@@ -11,14 +11,14 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
+} from "../ui/card"
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "../ui/carousel"
 import { HiMiniUser as UserIcon } from 'react-icons/hi2';
 import { BsStarFill } from 'react-icons/bs';
 
