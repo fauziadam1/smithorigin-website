@@ -1,4 +1,4 @@
-import Carousel from "../../../components/swiper";
+import Carousel from "../../../components/swiper/swiper";
 import HeaderSection from "../../../components/hero";
 import { CardBrand } from "../../../components/card/card";
 import { ProductTabs } from "../../../components/productTabs";

@@ -16,7 +16,7 @@ import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi';
 import clsx from "clsx"
 
 export default function Header() {
-    const pathname = usePathname();  
+    const pathname = usePathname();
     const isHome = pathname === "/"
 
     const [navbarScrolled, setNavbarScrolled] = React.useState(false);
@@ -38,7 +38,7 @@ export default function Header() {
 
     const navClass = clsx(
         "fixed z-[1000] w-full mx-auto py-6 transition-colors duration-300",
-        isHome 
+        isHome
             ? (navbarScrolled ? "bg-white text-foreground border-b border" : "bg-transparent")
             : "bg-white text-foreground border-b border"
     );
@@ -81,17 +81,19 @@ export default function Header() {
                         <label htmlFor="search">
                             <SearchIcon className={clsx("w-[20px] h-[20px]", (isHome && !navbarScrolled) ? "text-white" : "text-black")} />
                         </label>
-                        <input 
-                            type="text" 
-                            placeholder="Search..." 
+                        <input
+                            type="text"
+                            placeholder="Search..."
                             id="search"
-                            className={clsx("outline-none border-none bg-transparent", (isHome && !navbarScrolled) ? "text-white placeholder-white" : "text-black placeholder-gray-600")} 
+                            className={clsx("outline-none border-none bg-transparent", (isHome && !navbarScrolled) ? "text-white placeholder-white" : "text-black placeholder-gray-600")}
                         />
                     </form>
 
-                    <Button className="bg-button text-white font-[500] py-6" radius="full" startContent={<SignIn />}>
-                        Sign In
-                    </Button>
+                    <Link href='/sign-in'>
+                        <Button className="bg-button text-white font-[500] py-6" radius="full" startContent={<SignIn />}>
+                            Sign In
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </nav>
