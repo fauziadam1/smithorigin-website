@@ -1,6 +1,6 @@
 'use client'
 import { Tabs, Tab } from "@heroui/react";
-import { CardProduct } from "./card/card";
+import { CardProduct } from "./card/productCard";
 import React from "react";
 
 export function ProductTabs() {

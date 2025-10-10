@@ -4,6 +4,15 @@ import React from 'react';
 import { Button } from '@heroui/button';
 import Image from 'next/image';
 import { MessageSquare, ThumbsUp, Clock, User, Send } from 'lucide-react';
+import {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "../ui/card"
 
 // Interface - Blueprint untuk tipe data
 interface Comment {
@@ -60,36 +69,38 @@ const DiscussionCard = ({ discussion, onReply }: DiscussionCardProps) => {
     };
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow">
+        <Card className="p-5">
             {/* Header */}
-            <div className="flex items-start gap-3 mb-3">
+            <CardContent className="p-0 flex items-start gap-3">
                 <Image
                     src={discussion.avatar}
                     alt={discussion.author}
                     width={10}
                     height={10}
-                    className="w-10 h-10 rounded-full bg-gray-200"
+                    className="w-12 h-12 rounded-full bg-gray-200"
                 />
-                <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                <CardHeader className="p-0 flex-1">
+                    <div className="flex items-center">
                         <h3 className="font-semibold text-gray-900">{discussion.author}</h3>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Clock className="w-3 h-3" />
                         <span>{discussion.timestamp}</span>
                     </div>
-                </div>
-            </div>
+                </CardHeader>
+            </CardContent>
 
             {/* Content */}
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">{discussion.title}</h2>
-            <p className="text-gray-600 text-sm mb-4">{discussion.content}</p>
+            <div className='flex flex-col gap-2'>
+                <h2 className="text-lg font-semibold text-gray-900">{discussion.title}</h2>
+                <p className="text-gray-600 text-sm">{discussion.content}</p>
+            </div>
 
             {/* Actions */}
             <div className="flex items-center gap-4 pt-3 border-t border-gray-100">
                 <button
                     onClick={handleLike}
-                    className={`flex items-center gap-1.5 text-sm transition-colors ${liked ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+                    className={`flex items-center gap-1.5 text-sm transition-colors ${liked ? 'text-button' : 'text-gray-500 hover:text-button'
                         }`}
                 >
                     <ThumbsUp className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
@@ -97,7 +108,7 @@ const DiscussionCard = ({ discussion, onReply }: DiscussionCardProps) => {
                 </button>
                 <button
                     onClick={() => setShowComments(!showComments)}
-                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors"
+                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-button transition-colors"
                 >
                     <MessageSquare className="w-4 h-4" />
                     <span>{localComments.length} Komentar</span>
@@ -145,12 +156,12 @@ const DiscussionCard = ({ discussion, onReply }: DiscussionCardProps) => {
                                 onChange={(e) => setReplyText(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSubmitReply()}
                                 placeholder="Tulis komentar..."
-                                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-button"
                             />
                             <Button
                                 onClick={handleSubmitReply}
                                 disabled={!replyText.trim()}
-                                className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-4 py-2 bg-button text-white text-sm rounded-lg hover:bg-button disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <Send className="w-4 h-4" />
                             </Button>
@@ -158,7 +169,7 @@ const DiscussionCard = ({ discussion, onReply }: DiscussionCardProps) => {
                     </div>
                 </div>
             )}
-        </div>
+        </Card>
     );
 };
 
@@ -232,7 +243,7 @@ export default function ForumDiscussion() {
     };
 
     return (
-        <div className=" bg-gray-50 p">
+        <div className="">
             <div className="">
                 <div className="mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Diskusi Terbaru</h2>

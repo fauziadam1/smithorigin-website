@@ -169,7 +169,7 @@ main {
   background-image: url('/Image1.jpg');
 }
 
-.header-top-product {
+/* .header-top-product {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -182,4 +182,4 @@ main {
   flex: 1;
   height: 1px;
   background-color: #ccc;
-}
+} */

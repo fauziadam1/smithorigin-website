@@ -10,11 +10,9 @@ import {
 } from "../../../../components/ui/card"
 import { BsFillKeyboardFill as KeyboardIcon } from 'react-icons/bs';
 import { RiChatNewLine as ChatPlus } from 'react-icons/ri';
-import { BsClock as Clock } from 'react-icons/bs';
 import { Button } from "@heroui/button";
-import ForumDiscussion from '../../../../components/card/ForumCard';
+import ForumDiscussion from '../../../../components/card/forumCard';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Forum() {
     return (

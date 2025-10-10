@@ -1,6 +1,6 @@
 import Carousel from "../../../components/swiper/swiper";
 import HeaderSection from "../../../components/hero";
-import { CardBrand } from "../../../components/card/card";
+import { CardBrand } from "../../../components/card/brandCard";
 import { ProductTabs } from "../../../components/productTabs";
 import { RatingCard } from "../../../components/card/ratingCard";
 import { SuggestCard } from "../../../components/card/suggestCard";

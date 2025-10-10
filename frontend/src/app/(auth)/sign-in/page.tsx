@@ -10,7 +10,8 @@ import {
 } from "../../../../components/ui/card"
 import { Form, Input, Textarea } from "@heroui/react";
 import { BsStars as Star } from 'react-icons/bs';
-import { Link } from "@heroui/link";
+import { Link as LINK } from "@heroui/link";
+import Link from "next/link";
 import { PiSignInBold as Signin } from 'react-icons/pi';
 import { Button } from "@heroui/react";
 
@@ -32,15 +33,17 @@ export default function SignIn() {
                                 <Input className="" variant="bordered" label="Password" type="password" />
                             </Form>
                             <div className="flex items-center justify-end py-4">
-                                <Link className="text-button text-[15px]" href="/" underline="always">Lupa kata sandi?</Link>
+                                <LINK className="text-button text-[15px]" href="/" underline="always">Lupa kata sandi?</LINK>
                             </div>
                             <div className="flex flex-col gap-5">
                                 <Button className="bg-button w-full text-white font-[500] py-6" radius="full" startContent={<Signin className="text-[20px]" />}>
                                     Masuk
                                 </Button>
-                                <Button className="w-full font-[500] py-6" variant="bordered" radius="full">
-                                    Buat Akun Baru
-                                </Button>
+                                <Link href="/sign-up">
+                                    <Button className="w-full font-[500] py-6" variant="bordered" radius="full">
+                                        Buat Akun Baru
+                                    </Button>
+                                </Link>
                             </div>
                         </CardContent>
                     </CardHeader>

@@ -20,7 +20,7 @@ import {
 export default function forumForm() {
     return (
         <div>
-            <section className='w-full h-screen container mx-auto px-10 py-45'>
+            <section className='w-full h-fit container mx-auto px-10 py-45'>
                 <div className='w-[55rem] mx-auto flex flex-col gap-8'>
                     <div className='flex items-center justify-between'>
                         <div className='flex items-center gap-4'>
@@ -28,7 +28,7 @@ export default function forumForm() {
                             <h1 className='font-[600] text-4xl'>Bagikan Pendapat Anda</h1>
                         </div>
                         <Link href='/forum'>
-                            <Button className='text-[16px] bg-transparent border-1 border-[#CCC] rounded-full w-full' startContent={<ArrowIcon className='text-[18px]' />}>Kembali ke Forum</Button>
+                            <Button className=' bg-transparent border-1 border-[#CCC] rounded-full w-full' startContent={<ArrowIcon className='text-[18px]' />}>Kembali ke Forum</Button>
                         </Link>
                     </div>
                     <div>
