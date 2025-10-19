@@ -1,51 +1,35 @@
-'use client'
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "../../../../components/ui/card"
-import { Form, Input, Textarea } from "@heroui/react";
-import { BsStars as Star } from 'react-icons/bs';
 import Link from "next/link";
-import { BsPersonAdd as Signup } from 'react-icons/bs';
-import { Button } from "@heroui/react";
+import { HiOutlineMail as Mail } from 'react-icons/hi';
+import { BiUser as User } from 'react-icons/bi';
+import { BiLockAlt as Lock } from 'react-icons/bi';
 
-export default function SignIn() {
+export default function SignUp() {
     return (
-        <section className="container px-10 mx-auto flex items-center justify-center h-screen">
-            <div className="flex items-center justify-center">
-                <Card className="w-[35rem] h-fit py-15">
-                    <CardHeader className="flex flex-col gap-10 items-center relative">
-                        <CardTitle className="text-center">
-                            <h1 className="text-2xl flex items-center justify-center gap-2">Buat Akun Anda<Star className="text-yellow-500" /></h1>
-                            <CardDescription className="font-light">
-                                Daftar untuk masuk ke website kami.
-                            </CardDescription>
-                        </CardTitle>
-                        <CardContent className="w-full flex flex-col gap-6">
-                            <Form className="relative gap-5">
-                                <Input  variant="bordered" label="Username" type="text"></Input>
-                                <Input variant="bordered" label="Email" type="email" />
-                                <Input variant="bordered" label="Password" type="password" />
-                            </Form>
-                            <div className="flex flex-col gap-5">
-                                <Button className="bg-button w-full text-white font-[500] py-6" radius="full" startContent={<Signup className="text-[20px]" />}>
-                                    Masuk
-                                </Button>
-                                <Link href="/sign-in">
-                                    <Button className="w-full font-[500] py-6" variant="bordered" radius="full">
-                                        Masuk ke akun anda
-                                    </Button>
-                                </Link>
-                            </div>
-                        </CardContent>
-                    </CardHeader>
-                </Card>
-            </div>
-        </section>
+        <div>
+            <section className="container px-10 mx-auto flex items-center justify-center h-screen">
+                <div className="flex flex-col gap-7">
+                    <div className="text-center space-y-3">
+                        <h1 className="text-5xl text-button font-[600]">Create Account</h1>
+                        <p className="text-gray-500 text-sm">Register your account to get started</p>
+                    </div>
+                    <form action="" className="space-y-4 w-110">
+                        <div className="relative">
+                            <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400 placeholder:text-gray-200" htmlFor="username"><User /></label>
+                            <input className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400" id="username" type="text" placeholder="Username" />
+                        </div>
+                        <div className="relative">
+                            <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400 placeholder:text-gray-200" htmlFor="email"><Mail /></label>
+                            <input className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400" id="email" type="email" placeholder="Email" />
+                        </div>
+                        <div className="relative">
+                            <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="password"><Lock /></label>
+                            <input className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400" id="password" type="password" placeholder="Password" />
+                        </div>
+                        <button type="submit" className="bg-button text-white text-xl font-[500] w-full py-4 rounded-full cursor-pointer">Create</button>
+                    </form>
+                    <p className="text-[12px] text-center">You already have an account? <Link href="/sign-in" className="text-button font-[600]">Sign In</Link></p>
+                </div>
+            </section>
+        </div>
     )
 }

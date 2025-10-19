@@ -1,21 +1,13 @@
 'use client'
 import Image from "next/image";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "../ui/card"
-
 export function CardBrand() {
     return (
-        <div className="-translate-y-15">
-            <Card className="max-w-5xl mx-auto">
-                <CardHeader>
-                    <CardTitle className="text-center pb-4">
+        <div>
+            <section className="max-w-5xl mx-auto">
+                    <div className="text-center pb-4">
                         <h1 className="text-lg md:text-xl">Brand We Have</h1>
-                    </CardTitle>
-                    <CardContent className="grid grid-cols-5 place-items-center gap-5">
+                    </div>
+                    <div className="grid grid-cols-5 place-items-center gap-5">
                         <Image
                             src="/Logo Aula.png"
                             alt="Brand Logo"
@@ -51,9 +43,8 @@ export function CardBrand() {
                             height={150}
                             className="w-12 h-12 sm:w-16 sm:h-16 md:w-30 md:h-30 object-contain"
                         />
-                    </CardContent>
-                </CardHeader>
-            </Card>
+                    </div>
+            </section>
         </div>
     )
 }

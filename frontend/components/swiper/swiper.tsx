@@ -22,20 +22,13 @@ export default function Carousel() {
                     className="h-[540px] relative"
                 >
                     <SwiperSlide>
-                        <div className="w-full h-full">
-                            <div className="absolute translate-x-23 translate-y-30 flex flex-col gap-8 max-w-5xl">
-                                <h1 className="text-background font-[700] text-3xl trans">Veekos Shine60 HE 60% Rapid Trigger RT 0.01mm Snap Key Magnetic Switch Keyboard</h1>
-                                <p className="text-background">The Shine60 HE Hall Effect mechanical keyboard embraces a compact 60% layout while delivering exceptional performance and versatility. It features a robust 7,000 mAh internal battery that ensures extended, uninterrupted usage without frequent recharging ......</p>
-                                <Button className="bg-button text-white font-[500] rounded-full px-11 py-6 w-auto self-start">Buy Now</Button>
-                            </div>
-                            <Image
-                                src="/SlideImage.jpg"
-                                alt="Slide 1"
-                                width={300}
-                                height={300}
-                                className="w-full h-[500px] rounded-lg"
-                            />
-                        </div>
+                        <Image
+                            src="/banner1.jpeg"
+                            alt="Slide 2"
+                            width={300}
+                            height={300}
+                            className="w-full h-[500px] rounded-lg"
+                        />
                     </SwiperSlide>
                     <SwiperSlide>
                         <Image
