@@ -1,22 +1,25 @@
-import express, { Express } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import express from 'express';
+import authRoutes from './routes/auth';
+import { authMiddleware } from './middleware/auth';
 
-dotenv.config();
+const app = express();
 
-const app: Express = express();
-const PORT = process.env.PORT || 8080;
-
-// Middleware
-app.use(cors());
 app.use(express.json());
 
-// Basic route
-app.get('/api', (req, res) => {
-  res.json({ message: 'E-Commerce API is running!' });
+// Routes
+app.use('/api/auth', authRoutes);
+
+// Protected route example
+app.get('/api/profile', authMiddleware, (req, res) => {
+  res.json({
+    message: 'Data profil',
+    user: req.user,
+  });
 });
 
-// Start server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server berjalan di port ${PORT}`);
 });
+
+export default app;

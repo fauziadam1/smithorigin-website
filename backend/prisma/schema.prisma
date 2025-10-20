@@ -4,152 +4,89 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// Prisma schema e-commerce + forum
+// by ChatGPT
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // atau mysql sesuai kebutuhanmu
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  password  String
-  name      String
-  role      String  @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products  Product[]
-  banners   Banner[]
-
-  @@map("users")
+  id           Int          @id @default(autoincrement())
+  username     String       @unique
+  email        String       @unique
+  password     String
+  isAdmin      Boolean      @default(false)
+  refreshToken String?
+  favorites    Favorite[]
+  forums       Forum[]
+  replies      ForumReply[]
 }
 
 model Category {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique
-  description String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  products  Product[]
-
-  @@map("categories")
+  id       Int       @id @default(autoincrement())
+  name     String
+  imageUrl String?
+  products Product[]
 }
 
 model Product {
-  id          Int     @id @default(autoincrement())
-  categoryId  Int
-  createdBy   Int
+  id          Int              @id @default(autoincrement())
   name        String
   description String?
-  basePrice   Decimal @db.Decimal(12, 2)
-  hasVariant  Boolean @default(false)
-  isBestSeller Boolean @default(false)
-  isActive    Boolean @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  creator     User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  images      ProductImage[]
+  price       Float
+  discount    Float?
+  imageUrl    String?
+  categoryId  Int?
+  category    Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   variants    ProductVariant[]
-  discounts   Discount[]
   favorites   Favorite[]
-
-  @@map("products")
-}
-
-model ProductImage {
-  id          Int     @id @default(autoincrement())
-  productId   Int
-  imageUrl    String
-  isPrimary   Boolean @default(false)
-  displayOrder Int    @default(0)
-  createdAt   DateTime @default(now())
-
-  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("product_images")
 }
 
 model ProductVariant {
   id        Int     @id @default(autoincrement())
   productId Int
   color     String
-  stock     Int     @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  imageUrl  String?
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([productId, color])
-  @@map("product_variants")
 }
 
-model Discount {
-  id              Int     @id @default(autoincrement())
-  productId       Int
-  discountPercentage Decimal? @db.Decimal(5, 2)
-  discountPrice   Decimal? @db.Decimal(12, 2)
-  isActive        Boolean @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("discounts")
+model Banner {
+  id       Int    @id @default(autoincrement())
+  imageUrl String
 }
 
 model Favorite {
   id        Int     @id @default(autoincrement())
   userId    Int
   productId Int
-  createdAt DateTime @default(now())
-
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
-  @@map("favorites")
 }
 
-model ForumThread {
-  id        Int     @id @default(autoincrement())
-  userId    Int
+model Forum {
+  id        Int          @id @default(autoincrement())
   title     String
   content   String
-  replyCount Int    @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  createdAt DateTime     @default(now())
+  userId    Int
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   replies   ForumReply[]
-
-  @@map("forum_threads")
 }
 
 model ForumReply {
-  id        Int     @id @default(autoincrement())
-  threadId  Int
-  userId    Int
+  id        Int      @id @default(autoincrement())
   content   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-
-  @@map("forum_replies")
-}
-
-model Banner {
-  id          Int     @id @default(autoincrement())
-  createdBy   Int
-  imageUrl    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  creator     User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@map("banners")
+  forumId   Int
+  userId    Int
+  forum     Forum    @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
