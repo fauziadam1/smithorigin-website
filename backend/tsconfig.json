@@ -11,6 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src"],
+  "include": ["src", "prisma/seed.ts"],
   "exclude": ["node_modules"]
 }
