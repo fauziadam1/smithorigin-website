@@ -86,7 +86,7 @@ export default function Header() {
                                 <Link href="/user">Home</Link>
                             </li>
                             <li className={(isHome && !navbarScrolled ? "text-white hover:text-gray-300 transition-colors cursor-pointer" : "text-black hover:text-gray-600 transition-colors cursor-pointer")}>
-                                <Link href="/forum">Forum</Link>
+                                <Link href="/user/forum">Forum</Link>
                             </li>
                         </ul>
                     </div>

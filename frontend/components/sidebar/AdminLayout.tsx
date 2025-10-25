@@ -2,9 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft, Package, Archive, Image } from "lucide-react";
+import { ChevronLeft, Package, Archive, Image, MoveLeft } from "lucide-react";
 
-const AdminLayout = ({children,}: Readonly<{ children: React.ReactNode; }>) => {
+const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
 
@@ -17,7 +17,7 @@ const AdminLayout = ({children,}: Readonly<{ children: React.ReactNode; }>) => {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-100">
+    <div className="fixed flex min-h-screen w-full bg-gray-100">
       {/* Sidebar */}
       <aside
         className={`fixed h-screen bg-white border-r border-gray-200 shadow-sm flex flex-col transition-all duration-300 ease-in-out z-50 ${isCollapsed ? "w-[70px]" : "w-[240px]"
@@ -84,25 +84,32 @@ const AdminLayout = ({children,}: Readonly<{ children: React.ReactNode; }>) => {
           </ul>
         </nav>
 
-        {/* Footer - optional user info */}
-        <div className="border-t border-gray-200 px-3 py-4">
+        <div className="border-t border-gray-200 space-y-3 px-3 py-4">
           <div
             className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${isCollapsed ? "justify-center" : "justify-start"
               }`}
           >
-            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+            <div className={isCollapsed ? "w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 translate-x-1" : "w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0"}>
               <span className="text-red-800 text-sm font-semibold">A</span>
             </div>
             <div
               className={`transition-all duration-300 ${isCollapsed
-                  ? "opacity-0 w-0 overflow-hidden"
-                  : "opacity-100 w-auto"
+                ? "opacity-0 w-0 overflow-hidden"
+                : "opacity-100 w-auto"
                 }`}
             >
               <p className="text-sm font-medium text-gray-900">Admin</p>
               <p className="text-xs text-gray-500">admin@example.com</p>
             </div>
           </div>
+          <Link href="/user">
+            <button
+              className="flex items-center mx-3 gap-2 px-4 py-2 bg-red-800 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-red-900 transition-colors"
+            >
+              <MoveLeft className="w-4 h-4" />
+              Kembali
+            </button>
+          </Link>
         </div>
       </aside>
 

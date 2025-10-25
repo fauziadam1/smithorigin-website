@@ -7,7 +7,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "../../../../components/ui/breadcrumb"
-import { CardProduct } from "../../../../components/card/productCard"
+import ProductTabs from "../../../../components/card/featuredProduct"
 
 export default function Category() {
     return (
@@ -27,7 +27,7 @@ export default function Category() {
                     </Breadcrumb>
                     <div className="flex flex-col gap-5">
                         <h1 className="text-xl font-[600]">100 Product</h1>
-                        <CardProduct/>
+                        <ProductTabs/>
                     </div>
                 </div>
             </section>

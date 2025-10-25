@@ -37,7 +37,7 @@ export default function Forum() {
                                 <p className='text-[11px]'>Mulai percapakan baru, ajukan pertanyaan, atau berikan saran</p>
                             </CardDescription>
                             <CardAction className='mx-auto'>
-                                <Link href='/forumForm'>
+                                <Link href='/user/forumForm'>
                                     <Button className="bg-button text-white text-[13px] font-[500] py-3 px-6" radius="full">
                                         Mulai Diskusi Baru
                                     </Button>

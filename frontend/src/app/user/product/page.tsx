@@ -8,7 +8,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "../../../../components/ui/breadcrumb"
-import { CardProduct } from '../../../../components/card/productCard'
+import { CardProduct } from '../../../../components/card/featuredProduct'
 import { ButtonGroup, Image } from "@heroui/react"
 import { Tabs, Tab } from "@heroui/react";
 import { Button } from '@heroui/react'

@@ -1,70 +1,126 @@
 'use client'
-import React from 'react'
-import { Button } from "@heroui/button";
+import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
 import { PiNotePencilDuotone as EditIcon } from 'react-icons/pi';
-import { Form, Input, Textarea } from "@heroui/react";
 import { PiPaperPlaneRightFill as PlaneIcon } from 'react-icons/pi';
-import { LuCircleAlert as Alert } from 'react-icons/lu';
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "../../../../components/ui/card"
+import { LuCircleAlert as AlertIcon } from 'react-icons/lu';
+import api from '../../../../lib/axios';
 
-export default function forumForm() {
-    return (
-        <div>
-            <section className='w-full h-fit container mx-auto px-10 py-45'>
-                <div className='w-[55rem] mx-auto flex flex-col gap-8'>
-                    <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-4'>
-                            <EditIcon className='text-5xl text-button' />
-                            <h1 className='font-[600] text-4xl'>Bagikan Pendapat Anda</h1>
-                        </div>
-                        <Link href='/forum'>
-                            <Button className=' bg-transparent border-1 border-[#CCC] rounded-full w-full' startContent={<ArrowIcon className='text-[18px]' />}>Kembali ke Forum</Button>
-                        </Link>
-                    </div>
-                    <div>
-                        <Card className='flex flex-col gap'>
-                            <CardHeader className='flex flex-col gap-1 mb-4'>
-                                <CardTitle className='font-[600] text-[18px]'>Detail Percakapan</CardTitle>
-                                <CardDescription className='text-[14px]'>Isi detail berikut untuk memulai diskusi baru</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className='flex flex-col gap-7'>
-                                    <Form className='flex flex-col gap-3'>
-                                        <h1 className='text-[15px] font'>Judul Topik</h1>
-                                        <Input placeholder='Berikan judul diskusi' variant='bordered' />
-                                        <CardDescription className='text-[11px]'>Buat judul yang singkat dan jelas.</CardDescription>
-                                    </Form>
-                                    <Form className='flex flex-col gap-3'>
-                                        <h1 className='text-[15px] font'>Pendapat atau Saran Anda</h1>
-                                        <Textarea placeholder='Tuliskan apa yang ada di benak Anda' variant='bordered' onClear={() => console.log("textarea cleared")} />
-                                        <CardDescription className='text-[11px]'>Kritik maupun saran akan sangat membantu website ini untuk lebih berkembang dan inovatif.</CardDescription>
-                                    </Form>
-                                    <CardAction className='flex items-center w-full justify-end'>
-                                        <Button className='bg-button text-white font-[500] rounded-full py-3' startContent={<PlaneIcon className='rotate-180' />}>Kirim Percapakan</Button>
-                                    </CardAction>
-                                </div>
-                            </CardContent>
-                            <div className='w-full border-1' />
-                            <CardFooter className='mx-auto'>
-                                <CardDescription className='text-[11px] flex items-center gap-2'>
-                                    <Alert className='text-[15px] text-button'/>
-                                    Ingatlah untuk bijak dalam berkomunikasi dan menjaga privasi.
-                                </CardDescription>
-                            </CardFooter>
-                        </Card>
-                    </div>
-                </div>
-            </section>
+export default function ForumForm() {
+  const router = useRouter();
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title.trim() || !content.trim()) {
+      setError('Judul dan isi percakapan wajib diisi!');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await api.post('/forums', { title, content });
+
+      setSuccess('Percakapan berhasil dikirim!');
+      setTitle('');
+      setContent('');
+
+      console.log('Response dari server:', response.data);
+
+      // Redirect otomatis ke halaman forum setelah 1 detik
+      setTimeout(() => {
+        router.push('/user/forum');
+      }, 1000);
+
+    } catch (err: any) {
+      console.error('Error saat submit forum:', err);
+      setError(err.response?.data?.message || 'Gagal mengirim percakapan.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-gray-50 my-40">
+      <section className="w-full max-w-4xl mx-auto px-6">
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-4">
+            <EditIcon className="text-5xl text-blue-600" />
+            <h1 className="text-4xl font-bold">Bagikan Pendapat Anda</h1>
+          </div>
+          <Link href="/forum">
+            <button className="flex items-center gap-2 border px-4 py-2 rounded-full hover:bg-gray-100 transition">
+              <ArrowIcon />
+              Kembali ke Forum
+            </button>
+          </Link>
         </div>
-    )
+
+        <div className="bg-white border rounded-xl p-8">
+          <h2 className="text-xl font-semibold mb-2">Detail Percakapan</h2>
+          <p className="text-sm text-gray-500 mb-6">
+            Isi detail berikut untuk memulai diskusi baru
+          </p>
+
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          {success && <p className="text-green-500 text-sm mb-4">{success}</p>}
+
+          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Judul Topik</label>
+              <input
+                type="text"
+                placeholder="Berikan judul diskusi"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="text-xs text-gray-400">
+                Buat judul yang singkat dan jelas.
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Pendapat atau Saran Anda</label>
+              <textarea
+                placeholder="Tuliskan apa yang ada di benak Anda"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-32"
+              />
+              <span className="text-xs text-gray-400">
+                Kritik maupun saran akan sangat membantu website ini untuk lebih berkembang dan inovatif.
+              </span>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2 cursor-pointer bg-blue-600 text-white font-medium py-2.5 px-6 rounded-full hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                <PlaneIcon className="rotate-180" />
+                {loading ? 'Mengirim...' : 'Kirim Percakapan'}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6 flex items-center gap-2 text-xs text-gray-500">
+            <AlertIcon className="text-blue-600" />
+            Ingatlah untuk bijak dalam berkomunikasi dan menjaga privasi.
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }

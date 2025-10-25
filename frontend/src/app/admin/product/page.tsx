@@ -1,0 +1,321 @@
+'use client'
+import Link from 'next/link';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { Search, MoreVertical, Edit2, Trash2, Filter, Plus } from 'lucide-react';
+import api from '../../../../lib/axios';
+
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    discount: number | null;
+    imageUrl: string | null;
+    categoryId: number | null;
+    category: {
+        id: number;
+        name: string;
+    } | null;
+    variants: Array<{
+        id: number;
+        color: string;
+        imageUrl: string | null;
+    }>;
+    createdAt: string;
+}
+
+// Helper function untuk determine best seller (nanti bisa diganti logikanya)
+const isBestSeller = (product: Product): boolean => {
+    // Sementara return false dulu, nanti akan diganti dengan logika sebenarnya
+    // Contoh: berdasarkan total penjualan, rating, dll
+    return false;
+}
+
+export default function ProductPage() {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+    const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    useEffect(() => {
+        filterAndSortProducts();
+    }, [products, searchQuery, sortOrder]);
+
+    const fetchProducts = async () => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const response = await api.get('/products?limit=100');
+            setProducts(response.data.data);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Gagal memuat produk');
+            console.error('Error fetching products:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const filterAndSortProducts = () => {
+        let result = [...products];
+
+        if (searchQuery) {
+            result = result.filter((p) =>
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+
+        result.sort((a, b) =>
+            sortOrder === 'newest'
+                ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+
+        setFilteredProducts(result);
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedItems.size === filteredProducts.length) {
+            setSelectedItems(new Set());
+        } else {
+            setSelectedItems(new Set(filteredProducts.map((p) => p.id)));
+        }
+    };
+
+    const toggleSelectItem = (id: number) => {
+        const newSelected = new Set(selectedItems);
+        newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id);
+        setSelectedItems(newSelected);
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Yakin ingin menghapus produk ini?')) return;
+        try {
+            await api.delete(`/products/${id}`);
+            setProducts((prev) => prev.filter((p) => p.id !== id));
+            setOpenMenuId(null);
+            alert('Produk berhasil dihapus!');
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Gagal menghapus produk');
+        }
+    };
+
+    const handleDeleteAllSelected = async () => {
+        if (selectedItems.size === 0) return;
+        if (!confirm(`Yakin ingin menghapus ${selectedItems.size} produk?`)) return;
+
+        try {
+            await Promise.all(
+                Array.from(selectedItems).map((id) => api.delete(`/products/${id}`))
+            );
+            setProducts((prev) => prev.filter((p) => !selectedItems.has(p.id)));
+            setSelectedItems(new Set());
+            setOpenMenuId(null);
+            alert('Produk berhasil dihapus!');
+        } catch (err: any) {
+            alert(err.response?.data?.message || 'Gagal menghapus produk');
+        }
+    };
+
+    const allSelected =
+        selectedItems.size === filteredProducts.length &&
+        filteredProducts.length > 0;
+
+    return (
+        <div className="mx-auto p-6 relative">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="p-4 border-b border-gray-200">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3">
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                            <button
+                                onClick={() =>
+                                    setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
+                                }
+                                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                <Filter className="w-4 h-4" />
+                                <span className="text-sm font-medium">
+                                    {sortOrder === 'newest' ? 'Terbaru' : 'Terlama'}
+                                </span>
+                            </button>
+                        </div>
+
+                        <div className="flex-1 relative">
+                            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari produk..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+
+                        <Link href="/admin/productForm" className="flex justify-end">
+                            <button
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Tambah Produk
+                            </button>
+                        </Link>
+                    </div>
+
+                    {selectedItems.size > 0 && (
+                        <div className="mt-3 text-sm text-gray-600">
+                            {selectedItems.size} dari {filteredProducts.length} item dipilih
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="mt-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
+                </div>
+
+                <div className="relative">
+                    <table className="w-full">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th className="w-12 px-4 py-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={allSelected}
+                                        onChange={toggleSelectAll}
+                                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                    />
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Product</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variant</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Best Seller</th>
+                                <th className="w-12 px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                                        Loading...
+                                    </td>
+                                </tr>
+                            ) : filteredProducts.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                                        Tidak ada data
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredProducts.map((product) => (
+                                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-4 py-4">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedItems.has(product.id)}
+                                                onChange={() => toggleSelectItem(product.id)}
+                                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                            />
+                                        </td>
+
+                                        <td className="px-4 py-4 text-sm font-medium text-gray-900">{product.name}</td>
+
+                                        <td className="px-4 py-4">
+                                            {product.imageUrl ? (
+                                                <Image
+                                                    src={product.imageUrl}
+                                                    alt={product.name}
+                                                    width={48}
+                                                    height={48}
+                                                    className="w-12 h-12 rounded-lg object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                                                    <span className="text-xs text-gray-400">No img</span>
+                                                </div>
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-4 text-sm text-gray-600">
+                                            Rp {product.price.toLocaleString('id-ID')}
+                                            {product.discount && (
+                                                <span className="ml-2 text-xs text-red-500">-{product.discount}%</span>
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-4 text-sm text-gray-600">{product.variants?.length || 0}</td>
+
+                                        <td className="px-4 py-4 text-sm text-gray-600">
+                                            {product.category?.name || '-'}
+                                        </td>
+
+                                        <td className="px-4 py-4">
+                                            {isBestSeller(product) && (
+                                                <span className="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-full">
+                                                    ⭐ Best
+                                                </span>
+                                            )}
+                                        </td>
+
+                                        <td className="px-4 py-4 relative">
+                                            <button
+                                                onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
+                                                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                            >
+                                                <MoreVertical className="w-5 h-5 text-gray-400" />
+                                            </button>
+
+                                            {openMenuId === product.id && (
+                                                <>
+                                                    <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                                                        {selectedItems.size > 1 ? (
+                                                            <button
+                                                                onClick={handleDeleteAllSelected}
+                                                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                                Hapus {selectedItems.size} Item
+                                                            </button>
+                                                        ) : (
+                                                            <>
+                                                                <Link
+                                                                    href={`/admin/productForm?id=${product.id}`}
+                                                                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                                                >
+                                                                    <Edit2 className="w-4 h-4" />
+                                                                    Edit
+                                                                </Link>
+                                                                <button
+                                                                    onClick={() => handleDelete(product.id)}
+                                                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                    Delete
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+}

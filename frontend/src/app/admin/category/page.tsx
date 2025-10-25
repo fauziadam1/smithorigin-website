@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Search, MoreVertical, Edit2, Trash2, Filter, Plus, X, Upload, ImagePlus, Save } from 'lucide-react';
 import api from '../../../../lib/axios';
@@ -174,10 +175,8 @@ export default function CategoryPage() {
   return (
     <div className="mx-auto p-6 relative">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        {/* Header */}
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
-            {/* Kiri: Filter */}
             <div className="flex items-center gap-3 flex-shrink-0">
               <button
                 onClick={() =>
@@ -192,7 +191,6 @@ export default function CategoryPage() {
               </button>
             </div>
 
-            {/* Tengah: Search */}
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -204,7 +202,6 @@ export default function CategoryPage() {
               />
             </div>
 
-            {/* Kanan: Tombol Tambah */}
             <div className="flex justify-end">
               <button
                 onClick={handleAddCategory}
@@ -229,8 +226,7 @@ export default function CategoryPage() {
           )}
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="relative">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -333,7 +329,6 @@ export default function CategoryPage() {
         </div>
       </div>
 
-      {/* === Modal Tambah/Edit Category === */}
       {isMakeCategoryOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 border border-gray-200 relative">
@@ -360,7 +355,6 @@ export default function CategoryPage() {
   );
 }
 
-// === Komponen Form Category ===
 function MakeCategoryForm({
   initialData,
   onSave,
@@ -389,7 +383,7 @@ function MakeCategoryForm({
     }
 
     setImageFile(file);
-    setImageUrl(''); // Reset URL jika pakai file
+    setImageUrl('');
     setPreview(URL.createObjectURL(file));
   };
 
@@ -418,7 +412,7 @@ function MakeCategoryForm({
 
   const handleUrlChange = (url: string) => {
     setImageUrl(url);
-    setImageFile(null); // Reset file jika pakai URL
+    setImageFile(null);
     setPreview(url);
   };
 
@@ -439,7 +433,6 @@ function MakeCategoryForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Input Nama */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Nama Category
@@ -454,13 +447,11 @@ function MakeCategoryForm({
         />
       </div>
 
-      {/* Upload File atau URL */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Gambar Category
         </label>
         
-        {/* Drag & Drop Area */}
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -473,9 +464,11 @@ function MakeCategoryForm({
         >
           {preview ? (
             <div className="relative">
-              <img
+              <Image
                 src={preview}
                 alt="Preview"
+                width={100}
+                height={100}
                 className="w-32 h-32 mx-auto object-cover rounded-lg mb-3"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/128?text=Error';
@@ -511,7 +504,6 @@ function MakeCategoryForm({
           />
         </div>
 
-        {/* Atau Input URL */}
         <div className="mt-3">
           <div className="flex items-center gap-2 mb-2">
             <div className="flex-1 border-t border-gray-300"></div>
@@ -529,7 +521,6 @@ function MakeCategoryForm({
         </div>
       </div>
 
-      {/* Tombol */}
       <div className="flex gap-3">
         <button
           type="button"
