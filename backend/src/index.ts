@@ -10,6 +10,7 @@ import variantRouter from './routes/variant';
 import favoriteRouter from './routes/favorite';
 import categoryRoutes from './routes/category';
 import { authMiddleware } from './middleware/auth';
+import uploadRoutes from './routes/upload';
 
 dotenv.config();
 
@@ -29,6 +30,8 @@ app.use('/api/banners', bannerRouter);
 app.use('/api/favorites', favoriteRouter);
 app.use('/api/forums', forumRouter);
 app.use('/api', replyRouter);
+app.use('/api/upload', uploadRoutes);
+app.use('/uploads', express.static('public/uploads'));
 
 // Health check
 app.get('/api/health', (req, res) => {
