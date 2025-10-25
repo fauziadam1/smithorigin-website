@@ -3,7 +3,12 @@ import { prisma } from '../lib/prisma';
 export class BannerService {
   static async getAll() {
     return await prisma.banner.findMany({
-      orderBy: { id: 'desc' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        imageUrl: true,
+        createdAt: true,
+      },
     });
   }
 
@@ -18,6 +23,11 @@ export class BannerService {
   static async create(imageUrl: string) {
     return await prisma.banner.create({
       data: { imageUrl },
+      select: {
+        id: true,
+        imageUrl: true,
+        createdAt: true,
+      },
     });
   }
 

@@ -57,8 +57,9 @@ model ProductVariant {
 }
 
 model Banner {
-  id       Int    @id @default(autoincrement())
-  imageUrl String
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  createdAt DateTime @default(now())
 }
 
 model Favorite {
