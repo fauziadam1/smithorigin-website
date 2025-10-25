@@ -6,7 +6,7 @@ import { RatingCard } from "../../../components/card/ratingCard";
 import { SuggestCard } from "../../../components/card/suggestCard";
 import { ButtonCategory} from "../../../components/button/btnCategory";
 
-export default async function Home() {
+export default async function DashboardUser() {
   return (
     <div className="w-full relative left-0 space-x-0">
       <HeaderSection />

@@ -1,8 +1,6 @@
-"use client";
-
+'use client'
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
-import { Button } from "@heroui/button";
 import Image from "next/image";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -19,7 +17,7 @@ export default function Carousel() {
                     slidesPerView={1}
                     grabCursor={true}
                     pagination={{ clickable: true }}
-                    className="h-[540px] relative"
+                    className="w-[1440px] h-[550px] relative"
                 >
                     <SwiperSlide>
                         <Image
