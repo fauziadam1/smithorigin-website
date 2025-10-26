@@ -17,8 +17,8 @@ export class ForumService {
         where,
         include: {
           user: { select: { id: true, username: true } },
-          likes: { select: { userId: true } }, // ambil userId siapa saja yang like
-          _count: { select: { replies: true, likes: true } }, // jumlah replies & likes
+          likes: { select: { userId: true } },
+          _count: { select: { replies: true, likes: true } },
         },
         skip,
         take: limit,
@@ -47,7 +47,7 @@ export class ForumService {
           include: { user: { select: { id: true, username: true } } },
           orderBy: { createdAt: 'asc' },
         },
-        likes: { select: { userId: true } }, // ambil likes juga
+        likes: { select: { userId: true } },
         _count: { select: { replies: true, likes: true } },
       },
     });
@@ -85,24 +85,19 @@ export class ForumService {
   }
 
   static async toggleLike(forumId: number, userId: number) {
-    // cek forum
     const forum = await prisma.forum.findUnique({ where: { id: forumId } });
     if (!forum) throw new Error('Forum tidak ditemukan');
 
-    // cek apakah user sudah like forum ini
     const existingLike = await prisma.forumLike.findUnique({
       where: { forumId_userId: { forumId, userId } },
     });
 
     if (existingLike) {
-      // unlike
       await prisma.forumLike.delete({ where: { id: existingLike.id } });
     } else {
-      // like baru
       await prisma.forumLike.create({ data: { forumId, userId } });
     }
 
-    // ambil jumlah like terbaru
     const likeCount = await prisma.forumLike.count({ where: { forumId } });
 
     return { forumId, liked: !existingLike, likeCount };

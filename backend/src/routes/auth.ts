@@ -137,8 +137,7 @@ router.post('/reset-password', authMiddleware, async (req: Request, res: Respons
   }
 });
 
-// Endpoint untuk membuat admin (HANYA UNTUK DEVELOPMENT)
-// Hapus atau comment setelah admin dibuat
+
 router.post('/create-admin', async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
@@ -157,7 +156,6 @@ router.post('/create-admin', async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate email otomatis untuk admin
     const adminEmail = `${username}@admin.local`;
 
     const admin = await prisma.user.create({

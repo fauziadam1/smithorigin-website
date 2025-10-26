@@ -1,4 +1,3 @@
-// Backend: routes/upload.ts
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -6,7 +5,6 @@ import fs from 'fs';
 
 const router = Router();
 
-// Setup multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = './public/uploads';
@@ -56,5 +54,3 @@ router.post('/', upload.single('file'), (req, res) => {
 });
 
 export default router;
-
-// Tambahkan di app.ts:
