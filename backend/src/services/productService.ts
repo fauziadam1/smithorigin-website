@@ -31,8 +31,11 @@ export class ProductService {
       prisma.product.count({ where }),
     ]);
 
+    // Tambahkan createdAt di setiap produk jika belum ada di include
+    const productsWithCreatedAt = products.map(p => ({ ...p, createdAt: p.createdAt }));
+
     return {
-      products,
+      products: productsWithCreatedAt,
       pagination: {
         page,
         limit,
@@ -56,9 +59,10 @@ export class ProductService {
       throw new Error('Produk tidak ditemukan');
     }
 
-    return product;
+    return { ...product, createdAt: product.createdAt };
   }
 
+  // Create
   static async create(data: {
     name: string;
     description?: string;
@@ -66,49 +70,49 @@ export class ProductService {
     discount?: number;
     imageUrl?: string;
     categoryId?: number;
+    isBestSeller?: boolean; // tambahkan ini
   }) {
     if (data.categoryId) {
-      const category = await prisma.category.findUnique({
-        where: { id: data.categoryId },
-      });
-      if (!category) {
-        throw new Error('Kategori tidak ditemukan');
-      }
+      const category = await prisma.category.findUnique({ where: { id: data.categoryId } });
+      if (!category) throw new Error('Kategori tidak ditemukan');
     }
 
-    return await prisma.product.create({
+    const product = await prisma.product.create({
       data,
       include: { category: true, variants: true },
     });
+
+    return { ...product, createdAt: product.createdAt };
   }
 
-  static async update(id: number, data: {
-    name?: string;
-    description?: string;
-    price?: number;
-    discount?: number;
-    imageUrl?: string;
-    categoryId?: number;
-  }) {
-    const product = await prisma.product.findUnique({ where: { id } });
-    if (!product) {
-      throw new Error('Produk tidak ditemukan');
+  // Update
+  static async update(
+    id: number,
+    data: {
+      name?: string;
+      description?: string;
+      price?: number;
+      discount?: number;
+      imageUrl?: string;
+      categoryId?: number;
+      isBestSeller?: boolean; // tambahkan ini
     }
+  ) {
+    const product = await prisma.product.findUnique({ where: { id } });
+    if (!product) throw new Error('Produk tidak ditemukan');
 
     if (data.categoryId) {
-      const category = await prisma.category.findUnique({
-        where: { id: data.categoryId },
-      });
-      if (!category) {
-        throw new Error('Kategori tidak ditemukan');
-      }
+      const category = await prisma.category.findUnique({ where: { id: data.categoryId } });
+      if (!category) throw new Error('Kategori tidak ditemukan');
     }
 
-    return await prisma.product.update({
+    const updatedProduct = await prisma.product.update({
       where: { id },
       data,
       include: { category: true, variants: true },
     });
+
+    return { ...updatedProduct, createdAt: updatedProduct.createdAt };
   }
 
   static async delete(id: number) {

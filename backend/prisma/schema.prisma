@@ -26,6 +26,7 @@ model User {
   favorites    Favorite[]
   forums       Forum[]
   replies      ForumReply[]
+  ForumLike    ForumLike[]
 }
 
 model Category {
@@ -36,16 +37,18 @@ model Category {
 }
 
 model Product {
-  id          Int              @id @default(autoincrement())
-  name        String
-  description String?
-  price       Float
-  discount    Float?
-  imageUrl    String?
-  categoryId  Int?
-  category    Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  variants    ProductVariant[]
-  favorites   Favorite[]
+  id           Int              @id @default(autoincrement())
+  name         String
+  description  String?
+  price        Float
+  discount     Float?
+  imageUrl     String?
+  categoryId   Int?
+  isBestSeller Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  category     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  variants     ProductVariant[]
+  favorites    Favorite[]
 }
 
 model ProductVariant {
@@ -80,6 +83,18 @@ model Forum {
   userId    Int
   user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   replies   ForumReply[]
+  likes     ForumLike[]
+}
+
+model ForumLike {
+  id        Int      @id @default(autoincrement())
+  forumId   Int
+  userId    Int
+  createdAt DateTime @default(now())
+  forum     Forum    @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([forumId, userId])
 }
 
 model ForumReply {

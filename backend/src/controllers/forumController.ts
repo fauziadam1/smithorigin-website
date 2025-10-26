@@ -103,4 +103,18 @@ export class ForumController {
       res.status(403).json({ message: (error as Error).message });
     }
   }
+
+  static async toggleLike(req: Request, res: Response) {
+    try {
+      if (!req.user) return res.status(401).json({ message: 'Tidak terautentikasi' });
+
+      const forumId = parseInt(req.params.id);
+      if (isNaN(forumId)) return res.status(400).json({ message: 'ID forum tidak valid' });
+
+      const result = await ForumService.toggleLike(forumId, req.user.id);
+      res.status(200).json({ message: 'Success', data: result });
+    } catch (error) {
+      res.status(500).json({ message: (error as Error).message });
+    }
+  }
 }

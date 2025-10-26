@@ -10,9 +10,13 @@ export class ProductController {
       const search = req.query.search as string;
 
       const result = await ProductService.getAll(page, limit, categoryId, search);
+
       res.status(200).json({
         message: 'Berhasil mengambil data produk',
-        data: result.products,
+        data: result.products.map(p => ({
+          ...p,
+          createdAt: p.createdAt, // pastikan dikirim
+        })),
         pagination: result.pagination,
       });
     } catch (error) {
@@ -30,7 +34,7 @@ export class ProductController {
       const product = await ProductService.getById(id);
       res.status(200).json({
         message: 'Berhasil mengambil data produk',
-        data: product,
+        data: { ...product, createdAt: product.createdAt },
       });
     } catch (error) {
       res.status(404).json({ message: (error as Error).message });
@@ -39,11 +43,8 @@ export class ProductController {
 
   static async create(req: Request, res: Response) {
     try {
-      const { name, description, price, discount, imageUrl, categoryId } = req.body;
-
-      if (!name || !price) {
-        return res.status(400).json({ message: 'Nama dan harga produk harus diisi' });
-      }
+      const { name, description, price, discount, imageUrl, categoryId, isBestSeller } = req.body;
+      if (!name || !price) return res.status(400).json({ message: 'Nama dan harga produk harus diisi' });
 
       const product = await ProductService.create({
         name,
@@ -52,11 +53,12 @@ export class ProductController {
         discount: discount ? parseFloat(discount) : undefined,
         imageUrl,
         categoryId: categoryId ? parseInt(categoryId) : undefined,
+        isBestSeller: Boolean(isBestSeller),
       });
 
       res.status(201).json({
         message: 'Produk berhasil dibuat',
-        data: product,
+        data: { ...product, createdAt: product.createdAt },
       });
     } catch (error) {
       res.status(400).json({ message: (error as Error).message });
@@ -66,11 +68,9 @@ export class ProductController {
   static async update(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: 'ID tidak valid' });
-      }
+      if (isNaN(id)) return res.status(400).json({ message: 'ID tidak valid' });
 
-      const { name, description, price, discount, imageUrl, categoryId } = req.body;
+      const { name, description, price, discount, imageUrl, categoryId, isBestSeller } = req.body;
 
       const product = await ProductService.update(id, {
         name,
@@ -79,11 +79,12 @@ export class ProductController {
         discount: discount ? parseFloat(discount) : undefined,
         imageUrl,
         categoryId: categoryId ? parseInt(categoryId) : undefined,
+        isBestSeller: Boolean(isBestSeller),
       });
 
       res.status(200).json({
         message: 'Produk berhasil diupdate',
-        data: product,
+        data: { ...product, createdAt: product.createdAt },
       });
     } catch (error) {
       res.status(400).json({ message: (error as Error).message });
