@@ -17,7 +17,7 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
   const isActive = (path: string) => pathname === path;
 
   return (
-    <div className="fixed flex min-h-screen w-full bg-gray-100">
+    <div className="fixed flex h-screen overflow-auto w-full bg-gray-100">
       {/* Sidebar */}
       <aside
         className={`fixed h-screen bg-white border-r border-gray-200 shadow-sm flex flex-col transition-all duration-300 ease-in-out z-50 ${isCollapsed ? "w-[70px]" : "w-[240px]"

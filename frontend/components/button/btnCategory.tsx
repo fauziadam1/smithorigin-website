@@ -1,65 +1,96 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { Image } from "@heroui/react";
-import Link from 'next/link';
-import api from '../../lib/axios'; // pastikan path ini sesuai dengan file axios-mu
+import Image from 'next/image'
+import Link from 'next/link'
+import api from '../../lib/axios'
 
 interface Category {
-  id: number;
-  name: string;
-  imageUrl: string;
-  slug?: string; // opsional kalau pakai slug untuk route
+  id: number
+  name: string
+  imageUrl: string | null
+  _count?: {
+    products: number
+  }
 }
 
 export function ButtonCategory() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategories()
+  }, [])
 
   const fetchCategories = async () => {
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
     try {
-      const response = await api.get('/categories');
-      setCategories(response.data.data);
+      const response = await api.get('/categories')
+      setCategories(response.data.data)
     } catch (err: any) {
-      console.error('Error fetching categories:', err);
-      setError('Gagal memuat kategori');
+      console.error('Error fetching categories:', err)
+      setError('Gagal memuat kategori')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (loading) {
-    return <p className="text-center mt-10">Loading categories...</p>;
+    return (
+      <div className="w-full flex flex-col gap-10">
+        <h1 className="text-center text-2xl font-[700]">Category</h1>
+        <p className="text-center text-gray-500">Loading categories...</p>
+      </div>
+    )
   }
 
   if (error) {
-    return <p className="text-center mt-10 text-red-500">{error}</p>;
+    return (
+      <div className="w-full flex flex-col gap-10">
+        <h1 className="text-center text-2xl font-[700]">Category</h1>
+        <p className="text-center text-red-500">{error}</p>
+      </div>
+    )
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className="w-full flex flex-col gap-10">
+        <h1 className="text-center text-2xl font-[700]">Category</h1>
+        <p className="text-center text-gray-500">Belum ada kategori</p>
+      </div>
+    )
   }
 
   return (
-    <div className='w-full flex flex-col gap-10'>
-      <h1 className='header-top-product text-center text-2xl font-[700]'>Category</h1>
-      <section className='relative justify-center grid grid-flow-col auto-cols-max gap-20'>
+    <div className="w-full flex flex-col gap-10">
+      <h1 className="text-center text-2xl font-[700]">Category</h1>
+      <section className="flex justify-center items-center gap-10 flex-wrap">
         {categories.map((cat) => (
           <Link
             key={cat.id}
             href={`/user/category/${cat.id}`}
-            className='flex flex-col text-center gap-3 w-fit h-fit'
+            className="flex flex-col text-center gap-3 w-fit h-fit group"
           >
-            <Image
-              isZoomed
-              alt={cat.name}
-              src={cat.imageUrl || '/placeholder.jpg'}
-              width={180}
-              height={180}
-            />
-            <h1 className='font-[600]'>{cat.name}</h1>
+            <div className="relative w-[180px] h-[180px] rounded-lg overflow-hidden border border-gray-200 group-hover:border-gray-300 transition">
+              <Image
+                src={cat.imageUrl || '/placeholder.jpg'}
+                alt={cat.name}
+                fill
+                className="object-cover group-hover:scale-105 transition duration-300"
+              />
+            </div>
+            <div>
+              <h2 className="font-[600] text-gray-900 group-hover:text-blue-600 transition">
+                {cat.name}
+              </h2>
+              {cat._count && (
+                <p className="text-xs text-gray-500">
+                  {cat._count.products} products
+                </p>
+              )}
+            </div>
           </Link>
         ))}
       </section>

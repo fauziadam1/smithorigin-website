@@ -1,59 +1,75 @@
 'use client';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Tabs, Tab, Button, Image } from "@heroui/react";
 import { BsStar as Filled, BsStarFill as IsFilled } from "react-icons/bs";
+import api from "../../lib/axios";
+import { ProductCard } from "./productCard";
 
-function CardProduct() {
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  discount?: number;
+  imageUrl?: string;
+  isBestSeller: boolean;
+  createdAt: string;
+}
+
+function CardProduct({ product }: { product: Product }) {
   const [isFilled, setIsFilled] = useState(false);
 
+  const hasDiscount = product.discount && product.discount > 0;
+  const discountedPrice = hasDiscount
+    ? product.price * (1 - product.discount! / 100)
+    : product.price;
+
   return (
-    <div className="w-[250px] 2xl:w-[230px] md:w-[190px] relative">
-      <Link href="/product">
-        <Image isZoomed src="/Product1.jpg" alt="product" />
-        <div className="py-3 grid gap-1">
-          <p className="text-[15px] truncate inline-block">
-            Weikav WK75 - 3 Mode - 75% - South Face RGB
-          </p>
-          <div className="flex items-baseline gap-2">
-            <h1 className="font-[600] text-[19px] md:text-[14px]">
-              Rp 599.000
-            </h1>
-            <h1 className="text-[14px] md:text-[11px] line-through text-[#a7a7a7]">
-              Rp 399.000
-            </h1>
-          </div>
-        </div>
-      </Link>
-      <Button
-        onClick={() => setIsFilled(!isFilled)}
-        className="relative bg-transparent border-1 border-[#CCC] rounded-full w-full"
-      >
-        {isFilled ? <IsFilled /> : <Filled />} Wishlist
-      </Button>
-    </div>
+    <ProductCard key={product.id} product={product}/>
   );
 }
 
-// 🔹 Tabs Component
+
 export default function FeaturedProduct() {
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const res = await api.get("/products?limit=50&page=1");
+      setAllProducts(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const tabs = [
     {
       id: "best-seller",
       label: "Best Seller",
-      content: <CardProduct />,
+      content: allProducts.filter(p => p.isBestSeller),
     },
     {
       id: "new-product",
       label: "New Product",
-      content: <CardProduct />,
+      content: [...allProducts].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ),
     },
     {
       id: "all",
       label: "All",
-      content: <CardProduct />,
+      content: allProducts,
     },
   ];
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
@@ -66,11 +82,10 @@ export default function FeaturedProduct() {
       >
         {tabs.map((item) => (
           <Tab key={item.id} title={item.label}>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-3">
-              {item.content}
-              {item.content}
-              {item.content}
-              {item.content}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-3">
+              {item.content.map(product => (
+                <CardProduct key={product.id} product={product} />
+              ))}
             </div>
           </Tab>
         ))}

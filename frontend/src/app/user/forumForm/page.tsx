@@ -52,14 +52,14 @@ export default function ForumForm() {
 
   return (
     <div className="w-full min-h-screen bg-gray-50 my-40">
-      <section className="w-full max-w-4xl mx-auto px-6">
-        <div className="flex items-center justify-between mb-10">
+      <section className="w-full max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-7">
           <div className="flex items-center gap-4">
-            <EditIcon className="text-5xl text-blue-600" />
+            <EditIcon className="text-5xl text-red-800" />
             <h1 className="text-4xl font-bold">Bagikan Pendapat Anda</h1>
           </div>
-          <Link href="/forum">
-            <button className="flex items-center gap-2 border px-4 py-2 rounded-full hover:bg-gray-100 transition">
+          <Link href="/user/forum">
+            <button className="flex items-center gap-2 px-4 py-2 hover:text-red-800 transition">
               <ArrowIcon />
               Kembali ke Forum
             </button>
@@ -83,7 +83,7 @@ export default function ForumForm() {
                 placeholder="Berikan judul diskusi"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
               <span className="text-xs text-gray-400">
                 Buat judul yang singkat dan jelas.
@@ -96,7 +96,7 @@ export default function ForumForm() {
                 placeholder="Tuliskan apa yang ada di benak Anda"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-32"
+                className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none h-32"
               />
               <span className="text-xs text-gray-400">
                 Kritik maupun saran akan sangat membantu website ini untuk lebih berkembang dan inovatif.
@@ -107,7 +107,7 @@ export default function ForumForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 cursor-pointer bg-blue-600 text-white font-medium py-2.5 px-6 rounded-full hover:bg-blue-700 transition disabled:opacity-50"
+                className="flex items-center gap-2 cursor-pointer bg-red-800 text-white font-medium py-2.5 px-6 rounded-full hover:bg-red-900 transition disabled:opacity-50"
               >
                 <PlaneIcon className="rotate-180" />
                 {loading ? 'Mengirim...' : 'Kirim Percakapan'}

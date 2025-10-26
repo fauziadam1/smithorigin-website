@@ -7,6 +7,14 @@ import api from '../../../../lib/axios'
 
 type Category = { id: number; name: string }
 
+type ProductVariant = {
+  id: number | null;
+  color: string;
+  imageUrl: string;
+  imagePreview: string;
+  imageFile: File | null;
+}
+
 export default function ProductForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -28,10 +36,8 @@ export default function ProductForm() {
   const [mainImageUrl, setMainImageUrl] = useState('')
   const [mainImagePreview, setMainImagePreview] = useState('')
 
-  const [variants, setVariants] = useState<string[]>([])
-  const [variantImageFiles, setVariantImageFiles] = useState<(File | null)[]>([])
-  const [variantImageUrls, setVariantImageUrls] = useState<string[]>([])
-  const [variantImagePreviews, setVariantImagePreviews] = useState<string[]>([])
+  // State Varian disatukan dalam satu array objek untuk konsistensi data.
+  const [variants, setVariants] = useState<ProductVariant[]>([])
 
   const categoryRef = useRef<HTMLDivElement | null>(null)
 
@@ -70,17 +76,21 @@ export default function ProductForm() {
       setCategoryId(String(p.categoryId || ''))
       setMainImageUrl(p.imageUrl || '')
       setMainImagePreview(p.imageUrl || '')
-      setIsBestSeller(p.isBestSeller || false)
+      setIsBestSeller(Boolean(p.isBestSeller))
+      
       if (p.variants?.length) {
         setEnableVariant(true)
-        setVariants(p.variants.map((v: any) => v.color))
-        setVariantImageUrls(p.variants.map((v: any) => v.imageUrl))
-        setVariantImagePreviews(p.variants.map((v: any) => v.imageUrl))
-        setVariantImageFiles(Array(p.variants.length).fill(null))
+        const loadedVariants: ProductVariant[] = p.variants.map((v: any) => ({
+          id: v.id,
+          color: v.color,
+          imageUrl: v.imageUrl,
+          imagePreview: v.imageUrl,
+          imageFile: null,
+        }))
+        setVariants(loadedVariants)
       }
     } catch (err: any) {
       alert(err?.response?.data?.message || 'Gagal memuat produk')
-      router.push('/admin/product')
     }
   }
 
@@ -93,10 +103,70 @@ export default function ProductForm() {
     return res.data.url
   }
 
+  const handleVariantChange = (index: number, field: keyof ProductVariant, value: string | File | null) => {
+    setVariants(prevVariants => {
+      const newVariants = [...prevVariants]
+      if (field === 'imageFile' && value instanceof File) {
+        newVariants[index] = {
+          ...newVariants[index],
+          imageFile: value,
+          imagePreview: URL.createObjectURL(value),
+        }
+      } else if (field === 'color' && typeof value === 'string') {
+        newVariants[index] = {
+          ...newVariants[index],
+          color: value,
+        }
+      } else if (field === 'imageUrl' && typeof value === 'string') {
+        newVariants[index] = {
+          ...newVariants[index],
+          imageFile: null,
+          imagePreview: value,
+        }
+      }
+      return newVariants
+    })
+  }
+  
+  const handleAddVariant = () => {
+    if (variants.length >= 5) {
+        alert("Maksimal 5 varian produk.")
+        return
+    }
+    const newVariant: ProductVariant = {
+      id: null,
+      color: '',
+      imageUrl: '',
+      imagePreview: '',
+      imageFile: null,
+    }
+    setVariants((v) => [...v, newVariant])
+  }
+
+  const handleRemoveVariant = async (index: number) => {
+    const variantToRemove = variants[index]
+    
+    if (isEditMode && variantToRemove.id) {
+        const isConfirmed = confirm("Apakah Anda yakin ingin menghapus varian ini? Ini akan menghapusnya secara permanen dari database.")
+        if (!isConfirmed) return
+        
+        try {
+            await api.delete(`/products/${productIdParam}/variants/${variantToRemove.id}`)
+            alert('Varian berhasil dihapus dari database.')
+        } catch(err) {
+            console.error("Gagal menghapus varian", err)
+            alert("Gagal menghapus varian dari database. Coba lagi.")
+            return
+        }
+    }
+    setVariants((v) => v.filter((_, idx) => idx !== index))
+  }
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim() || !price || (!mainImageFile && !mainImageUrl)) {
-      alert('Pastikan semua field wajib diisi.')
+      alert('Pastikan Nama Produk, Harga, dan Gambar Utama diisi.')
       return
     }
 
@@ -112,32 +182,54 @@ export default function ProductForm() {
         discount: discount ? parseFloat(discount) : null,
         imageUrl: mainUrl,
         categoryId: categoryId ? parseInt(categoryId, 10) : null,
-        isBestSeller,
+        isBestSeller: Boolean(isBestSeller),
       }
 
-      let saved
-      if (isEditMode) saved = (await api.put(`/products/${productIdParam}`, payload)).data.data
-      else saved = (await api.post('/products', payload)).data.data
+      let savedProduct
+      if (isEditMode) {
+        savedProduct = (await api.put(`/products/${productIdParam}`, payload)).data.data
+      } else {
+        savedProduct = (await api.post('/products', payload)).data.data
+      }
+      if (enableVariant) {
+        for (const variant of variants) {
+          if (!variant.color.trim() && !variant.imageFile && !variant.imageUrl) continue
 
-      if (enableVariant && variants.length) {
-        for (let i = 0; i < variants.length; i++) {
-          let imageUrl = variantImageUrls[i] ?? ''
-          if (variantImageFiles[i]) imageUrl = await uploadImage(variantImageFiles[i]!)
-          await api.post(`/products/${saved.id}/variants`, {
-            color: variants[i],
-            imageUrl,
-          })
+          let variantImageUrl = variant.imageUrl
+          if (variant.imageFile) {
+            variantImageUrl = await uploadImage(variant.imageFile)
+          }
+
+          const variantPayload = {
+            color: variant.color,
+            imageUrl: variantImageUrl,
+          }
+
+          if (variant.id) {
+            await api.put(`/products/${savedProduct.id}/variants/${variant.id}`, variantPayload)
+          } else if (variantImageUrl || variant.color.trim()) {
+            await api.post(`/products/${savedProduct.id}/variants`, variantPayload)
+          }
         }
       }
 
       alert(isEditMode ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!')
       router.push('/admin/product')
     } catch (err: any) {
+      console.error(err)
       alert(err?.response?.data?.message || 'Gagal menyimpan produk')
     } finally {
       setLoading(false)
     }
   }
+
+  const handleRemoveMainImage = () => {
+    if (mainImageFile) URL.revokeObjectURL(mainImagePreview);
+    setMainImageFile(null);
+    setMainImageUrl('');
+    setMainImagePreview('');
+  };
+
 
   return (
     <div className="mx-auto p-6">
@@ -145,7 +237,6 @@ export default function ProductForm() {
         <h2 className="text-lg font-semibold">{isEditMode ? 'Edit Produk' : 'Tambah Produk'}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm mb-1 font-medium">Nama Produk</label>
@@ -167,7 +258,6 @@ export default function ProductForm() {
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm mb-1 font-medium">Deskripsi</label>
             <textarea
@@ -178,7 +268,6 @@ export default function ProductForm() {
             />
           </div>
 
-          {/* Discount + Category */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm mb-1 font-medium">Diskon (%)</label>
@@ -192,7 +281,6 @@ export default function ProductForm() {
               />
             </div>
 
-            {/* Custom Category Select */}
             <div ref={categoryRef} className="relative">
               <label className="block text-sm mb-1 font-medium">Kategori</label>
               <button
@@ -236,7 +324,6 @@ export default function ProductForm() {
             </div>
           </div>
 
-          {/* Best Seller Switch */}
           <div className="flex items-center justify-between border-t pt-4">
             <label className="text-sm font-medium">Tandai sebagai Best Seller</label>
             <div
@@ -253,7 +340,6 @@ export default function ProductForm() {
             </div>
           </div>
 
-          {/* Main image upload */}
           <div>
             <label className="block text-sm font-medium mb-2">Gambar Utama Produk *</label>
             {mainImagePreview ? (
@@ -267,11 +353,7 @@ export default function ProductForm() {
                 />
                 <button
                   type="button"
-                  onClick={() => {
-                    setMainImageFile(null)
-                    setMainImageUrl('')
-                    setMainImagePreview('')
-                  }}
+                  onClick={handleRemoveMainImage}
                   className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 -translate-y-1/2 translate-x-1/2"
                 >
                   <X className="w-4 h-4" />
@@ -297,7 +379,6 @@ export default function ProductForm() {
             )}
           </div>
 
-          {/* Variant Section */}
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -312,12 +393,12 @@ export default function ProductForm() {
             <div className="border-t pt-4">
               <label className="block text-sm mb-2 font-medium">Gambar Varian (maks 5)</label>
               <div className="flex flex-wrap gap-4">
-                {variantImagePreviews.map((p, i) => (
-                  <div key={i} className="relative w-24">
-                    {p ? (
+                {variants.map((variant, i) => (
+                  <div key={variant.id || i} className="relative w-24">
+                    {variant.imagePreview ? (
                       <>
                         <Image
-                          src={p}
+                          src={variant.imagePreview}
                           alt={`variant-${i}`}
                           width={96}
                           height={96}
@@ -325,12 +406,7 @@ export default function ProductForm() {
                         />
                         <button
                           type="button"
-                          onClick={() => {
-                            setVariantImageFiles((v) => v.filter((_, idx) => idx !== i))
-                            setVariantImageUrls((v) => v.filter((_, idx) => idx !== i))
-                            setVariantImagePreviews((v) => v.filter((_, idx) => idx !== i))
-                            setVariants((v) => v.filter((_, idx) => idx !== i))
-                          }}
+                          onClick={() => handleRemoveVariant(i)}
                           className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 -translate-y-1/2 translate-x-1/2"
                         >
                           <X className="w-4 h-4" />
@@ -346,16 +422,7 @@ export default function ProductForm() {
                           onChange={(e) => {
                             const file = e.target.files?.[0]
                             if (file) {
-                              setVariantImageFiles((prev) => {
-                                const copy = [...prev]
-                                copy[i] = file
-                                return copy
-                              })
-                              setVariantImagePreviews((prev) => {
-                                const copy = [...prev]
-                                copy[i] = URL.createObjectURL(file)
-                                return copy
-                              })
+                                handleVariantChange(i, 'imageFile', file)
                             }
                           }}
                           className="hidden"
@@ -365,57 +432,32 @@ export default function ProductForm() {
                     <input
                       type="text"
                       placeholder="Nama varian"
-                      value={variants[i] || ''}
-                      onChange={(e) => {
-                        const val = e.target.value
-                        setVariants((prev) => {
-                          const copy = [...prev]
-                          copy[i] = val
-                          return copy
-                        })
-                      }}
+                      value={variant.color}
+                      onChange={(e) => handleVariantChange(i, 'color', e.target.value)}
                       className="mt-2 w-full text-xs border rounded px-2 py-1 focus:ring-1 focus:ring-blue-400"
                     />
                   </div>
                 ))}
-                {variantImageFiles.length < 5 && (
+                {variants.length < 5 && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setVariantImageFiles((v) => [...v, null])
-                      setVariantImageUrls((v) => [...v, ''])
-                      setVariantImagePreviews((v) => [...v, ''])
-                      setVariants((v) => [...v, ''])
-                    }}
-                    className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md hover:border-blue-400 text-sm text-gray-600"
+                    onClick={handleAddVariant}
+                    className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:border-blue-400"
                   >
-                    <Upload className="w-6 h-6 text-gray-400" />
-                    <span className="text-xs mt-1">Tambah</span>
+                    Tambah
                   </button>
                 )}
               </div>
             </div>
           )}
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={() => router.push('/admin/product')}
-              className="px-4 py-2 border rounded-md text-sm hover:bg-gray-50"
-              disabled={loading}
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center gap-2 disabled:opacity-50"
-            >
-              <Save className="w-4 h-4" />
-              {loading ? 'Menyimpan...' : 'Simpan Produk'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            <Save className="w-4 h-4" /> {isEditMode ? 'Update Produk' : 'Simpan Produk'}
+          </button>
         </form>
       </div>
     </div>

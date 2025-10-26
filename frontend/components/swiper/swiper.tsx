@@ -1,53 +1,94 @@
 'use client'
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
-import Image from "next/image";
-import "swiper/css";
-import "swiper/css/pagination";
+import React, { useState, useEffect, useRef } from 'react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Pagination, Navigation, Autoplay } from 'swiper/modules'
+import Image from 'next/image'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import api from '../../lib/axios'
+import 'swiper/css'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+
+interface Banner {
+  id: number
+  imageUrl: string
+}
 
 export default function Carousel() {
-    return (
-        <div className="w flex flex-col gap-10 relative">
-            <h1 className="header-top-product text-center font-[700] text-2xl">Whats New?</h1>
-            <div className="w-full mx-auto">
-                <Swiper
-                    modules={[Pagination, Autoplay]}
-                    autoplay={{ delay: 5000, disableOnInteraction: false }}
-                    spaceBetween={20}
-                    slidesPerView={1}
-                    grabCursor={true}
-                    pagination={{ clickable: true }}
-                    className="w-[1440px] h-[550px] relative"
-                >
-                    <SwiperSlide>
-                        <Image
-                            src="/banner1.jpeg"
-                            alt="Slide 2"
-                            width={300}
-                            height={300}
-                            className="w-full h-[500px] rounded-lg"
-                        />
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <Image
-                            src="/banner1.jpeg"
-                            alt="Slide 2"
-                            width={300}
-                            height={300}
-                            className="w-full h-[500px] rounded-lg"
-                        />
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <Image
-                            src="/banner1.jpeg"
-                            alt="Slide 3"
-                            width={300}
-                            height={300}
-                            className="w-full h-[500px] rounded-lg"
-                        />
-                    </SwiperSlide>
-                </Swiper>
-            </div>
-        </div>
-    );
+  const [banners, setBanners] = useState<Banner[]>([])
+  const [loading, setLoading] = useState(true)
+  const swiperRef = useRef<any>(null)
+
+  useEffect(() => {
+    fetchBanners()
+  }, [])
+
+  const fetchBanners = async () => {
+    try {
+      const res = await api.get('/banners')
+      setBanners(res.data.data)
+    } catch (err) {
+      console.error('Gagal fetch banner', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) return <div className="text-center py-20">Loading banners...</div>
+  if (banners.length === 0) return <div className="text-center py-20">Tidak ada banner</div>
+
+  return (
+    <div className="w-full flex flex-col gap-6 relative">
+      <h1 className="header-top-product text-center font-[700] text-2xl">What&apos;s New?</h1>
+
+      <div className="relative w-full max-w-[1440px] mx-auto">
+        <Swiper
+          modules={[Pagination, Navigation, Autoplay]}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          spaceBetween={20}
+          slidesPerView={1}
+          grabCursor={true}
+          loop={true}
+          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          navigation={{
+            prevEl: '.custom-prev',
+            nextEl: '.custom-next',
+          }}
+          pagination={{
+            clickable: true,
+            el: '.custom-pagination',
+            bulletClass:
+              'swiper-pagination-bullet !bg-gray-400 !w-3 !h-3 rounded-full',
+            bulletActiveClass:
+              'swiper-pagination-bullet-active !bg-black',
+          }}
+          className="w-full h-[500px] rounded-lg"
+        >
+          {banners.map((banner) => (
+            <SwiperSlide key={banner.id}>
+              <Image
+                src={banner.imageUrl}
+                alt={`Banner ${banner.id}`}
+                width={1440}
+                height={500}
+                className="w-full h-full rounded-lg object-cover"
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        {/* Panah kiri */}
+        <button className="cursor-pointer custom-prev absolute top-1/2 left-2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition">
+          <ChevronLeft className="w-9 h-9 text-gray-800" />
+        </button>
+        {/* Panah kanan */}
+        <button className="cursor-pointer custom-next absolute top-1/2 right-2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition">
+          <ChevronRight className="w-9 h-9 text-gray-800" />
+        </button>
+      </div>
+
+      {/* Pagination */}
+      <div className="custom-pagination flex justify-center mt-2"></div>
+    </div>
+  )
 }
