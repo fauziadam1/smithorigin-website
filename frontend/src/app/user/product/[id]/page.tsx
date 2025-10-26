@@ -7,6 +7,17 @@ import { AiOutlineHeart as HeartIcon, AiFillHeart as HeartFillIcon } from 'react
 import api from '../../../../../lib/axios';
 import { getAuth } from '../../../../../lib/auth';
 
+interface ProductVariant {
+  id: number;
+  color: string;
+  imageUrl: string;
+}
+
+interface ProductCategory {
+  id: number;
+  name: string;
+}
+
 interface Product {
   id: number;
   name: string;
@@ -14,19 +25,16 @@ interface Product {
   price: number;
   discount: number | null;
   imageUrl: string;
-  category: {
-    id: number;
-    name: string;
-  } | null;
-  variants: Array<{
-    id: number;
-    color: string;
-    imageUrl: string;
-  }>;
+  category: ProductCategory | null;
+  variants: ProductVariant[];
+}
+
+interface Favorite {
+  productId: number;
 }
 
 export default function ProductDetailPage() {
-  const params = useParams();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const productId = params.id;
   const { user } = getAuth();
@@ -43,16 +51,17 @@ export default function ProductDetailPage() {
       fetchProduct();
       if (user) checkFavorite();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
-  const fetchProduct = async () => {
+  const fetchProduct = async (): Promise<void> => {
     try {
-      const response = await api.get(`/products/${productId}`);
+      const response = await api.get<{ data: Product }>(`/products/${productId}`);
       const data = response.data.data;
       setProduct(data);
       setSelectedImage(data.imageUrl || '');
-    } catch (err: any) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       alert('Gagal memuat produk');
       router.push('/user');
     } finally {
@@ -60,17 +69,17 @@ export default function ProductDetailPage() {
     }
   };
 
-  const checkFavorite = async () => {
+  const checkFavorite = async (): Promise<void> => {
     try {
-      const response = await api.get('/favorites');
+      const response = await api.get<{ data: Favorite[] }>('/favorites');
       const favorites = response.data.data;
-      setIsFavorite(favorites.some((fav: any) => fav.productId === parseInt(productId as string)));
-    } catch (err) {
-      console.error(err);
+      setIsFavorite(favorites.some((fav) => fav.productId === parseInt(productId)));
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const toggleFavorite = async () => {
+  const toggleFavorite = async (): Promise<void> => {
     if (!user) {
       alert('Silakan login terlebih dahulu');
       router.push('/auth/sign-in');
@@ -82,15 +91,20 @@ export default function ProductDetailPage() {
         await api.delete(`/favorites/${productId}`);
         setIsFavorite(false);
       } else {
-        await api.post('/favorites', { productId: parseInt(productId as string) });
+        await api.post('/favorites', { productId: parseInt(productId) });
         setIsFavorite(true);
       }
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal mengubah favorit');
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        // @ts-expect-error → response typing optional
+        alert(error.response?.data?.message || 'Gagal mengubah favorit');
+      } else {
+        alert('Terjadi kesalahan.');
+      }
     }
   };
 
-  const selectVariant = (variant: any) => {
+  const selectVariant = (variant: ProductVariant): void => {
     setSelectedVariant(variant.id);
     setSelectedImage(variant.imageUrl || product?.imageUrl || '');
   };
@@ -109,7 +123,7 @@ export default function ProductDetailPage() {
 
   const allImages = [
     product.imageUrl,
-    ...product.variants.map(v => v.imageUrl).filter(Boolean)
+    ...product.variants.map((v) => v.imageUrl).filter(Boolean)
   ].filter(Boolean) as string[];
 
   return (
@@ -117,17 +131,13 @@ export default function ProductDetailPage() {
       <section className="container px-10 py-40 mx-auto h-fit flex items-start justify-center">
         <div className='flex flex-col items-center gap-25'>
           <div className="flex flex-col items-center gap-5">
-            {/* Breadcrumb */}
             <div className="w-full text-sm text-gray-600">
               <Link href="/" className="hover:text-button">Home</Link>
-              <span className="mx-2">/</span>
-              <Link href="/user/products" className="hover:text-button">Products</Link>
               <span className="mx-2">/</span>
               <span className="text-gray-900">{product.name}</span>
             </div>
 
             <div className="w-full flex items-start gap-10">
-              {/* Images */}
               <div className="flex flex-col gap-5">
                 <div className="relative w-[28rem] h-[28rem] border rounded-xl overflow-hidden">
                   <Image
@@ -138,7 +148,6 @@ export default function ProductDetailPage() {
                   />
                 </div>
 
-                {/* Thumbnails */}
                 <div className="flex items-center gap-5">
                   {allImages.slice(0, 4).map((img, index) => (
                     <div
@@ -159,7 +168,6 @@ export default function ProductDetailPage() {
                   ))}
                 </div>
 
-                {/* External Links */}
                 <div className='w-full flex items-center gap-5'>
                   <button className='w-full bg-orange-500 rounded-full text-white font-[500] py-3 hover:bg-orange-600 transition'>
                     Shopee
@@ -170,7 +178,6 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              {/* Product Info */}
               <div className='w-[40rem]'>
                 <div className='flex items-start justify-between'>
                   <div className='flex flex-col gap-3'>
@@ -192,7 +199,6 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
 
-                  {/* Favorite Button */}
                   <button onClick={toggleFavorite} className='p-3 hover:bg-gray-100 rounded-full transition'>
                     {isFavorite ? (
                       <HeartFillIcon className='w-7 h-7 text-red-500' />
@@ -204,7 +210,6 @@ export default function ProductDetailPage() {
 
                 <div className='w-full h-[1px] rounded-full bg-gray-200 my-8' />
 
-                {/* Variants */}
                 {product.variants.length > 0 && (
                   <>
                     <div className='flex flex-col gap-2'>
@@ -229,7 +234,6 @@ export default function ProductDetailPage() {
                   </>
                 )}
 
-                {/* Tabs */}
                 <div>
                   <div className='flex border-b'>
                     <button
@@ -272,7 +276,6 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Related Products */}
           <div className='w-full flex flex-col gap-5 mt-10'>
             <h1 className='font-[600] text-lg'>Mungkin anda tertarik</h1>
             <div className='text-gray-500'>Related products akan muncul di sini</div>

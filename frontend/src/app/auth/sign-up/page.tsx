@@ -9,24 +9,30 @@ import api from '../../../../lib/axios';
 import { saveAuth } from '../../../../lib/auth';
 import jwt from 'jsonwebtoken';
 
+interface DecodedUser {
+    id: number
+    username: string
+    email: string
+    isAdmin: boolean
+}
+
 export default function SignUp() {
-    const router = useRouter();
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const router = useRouter()
+    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
+        e.preventDefault()
+        setError('')
+        setLoading(true)
 
-        // Validasi password minimal 6 karakter
         if (password.length < 6) {
-            setError('Password minimal 6 karakter');
-            setLoading(false);
-            return;
+            setError('Password minimal 6 karakter')
+            setLoading(false)
+            return
         }
 
         try {
@@ -34,32 +40,57 @@ export default function SignUp() {
                 username,
                 email,
                 password,
-            });
+            })
 
-            const { accessToken } = response.data.data;
-
-            // Decode JWT untuk dapat user info
-            const decoded: any = jwt.decode(accessToken);
-
-            if (decoded) {
-                const user = {
-                    id: decoded.id,
-                    username: decoded.username,
-                    email: decoded.email,
-                    isAdmin: decoded.isAdmin,
-                };
-
-                saveAuth(accessToken, user);
-
-                // Auto redirect ke user dashboard
-                router.push('/user');
+            const accessToken: unknown = response?.data?.data?.accessToken
+            if (typeof accessToken !== 'string') {
+                throw new Error('Token tidak valid')
             }
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.');
+
+            const decoded = jwt.decode(accessToken)
+
+            if (
+                decoded &&
+                typeof decoded === 'object' &&
+                'id' in decoded &&
+                'username' in decoded &&
+                'email' in decoded &&
+                'isAdmin' in decoded
+            ) {
+                const decodedUser: DecodedUser = {
+                    id: decoded.id as number,
+                    username: decoded.username as string,
+                    email: decoded.email as string,
+                    isAdmin: decoded.isAdmin as boolean,
+                }
+
+                saveAuth(accessToken, decodedUser)
+                router.push('/user')
+            } else {
+                throw new Error('Data token tidak valid')
+            }
+        } catch (err: unknown) {
+            console.error('Error saat registrasi:', err)
+
+            if (
+                typeof err === 'object' &&
+                err !== null &&
+                'response' in err &&
+                typeof (err as { response?: { data?: { message?: string } } }).response?.data
+                    ?.message === 'string'
+            ) {
+                setError(
+                    (err as { response: { data: { message: string } } }).response.data.message,
+                )
+            } else if (err instanceof Error) {
+                setError(err.message)
+            } else {
+                setError('Registrasi gagal. Silakan coba lagi.')
+            }
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     return (
         <div>

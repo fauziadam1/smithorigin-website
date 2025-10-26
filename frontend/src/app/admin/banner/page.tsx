@@ -35,9 +35,14 @@ export default function BannerPage() {
     try {
       const res = await api.get('/banners');
       setBanners(res.data.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.response?.data?.message || 'Gagal memuat banner');
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { data?: { message?: string } } };
+        setError(axiosErr.response?.data?.message || 'Gagal memuat banner');
+      } else {
+        setError('Gagal memuat banner');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -80,8 +85,14 @@ export default function BannerPage() {
       setBanners((prev) => prev.filter((b) => b.id !== id));
       setOpenMenuId(null);
       alert('Banner berhasil dihapus!');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menghapus banner');
+    } catch (err: unknown) {
+      console.error(err);
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+            ?.data?.message || 'Gagal menghapus banner'
+          : 'Gagal menghapus banner';
+      alert(message);
     }
   };
 
@@ -97,8 +108,13 @@ export default function BannerPage() {
       setSelectedItems(new Set());
       setOpenMenuId(null);
       alert('Semua banner terpilih berhasil dihapus!');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menghapus beberapa banner');
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+            ?.data?.message || 'Gagal menghapus beberapa banner'
+          : 'Gagal menghapus beberapa banner';
+      alert(message);
     }
   };
 
@@ -111,7 +127,6 @@ export default function BannerPage() {
     try {
       let finalImageUrl = url;
 
-      // Upload file jika ada
       if (file) {
         const formData = new FormData();
         formData.append('file', file);
@@ -122,14 +137,18 @@ export default function BannerPage() {
         finalImageUrl = uploadRes.data.url;
       }
 
-      // Create banner
       const res = await api.post('/banners', { imageUrl: finalImageUrl });
       setBanners((prev) => [res.data.data, ...prev]);
       alert('Banner berhasil ditambahkan!');
       setIsMakeBannerOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.response?.data?.message || 'Gagal menambahkan banner');
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response
+            ?.data?.message || 'Gagal menambahkan banner'
+          : 'Gagal menambahkan banner';
+      alert(message);
     }
   };
 
@@ -247,10 +266,10 @@ export default function BannerPage() {
                     <td className="px-4 py-4 text-sm text-gray-600">
                       {banner.createdAt
                         ? new Date(banner.createdAt).toLocaleDateString('id-ID', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
                         : '-'}
                     </td>
                     <td className="px-4 py-4 text-right relative">
@@ -374,11 +393,10 @@ function MakeBannerForm({
             setIsDragging(false);
           }}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-            isDragging
+          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${isDragging
               ? 'border-blue-500 bg-blue-50'
               : 'border-gray-300 hover:border-blue-400'
-          }`}
+            }`}
         >
           {preview ? (
             <div className="relative">

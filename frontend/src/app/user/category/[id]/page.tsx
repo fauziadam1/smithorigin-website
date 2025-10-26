@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BsStar as StarOutline, BsStarFill as StarFilled } from 'react-icons/bs'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import api from '../../../../../lib/axios'
 import { getAuth } from '../../../../../lib/auth'
+
 interface Product {
   id: number
   name: string
@@ -26,6 +26,12 @@ interface Category {
   }
 }
 
+interface FavoriteResponse {
+  data: {
+    data: { productId: number }[]
+  }
+}
+
 export default function CategoryPage() {
   const params = useParams()
   const router = useRouter()
@@ -40,8 +46,8 @@ export default function CategoryPage() {
 
   useEffect(() => {
     if (categoryId) {
-      fetchCategoryAndProducts()
-      if (user) fetchFavorites()
+      void fetchCategoryAndProducts()
+      if (user) void fetchFavorites()
     }
   }, [categoryId])
 
@@ -49,15 +55,19 @@ export default function CategoryPage() {
     setLoading(true)
     setError('')
     try {
-      // Fetch category detail
-      const categoryRes = await api.get(`/categories/${categoryId}`)
+      const categoryRes = await api.get<{ data: Category }>(`/categories/${categoryId}`)
       setCategory(categoryRes.data.data)
 
-      // Fetch products in this category
-      const productsRes = await api.get(`/products?categoryId=${categoryId}&limit=100`)
+      const productsRes = await api.get<{ data: Product[] }>(
+        `/products?categoryId=${categoryId}&limit=100`
+      )
       setProducts(productsRes.data.data)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Gagal memuat data')
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Gagal memuat data')
+      } else {
+        setError('Terjadi kesalahan tidak terduga')
+      }
     } finally {
       setLoading(false)
     }
@@ -65,8 +75,8 @@ export default function CategoryPage() {
 
   const fetchFavorites = async () => {
     try {
-      const response = await api.get('/favorites')
-      const favoriteIds = response.data.data.map((fav: any) => fav.productId)
+      const response = await api.get<FavoriteResponse['data']>('/favorites')
+      const favoriteIds = response.data.data.map(fav => fav.productId)
       setFavorites(new Set(favoriteIds))
     } catch (err) {
       console.error('Error fetching favorites:', err)
@@ -92,8 +102,12 @@ export default function CategoryPage() {
         await api.post('/favorites', { productId })
         setFavorites(prev => new Set([...prev, productId]))
       }
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal mengubah wishlist')
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        alert(err.response?.data?.message || 'Gagal mengubah wishlist')
+      } else {
+        alert('Kesalahan tidak terduga')
+      }
     }
   }
 
@@ -130,7 +144,6 @@ export default function CategoryPage() {
             <span className="text-gray-900 font-medium">{category.name}</span>
           </nav>
 
-          {/* Category Header */}
           <div className="flex items-center gap-5">
             {category.imageUrl && (
               <div className="w-20 h-20 rounded-lg overflow-hidden border">
@@ -151,14 +164,13 @@ export default function CategoryPage() {
             </div>
           </div>
 
-          {/* Products Grid */}
           {products.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-gray-500 text-lg">Belum ada produk di kategori ini</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {products.map((product) => (
+              {products.map(product => (
                 <CardProduct
                   key={product.id}
                   product={product}
@@ -185,7 +197,7 @@ function CardProduct({
 }) {
   const hasDiscount = product.discount && product.discount > 0
   const discountedPrice = hasDiscount
-    ? product.price * (1 - product.discount! / 100)
+    ? product.price * (1 - (product.discount ?? 0) / 100)
     : product.price
 
   return (
@@ -201,14 +213,12 @@ function CardProduct({
             />
           </div>
 
-          {/* Best Seller Badge */}
           {product.isBestSeller && (
             <div className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
               ⭐ Best Seller
             </div>
           )}
 
-          {/* Discount Badge */}
           {hasDiscount && (
             <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
               -{product.discount}%
@@ -223,18 +233,16 @@ function CardProduct({
               Rp {discountedPrice.toLocaleString('id-ID')}
             </h1>
             {hasDiscount && (
-              <>
-                <h1 className="text-[14px] md:text-[12px] line-through text-gray-400">
-                  Rp {product.price.toLocaleString('id-ID')}
-                </h1>
-              </>
+              <h1 className="text-[14px] md:text-[12px] line-through text-gray-400">
+                Rp {product.price.toLocaleString('id-ID')}
+              </h1>
             )}
           </div>
         </div>
       </Link>
 
       <button
-        onClick={(e) => {
+        onClick={e => {
           e.preventDefault()
           onToggleFavorite()
         }}
@@ -249,4 +257,8 @@ function CardProduct({
       </button>
     </div>
   )
+}
+
+function isAxiosError(err: unknown): err is import('axios').AxiosError<{ message?: string }> {
+  return typeof err === 'object' && err !== null && 'isAxiosError' in err
 }

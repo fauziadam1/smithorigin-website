@@ -42,11 +42,23 @@ export default function ForumForm() {
         router.push('/user/forum');
       }, 1000);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saat submit forum:', err);
-      setError(err.response?.data?.message || 'Gagal mengirim percakapan.');
-    } finally {
-      setLoading(false);
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: { data?: { message?: unknown } } }).response?.data?.message === 'string'
+      ) {
+        setError(
+          (err as { response?: { data?: { message?: string } } }).response!.data!.message!
+        );
+      } else {
+        setError('Gagal mengirim percakapan.');
+      }
     }
   };
 

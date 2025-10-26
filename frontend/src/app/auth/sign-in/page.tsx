@@ -9,52 +9,72 @@ import api from '../../../../lib/axios';
 import { saveAuth } from '../../../../lib/auth';
 import jwt from 'jsonwebtoken';
 
+interface DecodedUser {
+    id: number
+    username: string
+    email: string
+    isAdmin: boolean
+}
+
 export default function SignIn() {
-    const router = useRouter();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const router = useRouter()
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
+        e.preventDefault()
+        setError('')
+        setLoading(true)
 
         try {
             const response = await api.post('/auth/login', {
                 username,
                 password,
-            });
+            })
 
-            const { accessToken } = response.data.data;
+            const accessToken: unknown = response?.data?.data?.accessToken
 
-            // Decode JWT untuk dapat user info
-            const decoded: any = jwt.decode(accessToken);
-
-            if (decoded) {
-                const user = {
-                    id: decoded.id,
-                    username: decoded.username,
-                    email: decoded.email,
-                    isAdmin: decoded.isAdmin,
-                };
-
-                saveAuth(accessToken, user);
-
-                // Redirect berdasarkan role
-                if (user.isAdmin) {
-                    router.push('/user');
-                } else {
-                    router.push('/user');
-                }
+            if (typeof accessToken !== 'string') {
+                throw new Error('Token tidak valid')
             }
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Login gagal. Silakan coba lagi.');
+
+            const decoded = jwt.decode(accessToken)
+
+            if (decoded && typeof decoded === 'object' && 'id' in decoded) {
+                const decodedUser = decoded as DecodedUser
+
+                saveAuth(accessToken, decodedUser)
+
+                if (decodedUser.isAdmin) {
+                    router.push('/user')
+                } else {
+                    router.push('/user')
+                }
+            } else {
+                throw new Error('Data token tidak valid')
+            }
+        } catch (err: unknown) {
+            if (
+                typeof err === 'object' &&
+                err !== null &&
+                'response' in err &&
+                typeof (err as { response?: { data?: { message?: string } } }).response === 'object'
+            ) {
+                const message =
+                    (err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+                    'Login gagal. Silakan coba lagi.'
+                setError(message)
+            } else if (err instanceof Error) {
+                setError(err.message)
+            } else {
+                setError('Login gagal. Silakan coba lagi.')
+            }
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     return (
         <div>

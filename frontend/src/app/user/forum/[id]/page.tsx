@@ -7,70 +7,87 @@ import Link from 'next/link';
 import api from '../../../../../lib/axios';
 import { getAuth } from '../../../../../lib/auth';
 
+interface ForumUser {
+  id: number
+  username: string
+}
+
+interface ForumReply {
+  id: number
+  content: string
+  createdAt: string
+  user: ForumUser
+}
+
 interface ForumDetail {
-  id: number;
-  title: string;
-  content: string;
-  createdAt: string;
-  user: {
-    id: number;
-    username: string;
-  };
-  replies: Array<{
-    id: number;
-    content: string;
-    createdAt: string;
-    user: {
-      id: number;
-      username: string;
-    };
-  }>;
+  id: number
+  title: string
+  content: string
+  createdAt: string
+  user: ForumUser
+  replies: ForumReply[]
+}
+
+interface ApiResponse<T> {
+  data: T
 }
 
 export default function ForumDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const forumId = params.id;
-  const { user } = getAuth();
+  const params = useParams()
+  const router = useRouter()
+  const forumId = params?.id as string | undefined
+  const { user } = getAuth()
 
-  const [forum, setForum] = useState<ForumDetail | null>(null);
-  const [replyContent, setReplyContent] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [forum, setForum] = useState<ForumDetail | null>(null)
+  const [replyContent, setReplyContent] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    if (forumId) {
-      fetchForumDetail();
-    }
-  }, [forumId]);
+    if (forumId) fetchForumDetail()
+  }, [forumId])
 
   const fetchForumDetail = async () => {
     try {
-      const response = await api.get(`/forums/${forumId}`);
-      setForum(response.data.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Gagal memuat forum');
+      const response = await api.get<ApiResponse<ForumDetail>>(`/forums/${forumId}`)
+      setForum(response.data.data)
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else if (typeof err === 'object' && err !== null && 'response' in err) {
+        const apiError = err as { response?: { data?: { message?: string } } }
+        setError(apiError.response?.data?.message || 'Gagal memuat forum')
+      } else {
+        setError('Gagal memuat forum')
+      }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyContent.trim()) return;
+  const handleReply = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!replyContent.trim()) return
 
-    setSubmitting(true);
+    setSubmitting(true)
     try {
-      await api.post(`/forums/${forumId}/replies`, { content: replyContent });
-      setReplyContent('');
-      fetchForumDetail(); // Refresh replies
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal mengirim balasan');
+      await api.post(`/forums/${forumId}/replies`, { content: replyContent })
+      setReplyContent('')
+      await fetchForumDetail()
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(err.message)
+      } else if (typeof err === 'object' && err !== null && 'response' in err) {
+        const apiError = err as { response?: { data?: { message?: string } } }
+        alert(apiError.response?.data?.message || 'Gagal mengirim balasan')
+      } else {
+        alert('Gagal mengirim balasan')
+      }
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -79,11 +96,11 @@ export default function ForumDetailPage() {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
+  }
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
 
   if (error || !forum) {
@@ -96,7 +113,7 @@ export default function ForumDetailPage() {
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (

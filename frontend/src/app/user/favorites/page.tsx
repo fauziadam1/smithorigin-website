@@ -8,21 +8,25 @@ import { BiTrash } from 'react-icons/bi'
 import api from '../../../../lib/axios'
 import { getAuth } from '../../../../lib/auth'
 
+interface Category {
+  id: number
+  name: string
+}
+
+interface Product {
+  id: number
+  name: string
+  price: number
+  discount: number | null
+  imageUrl: string | null
+  category: Category | null
+}
+
 interface FavoriteProduct {
   id: number
   userId: number
   productId: number
-  product: {
-    id: number
-    name: string
-    price: number
-    discount: number | null
-    imageUrl: string | null
-    category: {
-      id: number
-      name: string
-    } | null
-  }
+  product: Product
 }
 
 export default function FavoritesPage() {
@@ -38,35 +42,60 @@ export default function FavoritesPage() {
       return
     }
     fetchFavorites()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const fetchFavorites = async () => {
+  const fetchFavorites = async (): Promise<void> => {
     setLoading(true)
     setError('')
+
     try {
-      const response = await api.get('/favorites')
+      const response = await api.get<{ data: FavoriteProduct[] }>('/favorites')
       setFavorites(response.data.data)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Gagal memuat wishlist')
+    } catch (err) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: { data?: { message?: string } } }).response?.data
+          ?.message === 'string'
+      ) {
+        setError(
+          (err as { response: { data: { message: string } } }).response.data.message,
+        )
+      } else {
+        setError('Gagal memuat wishlist')
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  const removeFavorite = async (productId: number) => {
+  const removeFavorite = async (productId: number): Promise<void> => {
     if (!confirm('Hapus produk dari wishlist?')) return
 
     try {
       await api.delete(`/favorites/${productId}`)
-      setFavorites(prev => prev.filter(fav => fav.productId !== productId))
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menghapus dari wishlist')
+      setFavorites((prev) => prev.filter((fav) => fav.productId !== productId))
+    } catch (err) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err &&
+        typeof (err as { response?: { data?: { message?: string } } }).response?.data
+          ?.message === 'string'
+      ) {
+        alert(
+          (err as { response: { data: { message: string } } }).response.data.message,
+        )
+      } else {
+        alert('Gagal menghapus dari wishlist')
+      }
     }
   }
 
-  const calculateFinalPrice = (price: number, discount: number | null) => {
-    if (!discount) return price
-    return price - (price * discount / 100)
+  const calculateFinalPrice = (price: number, discount: number | null): number => {
+    return discount ? price - price * (discount / 100) : price
   }
 
   if (loading) {
@@ -79,7 +108,6 @@ export default function FavoritesPage() {
       </div>
     )
   }
-
   return (
     <div className="min-h-screen bg-gray-50 py-40">
       <div className="container mx-auto px-10">

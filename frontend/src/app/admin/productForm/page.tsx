@@ -8,11 +8,27 @@ import api from '../../../../lib/axios'
 type Category = { id: number; name: string }
 
 type ProductVariant = {
-  id: number | null;
-  color: string;
-  imageUrl: string;
-  imagePreview: string;
-  imageFile: File | null;
+  id: number | null
+  color: string
+  imageUrl: string
+  imagePreview: string
+  imageFile: File | null
+}
+
+type ProductResponse = {
+  id: number
+  name: string
+  description: string
+  price: number
+  discount: number | null
+  imageUrl: string
+  categoryId: number | null
+  isBestSeller: boolean
+  variants?: Array<{
+    id: number
+    color: string
+    imageUrl: string
+  }>
 }
 
 export default function ProductForm() {
@@ -36,7 +52,6 @@ export default function ProductForm() {
   const [mainImageUrl, setMainImageUrl] = useState('')
   const [mainImagePreview, setMainImagePreview] = useState('')
 
-  // State Varian disatukan dalam satu array objek untuk konsistensi data.
   const [variants, setVariants] = useState<ProductVariant[]>([])
 
   const categoryRef = useRef<HTMLDivElement | null>(null)
@@ -58,29 +73,29 @@ export default function ProductForm() {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get('/categories')
+      const res = await api.get<{ data: Category[] }>('/categories')
       setCategories(res.data.data || [])
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('fetchCategories error', err)
     }
   }
 
   const fetchProduct = async (id: number) => {
     try {
-      const res = await api.get(`/products/${id}`)
+      const res = await api.get<{ data: ProductResponse }>(`/products/${id}`)
       const p = res.data.data
       setName(p.name)
       setDescription(p.description)
       setPrice(String(p.price))
-      setDiscount(String(p.discount || ''))
-      setCategoryId(String(p.categoryId || ''))
+      setDiscount(p.discount ? String(p.discount) : '')
+      setCategoryId(p.categoryId ? String(p.categoryId) : '')
       setMainImageUrl(p.imageUrl || '')
       setMainImagePreview(p.imageUrl || '')
       setIsBestSeller(Boolean(p.isBestSeller))
-      
+
       if (p.variants?.length) {
         setEnableVariant(true)
-        const loadedVariants: ProductVariant[] = p.variants.map((v: any) => ({
+        const loadedVariants: ProductVariant[] = p.variants.map((v) => ({
           id: v.id,
           color: v.color,
           imageUrl: v.imageUrl,
@@ -89,84 +104,80 @@ export default function ProductForm() {
         }))
         setVariants(loadedVariants)
       }
-    } catch (err: any) {
-      alert(err?.response?.data?.message || 'Gagal memuat produk')
+    } catch (err) {
+      console.error('fetchProduct error', err)
+      alert('Gagal memuat produk')
     }
   }
 
   const uploadImage = async (file: File): Promise<string> => {
     const form = new FormData()
     form.append('file', file)
-    const res = await api.post('/upload', form, {
+    const res = await api.post<{ url: string }>('/upload', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return res.data.url
   }
 
-  const handleVariantChange = (index: number, field: keyof ProductVariant, value: string | File | null) => {
-    setVariants(prevVariants => {
-      const newVariants = [...prevVariants]
+  const handleVariantChange = (
+    index: number,
+    field: keyof ProductVariant,
+    value: string | File | null
+  ) => {
+    setVariants((prev) => {
+      const newVariants = [...prev]
+      const current = { ...newVariants[index] }
+
       if (field === 'imageFile' && value instanceof File) {
-        newVariants[index] = {
-          ...newVariants[index],
-          imageFile: value,
-          imagePreview: URL.createObjectURL(value),
-        }
+        current.imageFile = value
+        current.imagePreview = URL.createObjectURL(value)
       } else if (field === 'color' && typeof value === 'string') {
-        newVariants[index] = {
-          ...newVariants[index],
-          color: value,
-        }
+        current.color = value
       } else if (field === 'imageUrl' && typeof value === 'string') {
-        newVariants[index] = {
-          ...newVariants[index],
-          imageFile: null,
-          imagePreview: value,
-        }
+        current.imageUrl = value
+        current.imageFile = null
+        current.imagePreview = value
       }
+
+      newVariants[index] = current
       return newVariants
     })
   }
-  
+
   const handleAddVariant = () => {
     if (variants.length >= 5) {
-        alert("Maksimal 5 varian produk.")
-        return
+      alert('Maksimal 5 varian produk.')
+      return
     }
-    const newVariant: ProductVariant = {
-      id: null,
-      color: '',
-      imageUrl: '',
-      imagePreview: '',
-      imageFile: null,
-    }
-    setVariants((v) => [...v, newVariant])
+    setVariants((v) => [
+      ...v,
+      { id: null, color: '', imageUrl: '', imagePreview: '', imageFile: null },
+    ])
   }
 
   const handleRemoveVariant = async (index: number) => {
     const variantToRemove = variants[index]
-    
     if (isEditMode && variantToRemove.id) {
-        const isConfirmed = confirm("Apakah Anda yakin ingin menghapus varian ini? Ini akan menghapusnya secara permanen dari database.")
-        if (!isConfirmed) return
-        
-        try {
-            await api.delete(`/products/${productIdParam}/variants/${variantToRemove.id}`)
-            alert('Varian berhasil dihapus dari database.')
-        } catch(err) {
-            console.error("Gagal menghapus varian", err)
-            alert("Gagal menghapus varian dari database. Coba lagi.")
-            return
-        }
+      const isConfirmed = confirm('Yakin ingin menghapus varian ini?')
+      if (!isConfirmed) return
+
+      try {
+        await api.delete(`/products/${productIdParam}/variants/${variantToRemove.id}`)
+        alert('Varian berhasil dihapus dari database.')
+      } catch (err) {
+        console.error('Gagal menghapus varian', err)
+        alert('Gagal menghapus varian.')
+        return
+      }
     }
-    setVariants((v) => v.filter((_, idx) => idx !== index))
+    setVariants((v) => v.filter((_, i) => i !== index))
   }
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
     if (!name.trim() || !price || (!mainImageFile && !mainImageUrl)) {
-      alert('Pastikan Nama Produk, Harga, dan Gambar Utama diisi.')
+      alert('Nama, harga, dan gambar utama wajib diisi.')
       return
     }
 
@@ -175,39 +186,34 @@ export default function ProductForm() {
       let mainUrl = mainImageUrl
       if (mainImageFile) mainUrl = await uploadImage(mainImageFile)
 
-      const payload: any = {
+      const payload = {
         name,
         description,
         price: parseFloat(price),
         discount: discount ? parseFloat(discount) : null,
         imageUrl: mainUrl,
         categoryId: categoryId ? parseInt(categoryId, 10) : null,
-        isBestSeller: Boolean(isBestSeller),
+        isBestSeller,
       }
 
-      let savedProduct
-      if (isEditMode) {
-        savedProduct = (await api.put(`/products/${productIdParam}`, payload)).data.data
-      } else {
-        savedProduct = (await api.post('/products', payload)).data.data
-      }
+      const res = isEditMode
+        ? await api.put<{ data: ProductResponse }>(`/products/${productIdParam}`, payload)
+        : await api.post<{ data: ProductResponse }>('/products', payload)
+
+      const savedProduct = res.data.data
+
       if (enableVariant) {
         for (const variant of variants) {
           if (!variant.color.trim() && !variant.imageFile && !variant.imageUrl) continue
 
           let variantImageUrl = variant.imageUrl
-          if (variant.imageFile) {
-            variantImageUrl = await uploadImage(variant.imageFile)
-          }
+          if (variant.imageFile) variantImageUrl = await uploadImage(variant.imageFile)
 
-          const variantPayload = {
-            color: variant.color,
-            imageUrl: variantImageUrl,
-          }
+          const variantPayload = { color: variant.color, imageUrl: variantImageUrl }
 
           if (variant.id) {
             await api.put(`/products/${savedProduct.id}/variants/${variant.id}`, variantPayload)
-          } else if (variantImageUrl || variant.color.trim()) {
+          } else {
             await api.post(`/products/${savedProduct.id}/variants`, variantPayload)
           }
         }
@@ -215,21 +221,20 @@ export default function ProductForm() {
 
       alert(isEditMode ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!')
       router.push('/admin/product')
-    } catch (err: any) {
-      console.error(err)
-      alert(err?.response?.data?.message || 'Gagal menyimpan produk')
+    } catch (err) {
+      console.error('submit error', err)
+      alert('Gagal menyimpan produk')
     } finally {
       setLoading(false)
     }
   }
 
   const handleRemoveMainImage = () => {
-    if (mainImageFile) URL.revokeObjectURL(mainImagePreview);
-    setMainImageFile(null);
-    setMainImageUrl('');
-    setMainImagePreview('');
-  };
-
+    if (mainImageFile) URL.revokeObjectURL(mainImagePreview)
+    setMainImageFile(null)
+    setMainImageUrl('')
+    setMainImagePreview('')
+  }
 
   return (
     <div className="mx-auto p-6">
@@ -305,11 +310,10 @@ export default function ProductForm() {
                             setCategoryId(String(cat.id))
                             setCategoryOpen(false)
                           }}
-                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center ${
-                            categoryId === String(cat.id)
+                          className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center ${categoryId === String(cat.id)
                               ? 'bg-blue-50 text-blue-600 font-medium'
                               : ''
-                          }`}
+                            }`}
                         >
                           {cat.name}
                           {categoryId === String(cat.id) && <Check className="w-4 h-4" />}
@@ -328,14 +332,12 @@ export default function ProductForm() {
             <label className="text-sm font-medium">Tandai sebagai Best Seller</label>
             <div
               onClick={() => setIsBestSeller((prev) => !prev)}
-              className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${
-                isBestSeller ? 'bg-blue-600' : 'bg-gray-300'
-              }`}
+              className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${isBestSeller ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
             >
               <div
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
-                  isBestSeller ? 'translate-x-6' : 'translate-x-0'
-                }`}
+                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${isBestSeller ? 'translate-x-6' : 'translate-x-0'
+                  }`}
               />
             </div>
           </div>
@@ -422,7 +424,7 @@ export default function ProductForm() {
                           onChange={(e) => {
                             const file = e.target.files?.[0]
                             if (file) {
-                                handleVariantChange(i, 'imageFile', file)
+                              handleVariantChange(i, 'imageFile', file)
                             }
                           }}
                           className="hidden"

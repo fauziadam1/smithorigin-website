@@ -40,13 +40,19 @@ export default function CategoryPage() {
     try {
       const response = await api.get('/categories');
       setCategories(response.data.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Gagal memuat kategori');
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const errorObj = err as { response?: { data?: { message?: string } } };
+        setError(errorObj.response?.data?.message || 'Gagal memuat kategori');
+      } else {
+        setError('Gagal memuat kategori');
+      }
       console.error('Error fetching categories:', err);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const filterAndSortCategories = () => {
     let result = [...categories];
@@ -86,10 +92,15 @@ export default function CategoryPage() {
       setCategories((prev) => prev.filter((cat) => cat.id !== id));
       setOpenMenuId(null);
       alert('Kategori berhasil dihapus!');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menghapus kategori');
+    } catch (err: unknown) {
+      const message =
+        (err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined) || 'Gagal menghapus kategori';
+      alert(message);
     }
   };
+
 
   const handleDeleteAllSelected = async () => {
     if (selectedItems.size === 0) return;
@@ -103,10 +114,15 @@ export default function CategoryPage() {
       setSelectedItems(new Set());
       setOpenMenuId(null);
       alert('Kategori berhasil dihapus!');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menghapus kategori');
+    } catch (err: unknown) {
+      const message =
+        (err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined) || 'Gagal menghapus kategori';
+      alert(message);
     }
   };
+
 
   const handleAddCategory = () => {
     setEditingCategory(null);
@@ -123,20 +139,16 @@ export default function CategoryPage() {
     try {
       let finalImageUrl = data.imageUrl;
 
-      // Upload gambar ke backend jika ada file
       if (data.imageFile) {
         const formData = new FormData();
         formData.append('file', data.imageFile);
-        
+
         try {
           const uploadResponse = await api.post('/upload', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
+            headers: { 'Content-Type': 'multipart/form-data' },
           });
           finalImageUrl = uploadResponse.data.url;
-        } catch (uploadErr: any) {
-          // Jika upload gagal, gunakan URL fallback atau skip
+        } catch (uploadErr: unknown) {
           console.error('Upload error:', uploadErr);
           if (!data.imageUrl) {
             alert('Gagal upload gambar. Silakan gunakan URL gambar.');
@@ -146,7 +158,6 @@ export default function CategoryPage() {
       }
 
       if (editingCategory) {
-        // Update
         const response = await api.put(`/categories/${editingCategory.id}`, {
           name: data.name,
           imageUrl: finalImageUrl,
@@ -156,7 +167,6 @@ export default function CategoryPage() {
         );
         alert('Kategori berhasil diupdate!');
       } else {
-        // Create
         const response = await api.post('/categories', {
           name: data.name,
           imageUrl: finalImageUrl,
@@ -165,8 +175,12 @@ export default function CategoryPage() {
         alert('Kategori berhasil ditambahkan!');
       }
       setIsMakeCategoryOpen(false);
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menyimpan kategori');
+    } catch (err: unknown) {
+      const message =
+        (err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : undefined) || 'Gagal menyimpan kategori';
+      alert(message);
     }
   };
 
@@ -405,7 +419,7 @@ function MakeCategoryForm({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const file = e.dataTransfer.files[0];
     if (file) handleFileChange(file);
   };
@@ -451,16 +465,15 @@ function MakeCategoryForm({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Gambar Category
         </label>
-        
+
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-            isDragging
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-blue-400'
-          }`}
+          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${isDragging
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300 hover:border-blue-400'
+            }`}
         >
           {preview ? (
             <div className="relative">

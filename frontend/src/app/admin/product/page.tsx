@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { Search, MoreVertical, Edit2, Trash2, Filter, Plus } from 'lucide-react'
 import api from '../../../../lib/axios'
+import { AxiosError } from 'axios'
 
 interface Product {
   id: number
@@ -40,6 +41,8 @@ export default function ProductPage() {
     fetchProducts()
   }, [])
 
+
+  
   useEffect(() => {
     filterAndSortProducts()
   }, [products, searchQuery, sortOrder])
@@ -48,11 +51,12 @@ export default function ProductPage() {
     setIsLoading(true)
     setError('')
     try {
-      const response = await api.get('/products?limit=100')
+      const response = await api.get<{ data: Product[] }>('/products?limit=100')
       setProducts(response.data.data)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Gagal memuat produk')
-      console.error('Error fetching products:', err)
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>
+      setError(error.response?.data?.message || 'Gagal memuat produk')
+      console.error('Error fetching products:', error)
     } finally {
       setIsLoading(false)
     }
@@ -97,8 +101,9 @@ export default function ProductPage() {
       setProducts((prev) => prev.filter((p) => p.id !== id))
       setOpenMenuId(null)
       alert('Produk berhasil dihapus!')
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menghapus produk')
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>
+      alert(error.response?.data?.message || 'Gagal menghapus produk')
     }
   }
 
@@ -114,14 +119,15 @@ export default function ProductPage() {
       setSelectedItems(new Set())
       setOpenMenuId(null)
       alert('Produk berhasil dihapus!')
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Gagal menghapus produk')
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>
+      alert(error.response?.data?.message || 'Gagal menghapus produk')
     }
   }
 
   const calculateFinalPrice = (price: number, discount: number | null) => {
     if (!discount) return price
-    return price - (price * discount / 100)
+    return price - (price * discount) / 100
   }
 
   const allSelected =
@@ -228,7 +234,7 @@ export default function ProductPage() {
               ) : (
                 filteredProducts.map((product) => {
                   const finalPrice = calculateFinalPrice(product.price, product.discount)
-                  
+
                   return (
                     <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-4">

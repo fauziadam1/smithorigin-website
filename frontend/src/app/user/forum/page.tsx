@@ -27,83 +27,91 @@ interface Forum {
 }
 
 export default function ForumPage() {
-    const [forums, setForums] = useState<Forum[]>([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
-    const [openMenuId, setOpenMenuId] = useState<number | null>(null) // untuk menu titik tiga
-    const { user } = getAuth()
+  const [forums, setForums] = useState<Forum[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null)
+  const { user } = getAuth()
 
-    useEffect(() => {
-        fetchForums()
-    }, [])
+  useEffect(() => {
+    fetchForums()
+  }, [])
 
-    const fetchForums = async () => {
-        try {
-            const response = await api.get('/forums?limit=20')
-            setForums(response.data.data)
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Gagal memuat forum')
-        } finally {
-            setLoading(false)
-        }
+  const getErrorMessage = (err: unknown): string => {
+    if (typeof err === 'object' && err !== null) {
+      const maybeErr = err as { response?: { data?: { message?: string } }; message?: string }
+      return maybeErr.response?.data?.message || maybeErr.message || 'Terjadi kesalahan tak dikenal'
+    }
+    if (typeof err === 'string') return err
+    return 'Terjadi kesalahan tak dikenal'
+  }
+
+  const fetchForums = async () => {
+    try {
+      const response = await api.get('/forums?limit=20')
+      setForums(response.data.data)
+    } catch (err: unknown) {
+      setError(getErrorMessage(err) || 'Gagal memuat forum')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLike = async (forumId: number) => {
+    if (!user) {
+      alert('Silakan login untuk like')
+      return
     }
 
-    const handleLike = async (forumId: number) => {
-        if (!user) {
-            alert('Silakan login untuk like');
-            return;
-        }
+    try {
+      const res = await api.post(`/forums/${forumId}/like`)
+      const { liked, likeCount } = res.data.data
 
-        try {
-            const res = await api.post(`/forums/${forumId}/like`);
-            const { liked, likeCount } = res.data.data;
-
-            setForums(prev =>
-                prev.map(forum => {
-                    if (forum.id === forumId) {
-                        return {
-                            ...forum,
-                            likes: liked
-                                ? [...(forum.likes ?? []), { userId: user.id }]
-                                : (forum.likes ?? []).filter(like => like.userId !== user.id),
-                            _count: { ...forum._count, likes: likeCount }
-                        };
-                    }
-                    return forum;
-                })
-            );
-        } catch (err: any) {
-            alert(err.response?.data?.message || 'Gagal like forum');
-        }
-    };
-
-    const handleDelete = async (forumId: number) => {
-        if (!confirm('Yakin ingin menghapus thread ini?')) return;
-
-        try {
-            await api.delete(`/forums/${forumId}`);
-            setForums(prev => prev.filter(f => f.id !== forumId));
-        } catch (err: any) {
-            alert(err.response?.data?.message || 'Gagal menghapus thread');
-        }
-    };
-
-    const handleReport = (forumId: number) => {
-        alert(`Melaporkan thread ID: ${forumId}`);
-        // Bisa dikembangkan untuk kirim report ke backend
+      setForums(prev =>
+        prev.map(forum => {
+          if (forum.id === forumId) {
+            return {
+              ...forum,
+              likes: liked
+                ? [...(forum.likes ?? []), { userId: user.id }]
+                : (forum.likes ?? []).filter(like => like.userId !== user.id),
+              _count: { ...forum._count, likes: likeCount },
+            }
+          }
+          return forum
+        }),
+      )
+    } catch (err: unknown) {
+      alert(getErrorMessage(err) || 'Gagal like forum')
     }
+  }
 
-    const formatTime = (date: string) => {
-        const now = new Date()
-        const then = new Date(date)
-        const diffMs = now.getTime() - then.getTime()
-        const diffMins = Math.floor(diffMs / 60000)
-        const diffHours = Math.floor(diffMs / 3600000)
+  const handleDelete = async (forumId: number) => {
+    if (!confirm('Yakin ingin menghapus thread ini?')) return
 
-        if (diffMins < 60) return `${diffMins} menit yang lalu`
-        if (diffHours < 24) return `${diffHours} jam yang lalu`
-        return `${Math.floor(diffHours / 24)} hari yang lalu`
+    try {
+      await api.delete(`/forums/${forumId}`)
+      setForums(prev => prev.filter(f => f.id !== forumId))
+    } catch (err: unknown) {
+      alert(getErrorMessage(err) || 'Gagal menghapus thread')
     }
+  }
+
+  const handleReport = (forumId: number) => {
+    alert(`Melaporkan thread ID: ${forumId}`)
+  }
+
+  const formatTime = (date: string) => {
+    const now = new Date()
+    const then = new Date(date)
+    const diffMs = now.getTime() - then.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+
+    if (diffMins < 60) return `${diffMins} menit yang lalu`
+    if (diffHours < 24) return `${diffHours} jam yang lalu`
+    return `${Math.floor(diffHours / 24)} hari yang lalu`
+  }
 
     return (
         <div className="min-h-fit bg-gray-50 py-40">
