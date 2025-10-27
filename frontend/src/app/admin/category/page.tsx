@@ -25,7 +25,6 @@ export default function CategoryPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [error, setError] = useState('');
 
-  // Fetch categories dari API
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -52,7 +51,6 @@ export default function CategoryPage() {
       setIsLoading(false);
     }
   };
-
 
   const filterAndSortCategories = () => {
     let result = [...categories];
@@ -101,7 +99,6 @@ export default function CategoryPage() {
     }
   };
 
-
   const handleDeleteAllSelected = async () => {
     if (selectedItems.size === 0) return;
     if (!confirm(`Yakin ingin menghapus ${selectedItems.size} kategori?`)) return;
@@ -113,16 +110,15 @@ export default function CategoryPage() {
       setCategories((prev) => prev.filter((cat) => !selectedItems.has(cat.id)));
       setSelectedItems(new Set());
       setOpenMenuId(null);
-      alert('Kategori berhasil dihapus!');
+      alert('Semua kategori terpilih berhasil dihapus!');
     } catch (err: unknown) {
       const message =
         (err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-          : undefined) || 'Gagal menghapus kategori';
+          : undefined) || 'Gagal menghapus beberapa kategori';
       alert(message);
     }
   };
-
 
   const handleAddCategory = () => {
     setEditingCategory(null);
@@ -191,19 +187,17 @@ export default function CategoryPage() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <button
-                onClick={() =>
-                  setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
-                }
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                <Filter className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  {sortOrder === 'newest' ? 'Terbaru' : 'Terlama'}
-                </span>
-              </button>
-            </div>
+            <button
+              onClick={() =>
+                setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
+              }
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Filter className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {sortOrder === 'newest' ? 'Terbaru' : 'Terlama'}
+              </span>
+            </button>
 
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -216,7 +210,16 @@ export default function CategoryPage() {
               />
             </div>
 
-            <div className="flex justify-end">
+            {/* PERUBAHAN: Conditional button seperti BannerPage */}
+            {selectedItems.size > 0 ? (
+              <button
+                onClick={handleDeleteAllSelected}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Hapus Terpilih ({selectedItems.size})
+              </button>
+            ) : (
               <button
                 onClick={handleAddCategory}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
@@ -224,14 +227,8 @@ export default function CategoryPage() {
                 <Plus className="w-4 h-4" />
                 Tambah Category
               </button>
-            </div>
+            )}
           </div>
-
-          {selectedItems.size > 0 && (
-            <div className="mt-3 text-sm text-gray-600">
-              {selectedItems.size} dari {filteredCategories.length} item dipilih
-            </div>
-          )}
 
           {error && (
             <div className="mt-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
@@ -293,7 +290,7 @@ export default function CategoryPage() {
                       )}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">{category._count?.products || 0}</td>
-                    <td className="px-4 py-4 relative">
+                    <td className="px-4 py-4 text-right relative">
                       <button
                         onClick={() => setOpenMenuId(openMenuId === category.id ? null : category.id)}
                         className="p-1 hover:bg-gray-100 rounded transition-colors"
@@ -369,6 +366,7 @@ export default function CategoryPage() {
   );
 }
 
+// ... MakeCategoryForm tetap sama
 function MakeCategoryForm({
   initialData,
   onSave,

@@ -42,7 +42,7 @@ export default function ProductPage() {
   }, [])
 
 
-  
+
   useEffect(() => {
     filterAndSortProducts()
   }, [products, searchQuery, sortOrder])
@@ -164,19 +164,23 @@ export default function ProductPage() {
               />
             </div>
 
-            <Link href="/admin/productForm" className="flex justify-end">
-              <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                <Plus className="w-4 h-4" />
-                Tambah Produk
+            {selectedItems.size > 0 ? (
+              <button
+                onClick={handleDeleteAllSelected}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Hapus Terpilih ({selectedItems.size})
               </button>
-            </Link>
+            ) : (
+              <Link href="/admin/productForm">
+                <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                  <Plus className="w-4 h-4" />
+                  Tambah Produk
+                </button>
+              </Link>
+            )}
           </div>
-
-          {selectedItems.size > 0 && (
-            <div className="mt-3 text-sm text-gray-600">
-              {selectedItems.size} dari {filteredProducts.length} item dipilih
-            </div>
-          )}
 
           {error && (
             <div className="mt-3 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">

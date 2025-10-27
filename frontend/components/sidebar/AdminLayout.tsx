@@ -18,12 +18,10 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
 
   return (
     <div className="fixed flex h-screen overflow-auto w-full bg-gray-100">
-      {/* Sidebar */}
       <aside
         className={`fixed h-screen bg-white border-r border-gray-200 shadow-sm flex flex-col transition-all duration-300 ease-in-out z-50 ${isCollapsed ? "w-[70px]" : "w-[240px]"
           }`}
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4">
           <div
             className={`overflow-hidden transition-all duration-300 ${isCollapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
@@ -47,7 +45,6 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
           </button>
         </div>
 
-        {/* Menu */}
         <nav className="flex-1 px-3 py-4">
           <ul className="space-y-1">
             {menuItems.map((item, idx) => {
@@ -71,7 +68,6 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
                       {item.name}
                     </span>
 
-                    {/* Tooltip when collapsed */}
                     {isCollapsed && (
                       <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50 shadow-lg">
                         {item.name}
@@ -113,7 +109,6 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
         </div>
       </aside>
 
-      {/* Main Content */}
       <main
         className={`flex-1 transition-all duration-300 ${isCollapsed ? "ml-[70px]" : "ml-[240px]"
           }`}

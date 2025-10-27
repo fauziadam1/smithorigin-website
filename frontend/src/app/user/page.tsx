@@ -1,9 +1,9 @@
 import Carousel from "../../../components/swiper/swiper";
-import HeaderSection from "../../../components/hero";
-import { CardBrand } from "../../../components/card/brandCard";
-import FeaturedProduct from "../../../components/card/featuredProduct";
-import { SuggestCard } from "../../../components/card/suggestCard";
-import { ButtonCategory} from "../../../components/button/btnCategory";
+import HeaderSection from "../../../components/card/hero_section";
+import { ButtonCategory } from "../../../components/button/btn_category";
+import FeaturedProduct from "../../../components/card/featured_product";
+import SuggestCard from "../../../components/card/suggest_card";
+import { BrandCard } from "../../../components/card/brand_card";
 
 export default async function DashboardUser() {
   return (
@@ -14,8 +14,8 @@ export default async function DashboardUser() {
           <Carousel />
           <ButtonCategory/>
           <FeaturedProduct />
-          <SuggestCard />
-          <CardBrand />
+          <SuggestCard/>
+          <BrandCard />
         </div>
       </section>
     </div>

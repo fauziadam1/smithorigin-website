@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import api from '../../lib/axios'
+import { AxiosError } from 'axios'
 
 interface Category {
   id: number
@@ -28,9 +29,14 @@ export function ButtonCategory() {
     try {
       const response = await api.get('/categories')
       setCategories(response.data.data)
-    } catch (err: any) {
+    } catch (error) {
+      // ✅ Ganti any → AxiosError agar type aman
+      const err = error as AxiosError<{ message?: string }>
       console.error('Error fetching categories:', err)
-      setError('Gagal memuat kategori')
+
+      const message =
+        err.response?.data?.message || 'Gagal memuat kategori'
+      setError(message)
     } finally {
       setLoading(false)
     }

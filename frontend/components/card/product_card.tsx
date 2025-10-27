@@ -6,15 +6,7 @@ import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { useRouter } from 'next/navigation'
 import api from '../../lib/axios'
 import { getAuth } from '../../lib/auth'
-
-interface Product {
-  id: number
-  name: string
-  price: number
-  discount: number | null
-  imageUrl: string | null
-  isBestSeller?: boolean
-}
+import { Product } from '../../lib/product'
 
 export function ProductCard({ product }: { product: Product }) {
   const router = useRouter()
@@ -41,7 +33,13 @@ export function ProductCard({ product }: { product: Product }) {
         await api.post('/favorites', { productId: product.id })
         setIsFavorite(true)
       }
-    } catch (err: any) {
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message)
+      }
+
+      // Deteksi jika ini error dari axios
+      const err = error as { response?: { data?: { message?: string } } }
       alert(err.response?.data?.message || 'Gagal mengubah wishlist')
     }
   }

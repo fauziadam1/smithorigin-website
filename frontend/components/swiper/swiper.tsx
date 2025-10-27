@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Navigation, Autoplay } from 'swiper/modules'
+import { Swiper as SwiperType } from 'swiper/types'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '../../lib/axios'
@@ -17,7 +18,7 @@ interface Banner {
 export default function Carousel() {
   const [banners, setBanners] = useState<Banner[]>([])
   const [loading, setLoading] = useState(true)
-  const swiperRef = useRef<any>(null)
+  const swiperRef = useRef<SwiperType | null>(null)
 
   useEffect(() => {
     fetchBanners()
@@ -77,17 +78,15 @@ export default function Carousel() {
           ))}
         </Swiper>
 
-        {/* Panah kiri */}
         <button className="cursor-pointer custom-prev absolute top-1/2 left-2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition">
           <ChevronLeft className="w-9 h-9 text-gray-800" />
         </button>
-        {/* Panah kanan */}
+
         <button className="cursor-pointer custom-next absolute top-1/2 right-2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition">
           <ChevronRight className="w-9 h-9 text-gray-800" />
         </button>
       </div>
 
-      {/* Pagination */}
       <div className="custom-pagination flex justify-center mt-2"></div>
     </div>
   )

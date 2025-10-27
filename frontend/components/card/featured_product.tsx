@@ -4,17 +4,8 @@ import Link from "next/link";
 import { Tabs, Tab, Button, Image } from "@heroui/react";
 import { BsStar as Filled, BsStarFill as IsFilled } from "react-icons/bs";
 import api from "../../lib/axios";
-import { ProductCard } from "./productCard";
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  discount?: number;
-  imageUrl?: string;
-  isBestSeller: boolean;
-  createdAt: string;
-}
+import { ProductCard } from "./product_card";
+import { Product } from "../../lib/product";
 
 function CardProduct({ product }: { product: Product }) {
   const [isFilled, setIsFilled] = useState(false);
