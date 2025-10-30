@@ -1,9 +1,9 @@
-import Carousel from "../../../components/swiper/swiper";
-import HeaderSection from "../../../components/card/hero_section";
-import { ButtonCategory } from "../../../components/button/btn_category";
-import FeaturedProduct from "../../../components/card/featured_product";
-import SuggestCard from "../../../components/card/suggest_card";
-import { BrandCard } from "../../../components/card/brand_card";
+import Carousel from "../components/swiper/swiper";
+import HeaderSection from "../components/card/hero_section";
+import { ButtonCategory } from "../components/button/btn_category";
+import FeaturedProduct from "../components/card/featured_product";
+import SuggestCard from "../components/card/suggest_card";
+import { BrandCard } from "../components/card/brand_card";
 
 export default async function DashboardUser() {
   return (

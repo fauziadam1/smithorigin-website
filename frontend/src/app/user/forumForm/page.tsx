@@ -1,52 +1,59 @@
 'use client'
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
-import { PiNotePencilDuotone as EditIcon } from 'react-icons/pi';
-import { PiPaperPlaneRightFill as PlaneIcon } from 'react-icons/pi';
-import { LuCircleAlert as AlertIcon } from 'react-icons/lu';
-import api from '../../../../lib/axios';
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
+import { PiNotePencilDuotone as EditIcon } from 'react-icons/pi'
+import { PiPaperPlaneRightFill as PlaneIcon } from 'react-icons/pi'
+import { LuCircleAlert as AlertIcon } from 'react-icons/lu'
+import api from '../../../../lib/axios'
+import { getAuth } from '../../../../lib/auth'
 
 export default function ForumForm() {
-  const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const router = useRouter()
+  const { user } = getAuth()
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    if (!title.trim() || !content.trim()) {
-      setError('Judul dan isi percakapan wajib diisi!');
-      return;
+    if (!user) {
+      setError('Anda harus login terlebih dahulu untuk membuat forum.')
+      setTimeout(() => router.push('/auth/sign-in'), 3000)
+      return
     }
 
-    setLoading(true);
-    setError('');
-    setSuccess('');
+    if (!title.trim() || !content.trim()) {
+      setError('Judul dan isi percakapan wajib diisi!')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setSuccess('')
 
     try {
-      const response = await api.post('/forums', { title, content });
+      const response = await api.post('/forums', { title, content })
 
-      setSuccess('Percakapan berhasil dikirim!');
-      setTitle('');
-      setContent('');
+      setSuccess('Percakapan berhasil dikirim!')
+      setTitle('')
+      setContent('')
 
-      console.log('Response dari server:', response.data);
+      console.log('Response dari server:', response.data)
 
       // Redirect otomatis ke halaman forum setelah 1 detik
       setTimeout(() => {
-        router.push('/user/forum');
-      }, 1000);
-
+        router.push('/user/forum')
+      }, 1000)
     } catch (err: unknown) {
-      console.error('Error saat submit forum:', err);
+      console.error('Error saat submit forum:', err)
 
       if (err instanceof Error) {
-        setError(err.message);
+        setError(err.message)
       } else if (
         typeof err === 'object' &&
         err !== null &&
@@ -55,12 +62,14 @@ export default function ForumForm() {
       ) {
         setError(
           (err as { response?: { data?: { message?: string } } }).response!.data!.message!
-        );
+        )
       } else {
-        setError('Gagal mengirim percakapan.');
+        setError('Gagal mengirim percakapan.')
       }
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="w-full min-h-screen bg-gray-50 my-40">
@@ -134,5 +143,5 @@ export default function ForumForm() {
         </div>
       </section>
     </div>
-  );
+  )
 }

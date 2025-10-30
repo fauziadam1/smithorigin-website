@@ -1,12 +1,15 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
-import { BiTrash } from 'react-icons/bi'
 import api from '../../../../lib/axios'
+import { BiTrash } from 'react-icons/bi'
+import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { getAuth } from '../../../../lib/auth'
+import { useAlert } from '../../components/alert/alert_context'
+import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
+import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
+import { useConfirm } from '../../components/alert/confirm_context'
 
 interface Category {
   id: number
@@ -35,6 +38,9 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<FavoriteProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { showAlert } = useAlert()
+  const { confirmDialog } = useConfirm()
+
 
   useEffect(() => {
     if (!user) {
@@ -72,7 +78,8 @@ export default function FavoritesPage() {
   }
 
   const removeFavorite = async (productId: number): Promise<void> => {
-    if (!confirm('Hapus produk dari wishlist?')) return
+    const ok = await confirmDialog('Hapus produk dari wishlist?')
+    if (!ok) return
 
     try {
       await api.delete(`/favorites/${productId}`)
@@ -89,7 +96,7 @@ export default function FavoritesPage() {
           (err as { response: { data: { message: string } } }).response.data.message,
         )
       } else {
-        alert('Gagal menghapus dari wishlist')
+        showAlert('Gagal menghapus dari wishlist')
       }
     }
   }
@@ -111,7 +118,6 @@ export default function FavoritesPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-40">
       <div className="container mx-auto px-10">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
@@ -125,8 +131,11 @@ export default function FavoritesPage() {
             </div>
           </div>
 
-          <Link href="/user" className="text-sm text-gray-600 hover:text-gray-900 transition">
-            ← Back to Home
+          <Link href="/user">
+            <button className="flex items-center gap-2 px-4 py-2 hover:text-red-800 cursor-pointer transition">
+              <ArrowIcon />
+              Kembali ke Forum
+            </button>
           </Link>
         </div>
 
@@ -136,7 +145,6 @@ export default function FavoritesPage() {
           </div>
         )}
 
-        {/* Empty State */}
         {favorites.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -149,7 +157,7 @@ export default function FavoritesPage() {
               Start adding your favorite products to keep track of them!
             </p>
             <Link
-              href="/user"
+              href="/user/store"
               className="inline-block bg-red-500 text-white px-6 py-3 rounded-full font-medium hover:bg-red-600 transition"
             >
               Browse Products
@@ -167,7 +175,7 @@ export default function FavoritesPage() {
                   key={favorite.id}
                   className="bg-white rounded-xl shadow-sm border hover:shadow-md transition group"
                 >
-                  <Link href={`/user/product/${product.id}`}>
+                  <Link href={`/user/product/${product.id}`} onClick={() => sessionStorage.setItem("previousPage", window.location.pathname)}>
                     <div className="relative aspect-square overflow-hidden rounded-t-xl">
                       <Image
                         src={product.imageUrl || '/placeholder.jpg'}
@@ -184,7 +192,7 @@ export default function FavoritesPage() {
                   </Link>
 
                   <div className="p-4">
-                    <Link href={`/user/product/${product.id}`}>
+                    <Link href={`/user/product/${product.id}`} onClick={() => sessionStorage.setItem("previousPage", window.location.pathname)}>
                       <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-red-500 transition">
                         {product.name}
                       </h3>
@@ -223,6 +231,7 @@ export default function FavoritesPage() {
                       </button>
                       <Link
                         href={`/user/product/${product.id}`}
+                        onClick={() => sessionStorage.setItem("previousPage", window.location.pathname)}
                         className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition text-sm font-medium"
                       >
                         <AiOutlineShoppingCart className="w-4 h-4" />

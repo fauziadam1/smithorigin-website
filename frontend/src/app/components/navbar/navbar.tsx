@@ -6,16 +6,12 @@ import Image from "next/image"
 import { LogIn } from 'lucide-react'
 import { Button } from "@heroui/button"
 import { useState, useEffect } from "react"
-import { getAuth, clearAuth } from "../../lib/auth"
+import { getAuth, clearAuth } from "../../../../lib/auth"
 import { usePathname, useRouter } from "next/navigation"
 import { HiMiniUser as UserIcon } from 'react-icons/hi2'
 import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi'
 import { AiOutlineHeart as FavoriteIcon } from 'react-icons/ai'
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-} from "../ui/avatar"
+import { getUserColor } from "../../../../utils/color"
 
 interface User {
     username: string
@@ -96,6 +92,7 @@ export default function Header() {
                         {[
                             { name: "Home", href: "/user" },
                             { name: "Forum", href: "/user/forum" },
+                            { name: "Store", href: "/user/store" },
                         ].map((item) => (
                             <li
                                 key={item.name}
@@ -143,8 +140,8 @@ export default function Header() {
 
                     {!isAuthenticated && (
                         <Link href="/auth/sign-in">
-                            <button className="bg-red-800 flex item-center gap-3 rounded-full px-4 py-3 text-white font-[500]">
-                                <LogIn className="w-5 h-5"/>
+                            <button className="bg-red-800 hover:bg-red-700 flex item-center gap-3 rounded-full px-4 py-3 text-white font-[500] cursor-pointer">
+                                <LogIn className="w-5 h-5" />
                                 Log In
                             </button>
                         </Link>
@@ -166,15 +163,14 @@ export default function Header() {
                             </Link>
 
                             <div className="relative">
-                                <Avatar
+                                <div
                                     onClick={() => setIsOpened(!isOpened)}
-                                    className="w-12 h-12 outline-0 border-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                    className={`w-12 h-12 ${getUserColor(user?.username || '')} rounded-full flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity`}
                                 >
-                                    <AvatarImage src={user?.avatarUrl || ''} alt="Profil" />
-                                    <AvatarFallback>
-                                        <UserIcon className="text-3xl" />
-                                    </AvatarFallback>
-                                </Avatar>
+                                    <span className="text-lg font-semibold text-black">
+                                        {user?.username?.[0]?.toUpperCase() || 'U'}
+                                    </span>
+                                </div>
 
                                 {isOpened && (
                                     <>
@@ -184,13 +180,23 @@ export default function Header() {
                                         />
 
                                         <div className="w-52 mt-3 p-2 right-0 bg-white absolute rounded-xl shadow-lg border z-20 flex flex-col gap-2">
-                                            {/* User Info */}
-                                            <div className="px-3 py-2 border-b">
-                                                <p className="font-semibold text-sm">{user?.username}</p>
-                                                <p className="text-xs text-gray-500">{user?.email}</p>
+                                            <div className="px-2 py-3 border-b">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div className={`w-9 h-9 ${getUserColor(user?.username || '')} rounded-full flex items-center justify-center`}>
+                                                        <span className="text-sm font-semibold text-black">
+                                                            {user?.username?.[0]?.toUpperCase() || 'U'}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-sm">{user?.username}</p>
+                                                        <p className="text-[10px] text-gray-500 max-w-[120px] truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                                                            {user?.email}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                                 <span
                                                     className={clsx(
-                                                        "inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium",
+                                                        "inline-block px-2 py-0.5 rounded-full text-xs font-medium",
                                                         user?.isAdmin
                                                             ? "bg-red-100 text-red-600"
                                                             : "bg-blue-100 text-blue-600"
@@ -216,14 +222,6 @@ export default function Header() {
                                                 onClick={() => setIsOpened(false)}
                                             >
                                                 My Favorites
-                                            </Link>
-
-                                            <Link
-                                                className="w-full font-[500] py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors text-sm"
-                                                href="/user/settings"
-                                                onClick={() => setIsOpened(false)}
-                                            >
-                                                Settings
                                             </Link>
 
                                             <hr className="my-1" />

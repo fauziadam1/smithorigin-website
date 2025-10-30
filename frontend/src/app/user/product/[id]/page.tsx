@@ -1,11 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { AiOutlineHeart as HeartIcon, AiFillHeart as HeartFillIcon } from 'react-icons/ai';
 import api from '../../../../../lib/axios';
+import { useState, useEffect } from 'react';
 import { getAuth } from '../../../../../lib/auth';
+import { ChevronRight as Arrow } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { useAlert } from '@/app/components/alert/alert_context';
+import { AiOutlineHeart as HeartIcon, AiFillHeart as HeartFillIcon } from 'react-icons/ai';
 
 interface ProductVariant {
   id: number;
@@ -25,6 +27,7 @@ interface Product {
   price: number;
   discount: number | null;
   imageUrl: string;
+  categoryId: number | null;
   category: ProductCategory | null;
   variants: ProductVariant[];
 }
@@ -34,12 +37,14 @@ interface Favorite {
 }
 
 export default function ProductDetailPage() {
+  const { showAlert } = useAlert()
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const productId = params.id;
   const { user } = getAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedImage, setSelectedImage] = useState('');
   const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -51,7 +56,7 @@ export default function ProductDetailPage() {
       fetchProduct();
       if (user) checkFavorite();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   const fetchProduct = async (): Promise<void> => {
@@ -60,12 +65,30 @@ export default function ProductDetailPage() {
       const data = response.data.data;
       setProduct(data);
       setSelectedImage(data.imageUrl || '');
+
+      if (data.categoryId) {
+        fetchRelatedProducts(data.categoryId);
+      }
     } catch (error) {
       console.error(error);
       alert('Gagal memuat produk');
       router.push('/user');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRelatedProducts = async (categoryId: number): Promise<void> => {
+    try {
+      const response = await api.get<{ data: Product[] }>(
+        `/products?categoryId=${categoryId}&limit=6`
+      );
+      const filtered = response.data.data.filter(
+        (p) => p.id !== parseInt(productId)
+      );
+      setRelatedProducts(filtered.slice(0, 5));
+    } catch (error) {
+      console.error('Error fetching related products:', error);
     }
   };
 
@@ -81,7 +104,7 @@ export default function ProductDetailPage() {
 
   const toggleFavorite = async (): Promise<void> => {
     if (!user) {
-      alert('Silakan login terlebih dahulu');
+      showAlert('Silakan login terlebih dahulu');
       router.push('/auth/sign-in');
       return;
     }
@@ -109,9 +132,11 @@ export default function ProductDetailPage() {
     setSelectedImage(variant.imageUrl || product?.imageUrl || '');
   };
 
-  const finalPrice = product?.discount
-    ? product.price - (product.price * product.discount) / 100
-    : product?.price;
+  const calculateFinalPrice = (price: number, discount: number | null) => {
+    return discount ? price - (price * discount) / 100 : price;
+  };
+
+  const finalPrice = calculateFinalPrice(product?.price || 0, product?.discount || null);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -131,9 +156,9 @@ export default function ProductDetailPage() {
       <section className="container px-10 py-40 mx-auto h-fit flex items-start justify-center">
         <div className='flex flex-col items-center gap-25'>
           <div className="flex flex-col items-center gap-5">
-            <div className="w-full text-sm text-gray-600">
+            <div className="w-full flex item-center text-sm text-gray-600">
               <Link href="/" className="hover:text-button">Home</Link>
-              <span className="mx-2">/</span>
+              <span className="mx-2"><Arrow className='w-4 h-4 translate-y-[2px]' /></span>
               <span className="text-gray-900">{product.name}</span>
             </div>
 
@@ -153,9 +178,8 @@ export default function ProductDetailPage() {
                     <div
                       key={index}
                       onClick={() => setSelectedImage(img)}
-                      className={`w-[6rem] h-[6rem] border-2 rounded-lg overflow-hidden cursor-pointer transition ${
-                        selectedImage === img ? 'border-button' : 'border-gray-200 hover:border-gray-400'
-                      }`}
+                      className={`w-[6rem] h-[6rem] border-2 rounded-lg overflow-hidden cursor-pointer transition ${selectedImage === img ? 'border-button' : 'border-gray-200 hover:border-gray-400'
+                        }`}
                     >
                       <Image
                         src={img}
@@ -219,11 +243,10 @@ export default function ProductDetailPage() {
                           <button
                             key={variant.id}
                             onClick={() => selectVariant(variant)}
-                            className={`px-4 py-2 border rounded-lg transition ${
-                              selectedVariant === variant.id
-                                ? 'border-button bg-blue-50 text-button'
-                                : 'border-gray-300 hover:border-gray-400'
-                            }`}
+                            className={`px-4 py-2 border rounded-lg transition ${selectedVariant === variant.id
+                              ? 'border-button bg-blue-50 text-button'
+                              : 'border-gray-300 hover:border-gray-400'
+                              }`}
                           >
                             {variant.color}
                           </button>
@@ -238,21 +261,19 @@ export default function ProductDetailPage() {
                   <div className='flex border-b'>
                     <button
                       onClick={() => setActiveTab('detail')}
-                      className={`px-4 py-2 font-medium transition ${
-                        activeTab === 'detail'
-                          ? 'border-b-2 border-button text-button'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
+                      className={`px-4 py-2 font-medium transition ${activeTab === 'detail'
+                        ? 'border-b-2 border-button text-button'
+                        : 'text-gray-600 hover:text-gray-900'
+                        }`}
                     >
                       Detail
                     </button>
                     <button
                       onClick={() => setActiveTab('info')}
-                      className={`px-4 py-2 font-medium transition ${
-                        activeTab === 'info'
-                          ? 'border-b-2 border-button text-button'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
+                      className={`px-4 py-2 font-medium transition ${activeTab === 'info'
+                        ? 'border-b-2 border-button text-button'
+                        : 'text-gray-600 hover:text-gray-900'
+                        }`}
                     >
                       Info Penting
                     </button>
@@ -276,10 +297,90 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          <div className='w-full flex flex-col gap-5 mt-10'>
-            <h1 className='font-[600] text-lg'>Mungkin anda tertarik</h1>
-            <div className='text-gray-500'>Related products akan muncul di sini</div>
-          </div>
+          {relatedProducts.length > 0 && (
+            <div className='w-full flex flex-col gap-5 mt-10'>
+              <div className='flex items-center justify-between'>
+                <h1 className='font-[600] text-xl'>Mungkin Anda Tertarik</h1>
+                {product.category && (
+                  <Link
+                    href={`/user?category=${product.categoryId}`}
+                    className='text-sm text-button hover:underline'
+                  >
+                    Lihat semua di {product.category.name}
+                  </Link>
+                )}
+              </div>
+
+              <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5'>
+                {relatedProducts.map((relatedProduct) => {
+                  const relatedFinalPrice = calculateFinalPrice(
+                    relatedProduct.price,
+                    relatedProduct.discount
+                  );
+                  const hasDiscount = relatedProduct.discount && relatedProduct.discount > 0;
+
+                  return (
+                    <Link
+                      key={relatedProduct.id}
+                      href={`/user/product/${relatedProduct.id}`}
+                      className='group'
+                    >
+                      <div className='bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300'>
+                        <div className='relative w-full aspect-square overflow-hidden'>
+                          <Image
+                            src={relatedProduct.imageUrl || '/placeholder.jpg'}
+                            alt={relatedProduct.name}
+                            fill
+                            className='object-cover group-hover:scale-105 transition-transform duration-300'
+                          />
+
+                          {hasDiscount && (
+                            <div className='absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded'>
+                              -{relatedProduct.discount}%
+                            </div>
+                          )}
+                        </div>
+
+                        <div className='p-4'>
+                          <h3 className='text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-button transition-colors'>
+                            {relatedProduct.name}
+                          </h3>
+
+                          <div className='flex items-baseline gap-2'>
+                            <span className='text-lg font-bold text-button'>
+                              Rp {relatedFinalPrice.toLocaleString('id-ID')}
+                            </span>
+                            {hasDiscount && (
+                              <span className='text-xs text-gray-400 line-through'>
+                                Rp {relatedProduct.price.toLocaleString('id-ID')}
+                              </span>
+                            )}
+                          </div>
+
+                          {relatedProduct.category && (
+                            <p className='text-xs text-gray-500 mt-2'>
+                              {relatedProduct.category.name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {relatedProducts.length === 0 && product.category && (
+            <div className='w-full flex flex-col items-center gap-3 mt-10 py-10 bg-gray-50 rounded-xl'>
+              <p className='text-gray-500'>Belum ada produk lain dalam kategori {product.category.name}</p>
+              <Link href='/user'>
+                <button className='px-6 py-2 bg-button text-white rounded-full hover:opacity-90 transition'>
+                  Lihat Semua Produk
+                </button>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
     </div>

@@ -1,6 +1,8 @@
+import "./globals.css";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import "./globals.css";
+import { AlertProvider } from "./components/alert/alert_context";
+import { ConfirmProvider } from "./components/alert/confirm_context";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -20,7 +22,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.className} scroll-smooth`}>
       <body>
-          {children}
+        <AlertProvider>
+          <ConfirmProvider>
+            {children}
+          </ConfirmProvider>
+        </AlertProvider>
       </body>
     </html>
   );

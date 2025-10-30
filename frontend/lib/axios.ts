@@ -12,4 +12,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// api.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       console.warn('Token invalid atau kadaluarsa');
+//       localStorage.removeItem('token');
+//       localStorage.removeItem('user');
+//       if (typeof window !== 'undefined') {
+//         window.location.href = '/auth/sign-in';
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );
+
 export default api;

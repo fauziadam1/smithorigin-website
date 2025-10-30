@@ -5,7 +5,7 @@ import { Pagination, Navigation, Autoplay } from 'swiper/modules'
 import { Swiper as SwiperType } from 'swiper/types'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import api from '../../lib/axios'
+import api from '../../../../lib/axios'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
@@ -35,8 +35,34 @@ export default function Carousel() {
     }
   }
 
-  if (loading) return <div className="text-center py-20">Loading banners...</div>
-  if (banners.length === 0) return <div className="text-center py-20">Tidak ada banner</div>
+  // 🩶 Skeleton shimmer saat loading
+  if (loading) {
+    return (
+      <div className="w-full flex flex-col gap-6 animate-pulse">
+        <div className="h-6 w-48 bg-gray-200 rounded-lg mx-auto mb-4"></div>
+        <div className="relative w-full max-w-[1440px] mx-auto h-[500px] bg-gray-200 rounded-lg overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_1.5s_infinite]" />
+        </div>
+        <style jsx>{`
+          @keyframes shimmer {
+            0% {
+              transform: translateX(-100%);
+            }
+            100% {
+              transform: translateX(100%);
+            }
+          }
+        `}</style>
+      </div>
+    )
+  }
+
+  if (banners.length === 0)
+    return (
+      <div className="text-center py-20 text-gray-500">
+        Tidak ada banner
+      </div>
+    )
 
   return (
     <div className="w-full flex flex-col gap-6 relative">

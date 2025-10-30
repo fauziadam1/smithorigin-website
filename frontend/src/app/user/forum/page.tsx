@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import api from '../../../../lib/axios'
 import { getAuth } from '../../../../lib/auth'
 import { FiMoreVertical } from 'react-icons/fi'
@@ -8,6 +9,7 @@ import React, { useState, useEffect } from 'react'
 import { getUserColor } from '../../../../utils/color'
 import { RiChatNewLine as ChatPlus } from 'react-icons/ri'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
+import { useAlert } from '@/app/components/alert/alert_context'
 import { BsFillKeyboardFill as KeyboardIcon } from 'react-icons/bs'
 
 interface Forum {
@@ -26,92 +28,121 @@ interface Forum {
     likes: Array<{ userId: number }>
 }
 
+function ForumSkeleton() {
+    return (
+        <div className="bg-white border rounded-xl p-5 animate-pulse">
+            <div className="flex items-start gap-4 mb-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-full" />
+
+                <div className="flex-1 space-y-2">
+                    <div className="w-1/3 h-3 bg-gray-200 rounded" />
+                    <div className="w-2/3 h-4 bg-gray-200 rounded" />
+                </div>
+            </div>
+
+            <div className="ml-14 space-y-2">
+                <div className="w-full h-3 bg-gray-200 rounded" />
+                <div className="w-2/3 h-3 bg-gray-200 rounded" />
+            </div>
+
+            <div className="ml-14 flex items-center gap-4 mt-4">
+                <div className="w-14 h-4 bg-gray-200 rounded" />
+                <div className="w-20 h-4 bg-gray-200 rounded" />
+            </div>
+        </div>
+    )
+}
+
+
 export default function ForumPage() {
-  const [forums, setForums] = useState<Forum[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null)
-  const { user } = getAuth()
+    const { showAlert } = useAlert()
+    const router = useRouter()
+    const [forums, setForums] = useState<Forum[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null)
+    const { user } = getAuth()
 
-  useEffect(() => {
-    fetchForums()
-  }, [])
+    useEffect(() => {
+        fetchForums()
+    }, [])
 
-  const getErrorMessage = (err: unknown): string => {
-    if (typeof err === 'object' && err !== null) {
-      const maybeErr = err as { response?: { data?: { message?: string } }; message?: string }
-      return maybeErr.response?.data?.message || maybeErr.message || 'Terjadi kesalahan tak dikenal'
-    }
-    if (typeof err === 'string') return err
-    return 'Terjadi kesalahan tak dikenal'
-  }
-
-  const fetchForums = async () => {
-    try {
-      const response = await api.get('/forums?limit=20')
-      setForums(response.data.data)
-    } catch (err: unknown) {
-      setError(getErrorMessage(err) || 'Gagal memuat forum')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleLike = async (forumId: number) => {
-    if (!user) {
-      alert('Silakan login untuk like')
-      return
+    const getErrorMessage = (err: unknown): string => {
+        if (typeof err === 'object' && err !== null) {
+            const maybeErr = err as { response?: { data?: { message?: string } }; message?: string }
+            return maybeErr.response?.data?.message || maybeErr.message || 'Terjadi kesalahan tak dikenal'
+        }
+        if (typeof err === 'string') return err
+        return 'Terjadi kesalahan tak dikenal'
     }
 
-    try {
-      const res = await api.post(`/forums/${forumId}/like`)
-      const { liked, likeCount } = res.data.data
-
-      setForums(prev =>
-        prev.map(forum => {
-          if (forum.id === forumId) {
-            return {
-              ...forum,
-              likes: liked
-                ? [...(forum.likes ?? []), { userId: user.id }]
-                : (forum.likes ?? []).filter(like => like.userId !== user.id),
-              _count: { ...forum._count, likes: likeCount },
-            }
-          }
-          return forum
-        }),
-      )
-    } catch (err: unknown) {
-      alert(getErrorMessage(err) || 'Gagal like forum')
+    const fetchForums = async () => {
+        try {
+            const response = await api.get('/forums?limit=20')
+            setForums(response.data.data)
+        } catch (err: unknown) {
+            setError(getErrorMessage(err) || 'Gagal memuat forum')
+        } finally {
+            setLoading(false)
+        }
     }
-  }
 
-  const handleDelete = async (forumId: number) => {
-    if (!confirm('Yakin ingin menghapus thread ini?')) return
+    const handleLike = async (forumId: number) => {
+        if (!user) {
+            showAlert('Silakan login terlebih dahulu')
+            setTimeout(() => router.push('/auth/sign-in'), 3000)
+            return
+        }
 
-    try {
-      await api.delete(`/forums/${forumId}`)
-      setForums(prev => prev.filter(f => f.id !== forumId))
-    } catch (err: unknown) {
-      alert(getErrorMessage(err) || 'Gagal menghapus thread')
+        try {
+            const res = await api.post(`/forums/${forumId}/like`)
+            const { liked, likeCount } = res.data.data
+
+            setForums(prev =>
+                prev.map(forum => {
+                    if (forum.id === forumId) {
+                        return {
+                            ...forum,
+                            likes: liked
+                                ? [...(forum.likes ?? []), { userId: user.id }]
+                                : (forum.likes ?? []).filter(like => like.userId !== user.id),
+                            _count: { ...forum._count, likes: likeCount },
+                        }
+                    }
+                    return forum
+                }),
+            )
+        } catch (err: unknown) {
+            showAlert(getErrorMessage(err) || 'Gagal like forum')
+        }
     }
-  }
 
-  const handleReport = (forumId: number) => {
-    alert(`Melaporkan thread ID: ${forumId}`)
-  }
+    const handleDelete = async (forumId: number) => {
+        if (!confirm('Yakin ingin menghapus thread ini?')) return
 
-  const formatTime = (date: string) => {
-    const now = new Date()
-    const then = new Date(date)
-    const diffMs = now.getTime() - then.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
+        try {
+            await api.delete(`/forums/${forumId}`)
+            setForums(prev => prev.filter(f => f.id !== forumId))
+        } catch (err: unknown) {
+            alert(getErrorMessage(err) || 'Gagal menghapus thread')
+        }
+    }
 
-    if (diffMins < 60) return `${diffMins} menit yang lalu`
-    if (diffHours < 24) return `${diffHours} jam yang lalu`
-    return `${Math.floor(diffHours / 24)} hari yang lalu`
-  }
+    const handleReport = (forumId: number) => {
+        showAlert(`Melaporkan thread ID: ${forumId}`)
+    }
+
+    const formatTime = (date: string) => {
+        const now = new Date()
+        const then = new Date(date)
+        const diffMs = now.getTime() - then.getTime()
+        const diffMins = Math.floor(diffMs / 60000)
+        const diffHours = Math.floor(diffMs / 3600000)
+
+        if (diffMins < 60) return `${diffMins} menit yang lalu`
+        if (diffHours < 24) return `${diffHours} jam yang lalu`
+        return `${Math.floor(diffHours / 24)} hari yang lalu`
+    }
 
     return (
         <div className="min-h-fit bg-gray-50 py-40">
@@ -136,11 +167,18 @@ export default function ForumPage() {
                         </div>
 
                         {loading ? (
-                            <div className="text-center py-10 text-gray-500">Loading...</div>
+                            <div className="flex flex-col gap-5">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                    <ForumSkeleton key={i} />
+                                ))}
+                            </div>
                         ) : error ? (
                             <div className="text-center py-10 text-red-500">{error}</div>
                         ) : forums.length === 0 ? (
-                            <div className="text-center py-10 text-gray-500">Belum ada diskusi</div>
+                            <div className="text-center py-10 text-gray-500">
+                                <h1 className='font-medium'>Belum Ada Diskusi</h1>
+                                <p className='text-xs'>Jadilah yang pertama</p>
+                            </div>
                         ) : (
                             forums.map((forum) => {
                                 const isLiked = user ? forum.likes?.some(like => like.userId === user.id) ?? false : false;
@@ -159,7 +197,7 @@ export default function ForumPage() {
                                                         <span className="font-semibold text-sm">{forum.user.username}</span>
                                                         <span className="text-xs text-gray-400">• {formatTime(forum.createdAt)}</span>
                                                     </div>
-                                                    <h3 className='text-lg font-semibold text-gray-900 hover:text-button transition cursor-pointer'>
+                                                    <h3 className='text-xl font-semibold text-gray-900 hover:text-button transition cursor-pointer'>
                                                         {forum.title}
                                                     </h3>
                                                 </div>
@@ -204,7 +242,7 @@ export default function ForumPage() {
                                                     e.stopPropagation()
                                                     handleLike(forum.id)
                                                 }}
-                                                className={`flex items-center gap-1 hover:text-red-500 transition ${isLiked ? 'text-red-500' : ''}`}
+                                                className={`flex items-center gap-1 cursor-pointer hover:text-red-500 transition ${isLiked ? 'text-red-500' : ''}`}
                                             >
                                                 {isLiked ? <AiFillHeart className="w-5 h-5" /> : <AiOutlineHeart className="w-5 h-5" />}
                                                 <span className="font-medium">{forum._count.likes}</span>

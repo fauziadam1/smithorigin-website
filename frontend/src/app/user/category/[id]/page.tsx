@@ -1,11 +1,14 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import api from '../../../../../lib/axios'
+import { useState, useEffect } from 'react'
 import { getAuth } from '../../../../../lib/auth'
+import { ChevronRight as Arrow } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation'
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
+import { useAlert } from '../../../components/alert/alert_context'
+import { isAxiosError } from 'axios'
 
 interface Product {
   id: number
@@ -33,6 +36,7 @@ interface FavoriteResponse {
 }
 
 export default function CategoryPage() {
+  const { showAlert } = useAlert()
   const params = useParams()
   const router = useRouter()
   const categoryId = params.id
@@ -85,8 +89,8 @@ export default function CategoryPage() {
 
   const toggleFavorite = async (productId: number) => {
     if (!user) {
-      alert('Silakan login untuk menambah ke wishlist')
-      router.push('/auth/sign-in')
+      showAlert('Silakan login untuk menambah ke wishlist')
+      setTimeout(() => router.push('/auth/sign-in'), 3000)
       return
     }
 
@@ -104,17 +108,53 @@ export default function CategoryPage() {
       }
     } catch (err: unknown) {
       if (isAxiosError(err)) {
-        alert(err.response?.data?.message || 'Gagal mengubah wishlist')
+        showAlert(err.response?.data?.message || 'Gagal mengubah wishlist')
       } else {
-        alert('Kesalahan tidak terduga')
+        showAlert('Kesalahan tidak terduga')
       }
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="container px-10 py-40 mx-auto animate-pulse">
+        <div className="flex items-center gap-2 mb-5 text-sm text-gray-400">
+          <div className="h-4 w-12 bg-gray-200 rounded"></div>
+          <Arrow className="w-4 h-4 text-gray-300" />
+          <div className="h-4 w-24 bg-gray-200 rounded"></div>
+        </div>
+
+        <div className="flex items-center gap-5 mb-10">
+          <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
+          <div>
+            <div className="h-6 w-40 bg-gray-200 rounded mb-2"></div>
+            <div className="h-4 w-24 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-2">
+              <div className="relative w-full aspect-square bg-gray-200 rounded-lg overflow-hidden">
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.5s_infinite]" />
+              </div>
+              <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
+              <div className="h-3 w-1/2 bg-gray-200 rounded"></div>
+              <div className="h-8 w-full bg-gray-200 rounded-full mt-1"></div>
+            </div>
+          ))}
+        </div>
+
+        <style jsx>{`
+          @keyframes shimmer {
+            0% {
+              transform: translateX(-100%);
+            }
+            100% {
+              transform: translateX(100%);
+            }
+          }
+        `}</style>
       </div>
     )
   }
@@ -136,13 +176,11 @@ export default function CategoryPage() {
     <div>
       <section className="container px-10 py-40 mx-auto h-fit flex items-start justify-center">
         <div className="w-full flex flex-col gap-10">
-          <nav className="flex items-center gap-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-blue-600 transition">
-              Home
-            </Link>
-            <span>/</span>
-            <span className="text-gray-900 font-medium">{category.name}</span>
-          </nav>
+          <div className="w-full flex item-center text-sm text-gray-600">
+            <Link href="/" className="hover:text-button">Home</Link>
+            <span className="mx-2"><Arrow className='w-4 h-4 translate-y-[2px]' /></span>
+            <span className="text-gray-900">{category.name}</span>
+          </div>
 
           <div className="flex items-center gap-5">
             {category.imageUrl && (
@@ -229,7 +267,7 @@ function CardProduct({
         <div className="py-3 space-y-1">
           <p className="text-[15px] truncate">{product.name}</p>
           <div className="flex items-baseline gap-2 flex-wrap">
-            <h1 className="font-[600] text-[19px] md:text-[16px] text-gray-900">
+            <h1 className="font-semibold text-[19px] md:text-[16px] text-gray-900">
               Rp {discountedPrice.toLocaleString('id-ID')}
             </h1>
             {hasDiscount && (
@@ -246,7 +284,7 @@ function CardProduct({
           e.preventDefault()
           onToggleFavorite()
         }}
-        className="w-full bg-white border border-gray-300 rounded-full py-2 mt-2 flex items-center justify-center gap-2 hover:bg-gray-50 transition text-sm font-medium"
+        className="w-full bg-white border cursor-pointer border-gray-300 rounded-full py-2 mt-2 flex items-center justify-center gap-2 hover:bg-gray-50 transition text-sm font-medium"
       >
         {isFavorite ? (
           <AiFillHeart className="w-4 h-4 text-red-500" />
@@ -257,8 +295,4 @@ function CardProduct({
       </button>
     </div>
   )
-}
-
-function isAxiosError(err: unknown): err is import('axios').AxiosError<{ message?: string }> {
-  return typeof err === 'object' && err !== null && 'isAxiosError' in err
 }

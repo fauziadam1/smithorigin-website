@@ -13,7 +13,7 @@ export const saveAuth = (token: string, user: User) => {
 
 export const getAuth = (): { token: string | null; user: User | null } => {
   if (typeof window === 'undefined') {
-    return { token: null, user: null }; // server side → return null
+    return { token: null, user: null };
   }
 
   const token = localStorage.getItem('token');

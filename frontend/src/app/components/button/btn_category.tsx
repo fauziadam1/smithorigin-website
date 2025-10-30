@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import api from '../../lib/axios'
+import api from '../../../../lib/axios'
 import { AxiosError } from 'axios'
 
 interface Category {
@@ -30,7 +30,6 @@ export function ButtonCategory() {
       const response = await api.get('/categories')
       setCategories(response.data.data)
     } catch (error) {
-      // ✅ Ganti any → AxiosError agar type aman
       const err = error as AxiosError<{ message?: string }>
       console.error('Error fetching categories:', err)
 
@@ -42,11 +41,36 @@ export function ButtonCategory() {
     }
   }
 
+  // 🩶 Skeleton shimmer effect saat loading
   if (loading) {
     return (
-      <div className="w-full flex flex-col gap-10">
+      <div className="w-full flex flex-col gap-10 animate-pulse">
         <h1 className="text-center text-2xl font-[700]">Category</h1>
-        <p className="text-center text-gray-500">Loading categories...</p>
+        <section className="flex justify-center items-center gap-10 flex-wrap">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex flex-col text-center gap-3 w-fit h-fit"
+            >
+              <div className="relative w-[180px] h-[180px] rounded-lg overflow-hidden bg-gray-200">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.5s_infinite]" />
+              </div>
+              <div className="h-5 w-32 bg-gray-200 mx-auto rounded"></div>
+              <div className="h-3 w-20 bg-gray-200 mx-auto rounded"></div>
+            </div>
+          ))}
+        </section>
+
+        <style jsx>{`
+          @keyframes shimmer {
+            0% {
+              transform: translateX(-100%);
+            }
+            100% {
+              transform: translateX(100%);
+            }
+          }
+        `}</style>
       </div>
     )
   }
@@ -88,7 +112,7 @@ export function ButtonCategory() {
               />
             </div>
             <div>
-              <h2 className="font-[600] text-gray-900 group-hover:text-blue-600 transition">
+              <h2 className="font-[600] text-gray-900 group-hover:text-red-600 transition">
                 {cat.name}
               </h2>
               {cat._count && (

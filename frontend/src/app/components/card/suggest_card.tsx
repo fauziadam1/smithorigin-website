@@ -49,14 +49,13 @@ export default function SuggestCard() {
       </h1>
 
       <div className="flex flex-col items-center gap-6">
-        {/* Grid atas (3 kolom) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
           {SuggestContent.slice(0, 3).map((item, index) => (
             <div
               key={index}
               className="flex items-center gap-5 bg-white border rounded-2xl shadow-sm px-6 py-5 hover:shadow-md transition"
             >
-              <div className="flex-shrink-0">{item.logo}</div>
+              <div className="shrink-0">{item.logo}</div>
               <div className="flex flex-col">
                 <h2 className="text-lg font-semibold text-gray-800">
                   {item.title}
@@ -69,14 +68,13 @@ export default function SuggestCard() {
           ))}
         </div>
 
-        {/* Grid bawah (2 kolom) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
           {SuggestContent.slice(3, 5).map((item, index) => (
             <div
               key={index}
               className="flex items-center gap-5 bg-white border rounded-2xl shadow-sm px-6 py-5 hover:shadow-md transition"
             >
-              <div className="flex-shrink-0">{item.logo}</div>
+              <div className="shrink-0">{item.logo}</div>
               <div className="flex flex-col">
                 <h2 className="text-lg font-semibold text-gray-800">
                   {item.title}

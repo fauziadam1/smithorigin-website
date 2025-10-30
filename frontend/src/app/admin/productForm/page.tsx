@@ -1,9 +1,9 @@
 'use client'
+import Image from 'next/image'
+import api from '../../../../lib/axios'
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Image from 'next/image'
 import { Upload, X, Save, ChevronDown, Check } from 'lucide-react'
-import api from '../../../../lib/axios'
 
 type Category = { id: number; name: string }
 

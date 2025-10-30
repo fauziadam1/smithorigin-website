@@ -1,15 +1,17 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { useRouter } from 'next/navigation'
-import api from '../../lib/axios'
-import { getAuth } from '../../lib/auth'
-import { Product } from '../../lib/product'
+import api from '../../../../lib/axios'
+import { getAuth } from '../../../../lib/auth'
+import { Product } from '../../../../lib/product'
+import { useAlert } from '../alert/alert_context'
 
 export function ProductCard({ product }: { product: Product }) {
   const router = useRouter()
+  const { showAlert } = useAlert()
   const { user } = getAuth()
   const [isFavorite, setIsFavorite] = useState(false)
 
@@ -18,10 +20,27 @@ export function ProductCard({ product }: { product: Product }) {
     ? product.price * (1 - product.discount! / 100)
     : product.price
 
+  useEffect(() => {
+    if (!user) return
+
+    const checkFavorite = async () => {
+      try {
+        const response = await api.get<{ data: { productId: number }[] }>('/favorites')
+        const favorites = response.data.data
+        const alreadyFavorite = favorites.some(fav => fav.productId === product.id)
+        setIsFavorite(alreadyFavorite)
+      } catch (error) {
+        console.error('Gagal memeriksa favorit:', error)
+      }
+    }
+
+    checkFavorite()
+  }, [user, product.id])
+
   const toggleFavorite = async () => {
     if (!user) {
-      alert('Silakan login untuk menambah ke wishlist')
-      router.push('/auth/sign-in')
+      showAlert('Silakan login untuk menambah ke wishlist')
+      setTimeout(() => router.push('/auth/sign-in'), 3000)
       return
     }
 
@@ -33,14 +52,10 @@ export function ProductCard({ product }: { product: Product }) {
         await api.post('/favorites', { productId: product.id })
         setIsFavorite(true)
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error.message)
-      }
-
-      // Deteksi jika ini error dari axios
+    } catch (error: unknown) {
+      console.error(error)
       const err = error as { response?: { data?: { message?: string } } }
-      alert(err.response?.data?.message || 'Gagal mengubah wishlist')
+      showAlert(err.response?.data?.message || 'Gagal mengubah wishlist')
     }
   }
 
@@ -71,7 +86,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="py-3 space-y-1">
           <p className="text-[15px] truncate">{product.name}</p>
           <div className="flex items-baseline gap-2">
-            <h1 className="font-[600] text-[19px] md:text-[14px]">
+            <h1 className="font-semibold text-[19px] md:text-[14px]">
               Rp {discountedPrice.toLocaleString('id-ID')}
             </h1>
             {hasDiscount && (
@@ -85,7 +100,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <button
         onClick={toggleFavorite}
-        className="w-full bg-white border border-gray-300 rounded-full py-2 mt-1 flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+        className="w-full bg-white border cursor-pointer border-gray-300 rounded-full py-2 mt-1 flex items-center justify-center gap-2 hover:bg-gray-50 transition"
       >
         {isFavorite ? (
           <AiFillHeart className="w-4 h-4 text-red-500" />

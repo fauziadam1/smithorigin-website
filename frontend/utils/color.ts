@@ -18,7 +18,6 @@ export const getUserColor = (username: string) => {
     'bg-amber-200',
   ];
 
-  // simple hash function
   let hash = 0;
   for (let i = 0; i < username.length; i++) {
     hash = username.charCodeAt(i) + ((hash << 5) - hash);
