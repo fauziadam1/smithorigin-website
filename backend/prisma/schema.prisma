@@ -52,12 +52,14 @@ model Product {
 }
 
 model ProductVariant {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   productId Int
   color     String
+  price     Int?   
   imageUrl  String?
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
+
 
 model Banner {
   id        Int      @id @default(autoincrement())

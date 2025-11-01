@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma';
+import { FileHelper } from '../lib/helper';
 
 export class CategoryService {
   static async getAll() {
@@ -69,6 +70,10 @@ export class CategoryService {
       throw new Error('Kategori dengan nama ini sudah ada');
     }
 
+    if (category.imageUrl && imageUrl && category.imageUrl !== imageUrl) {
+      FileHelper.deleteFile(category.imageUrl);
+    }
+
     return await prisma.category.update({
       where: { id },
       data: { name, imageUrl },
@@ -92,6 +97,8 @@ export class CategoryService {
     if (category._count.products > 0) {
       throw new Error(`Tidak bisa hapus kategori. Masih ada ${category._count.products} produk di kategori ini`);
     }
+
+    FileHelper.deleteFile(category.imageUrl);
 
     await prisma.category.delete({
       where: { id },

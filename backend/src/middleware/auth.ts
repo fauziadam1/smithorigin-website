@@ -15,7 +15,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Token tidak valid' });
+    return res.status(401).json({ message: 'Sesi anda telah berakhir silahkan login kembali' });
   }
 };
 

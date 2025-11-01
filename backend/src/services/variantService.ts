@@ -1,46 +1,54 @@
-import { prisma } from '../lib/prisma';
+import { prisma } from '../lib/prisma'
+import { FileHelper } from '../lib/helper';
 
 export class VariantService {
   static async getByProductId(productId: number) {
     const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) {
-      throw new Error('Produk tidak ditemukan');
-    }
+    if (!product) throw new Error('Produk tidak ditemukan');
 
-    return await prisma.productVariant.findMany({
+    return prisma.productVariant.findMany({
       where: { productId },
       orderBy: { id: 'desc' },
     });
   }
 
-  static async create(productId: number, color: string, imageUrl?: string) {
+  static async create(productId: number, color: string, imageUrl?: string, price?: number | null) {
     const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) {
-      throw new Error('Produk tidak ditemukan');
-    }
+    if (!product) throw new Error('Produk tidak ditemukan');
 
-    return await prisma.productVariant.create({
-      data: { productId, color, imageUrl },
+    return prisma.productVariant.create({
+      data: {
+        productId,
+        color,
+        imageUrl,
+        price: price ?? null,
+      },
     });
   }
 
-  static async update(id: number, color: string, imageUrl?: string) {
+  static async update(id: number, color: string, imageUrl?: string, price?: number | null) {
     const variant = await prisma.productVariant.findUnique({ where: { id } });
-    if (!variant) {
-      throw new Error('Varian tidak ditemukan');
+    if (!variant) throw new Error('Varian tidak ditemukan');
+
+    if (variant.imageUrl && imageUrl && variant.imageUrl !== imageUrl) {
+      FileHelper.deleteFile(variant.imageUrl);
     }
 
-    return await prisma.productVariant.update({
+    return prisma.productVariant.update({
       where: { id },
-      data: { color, imageUrl },
+      data: {
+        color,
+        imageUrl,
+        price: price ?? null,
+      },
     });
   }
 
   static async delete(id: number) {
     const variant = await prisma.productVariant.findUnique({ where: { id } });
-    if (!variant) {
-      throw new Error('Varian tidak ditemukan');
-    }
+    if (!variant) throw new Error('Varian tidak ditemukan');
+
+    FileHelper.deleteFile(variant.imageUrl);
 
     await prisma.productVariant.delete({ where: { id } });
   }

@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma';
+import { FileHelper } from '../lib/helper';
 
 export class BannerService {
   static async getAll() {
@@ -37,6 +38,10 @@ export class BannerService {
       throw new Error('Banner tidak ditemukan');
     }
 
+    if (banner.imageUrl && banner.imageUrl !== imageUrl) {
+      FileHelper.deleteFile(banner.imageUrl);
+    }
+
     return await prisma.banner.update({
       where: { id },
       data: { imageUrl },
@@ -48,6 +53,8 @@ export class BannerService {
     if (!banner) {
       throw new Error('Banner tidak ditemukan');
     }
+
+    FileHelper.deleteFile(banner.imageUrl);
 
     await prisma.banner.delete({ where: { id } });
   }

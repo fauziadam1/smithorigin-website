@@ -40,7 +40,6 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate email otomatis untuk admin (required di schema)
     const adminEmail = `${username}@admin.local`;
 
     const admin = await prisma.user.create({
@@ -128,7 +127,7 @@ export class AuthService {
       where: { id: userId },
       data: { 
         password: hashedPassword,
-        refreshToken: null // Logout dari semua device
+        refreshToken: null
       },
     });
   }

@@ -1,9 +1,10 @@
 import { prisma } from '../lib/prisma';
+import { FileHelper } from '../lib/helper';
 
 export class ProductService {
   static async getAll(page = 1, limit = 10, categoryId?: number, search?: string) {
     const skip = (page - 1) * limit;
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (categoryId) {
       where.categoryId = categoryId;
@@ -31,7 +32,6 @@ export class ProductService {
       prisma.product.count({ where }),
     ]);
 
-    // Tambahkan createdAt di setiap produk jika belum ada di include
     const productsWithCreatedAt = products.map(p => ({ ...p, createdAt: p.createdAt }));
 
     return {
@@ -62,7 +62,6 @@ export class ProductService {
     return { ...product, createdAt: product.createdAt };
   }
 
-  // Create
   static async create(data: {
     name: string;
     description?: string;
@@ -70,7 +69,7 @@ export class ProductService {
     discount?: number;
     imageUrl?: string;
     categoryId?: number;
-    isBestSeller?: boolean; // tambahkan ini
+    isBestSeller?: boolean;
   }) {
     if (data.categoryId) {
       const category = await prisma.category.findUnique({ where: { id: data.categoryId } });
@@ -85,7 +84,6 @@ export class ProductService {
     return { ...product, createdAt: product.createdAt };
   }
 
-  // Update
   static async update(
     id: number,
     data: {
@@ -95,7 +93,7 @@ export class ProductService {
       discount?: number;
       imageUrl?: string;
       categoryId?: number;
-      isBestSeller?: boolean; // tambahkan ini
+      isBestSeller?: boolean;
     }
   ) {
     const product = await prisma.product.findUnique({ where: { id } });
@@ -104,6 +102,10 @@ export class ProductService {
     if (data.categoryId) {
       const category = await prisma.category.findUnique({ where: { id: data.categoryId } });
       if (!category) throw new Error('Kategori tidak ditemukan');
+    }
+
+    if (product.imageUrl && data.imageUrl && product.imageUrl !== data.imageUrl) {
+      FileHelper.deleteFile(product.imageUrl);
     }
 
     const updatedProduct = await prisma.product.update({
@@ -116,10 +118,23 @@ export class ProductService {
   }
 
   static async delete(id: number) {
-    const product = await prisma.product.findUnique({ where: { id } });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        variants: true,
+      },
+    });
+
     if (!product) {
       throw new Error('Produk tidak ditemukan');
     }
+
+    FileHelper.deleteFile(product.imageUrl);
+
+    const variantImages = product.variants
+      .map(v => v.imageUrl)
+      .filter((url): url is string => url !== null);
+    FileHelper.deleteFiles(variantImages);
 
     await prisma.product.delete({ where: { id } });
   }
