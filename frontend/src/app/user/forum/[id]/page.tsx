@@ -108,7 +108,7 @@ export default function ForumDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 mb-4">{error || 'Forum tidak ditemukan'}</p>
-          <Link href="/user/forum" className="text-button hover:underline">
+          <Link href="/user/forum" className="text-red-800 hover:underline">
             Kembali ke Forum
           </Link>
         </div>
@@ -119,12 +119,11 @@ export default function ForumDetailPage() {
   return (
     <div className="min-h-fit bg-gray-50 py-40">
       <div className="container mx-auto px-10 max-w-4xl">
-        <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-button mb-6 transition">
+        <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-red-800 mb-6 transition">
           <ArrowIcon /> Kembali ke Forum
         </Link>
 
-        {/* Forum Thread */}
-        <div className="bg-white rounded-xl border p-6 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
           <h1 className="text-2xl font-bold mb-2">{forum.title}</h1>
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
             <UserIcon className="w-4 h-4" />
@@ -135,12 +134,11 @@ export default function ForumDetailPage() {
           <p className="text-gray-700 whitespace-pre-line">{forum.content}</p>
         </div>
 
-        {/* Replies */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-4">{forum.replies.length} Balasan</h2>
           <div className="space-y-4">
             {forum.replies.map((reply) => (
-              <div key={reply.id} className="bg-white rounded-xl border p-5">
+              <div key={reply.id} className="bg-white rounded-xl border border-gray-200 p-5">
                 <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                   <UserIcon className="w-4 h-4" />
                   <span className="font-medium text-gray-700">{reply.user.username}</span>
@@ -153,16 +151,15 @@ export default function ForumDetailPage() {
           </div>
         </div>
 
-        {/* Reply Form */}
         {user ? (
-          <div className="bg-white rounded-xl border p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="font-semibold mb-4">Tulis Balasan</h3>
             <form onSubmit={handleReply}>
               <textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 placeholder="Tulis balasan Anda..."
-                className="w-full border rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-button resize-none"
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-button resize-none"
                 rows={4}
                 required
               />
@@ -170,7 +167,7 @@ export default function ForumDetailPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-button text-white px-6 py-2 rounded-full hover:opacity-90 transition disabled:opacity-50"
+                  className="bg-red-800 cursor-pointer text-white px-6 py-2 rounded-full hover:bg-red-900 transition disabled:opacity-50"
                 >
                   {submitting ? 'Mengirim...' : 'Kirim Balasan'}
                 </button>

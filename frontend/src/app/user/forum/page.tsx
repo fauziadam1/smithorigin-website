@@ -11,6 +11,7 @@ import { RiChatNewLine as ChatPlus } from 'react-icons/ri'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { useAlert } from '@/app/components/alert/alert_context'
 import { BsFillKeyboardFill as KeyboardIcon } from 'react-icons/bs'
+import { useConfirm } from '@/app/components/alert/confirm_context'
 
 interface Forum {
     id: number
@@ -56,6 +57,7 @@ function ForumSkeleton() {
 
 export default function ForumPage() {
     const { showAlert } = useAlert()
+    const { confirmDialog } = useConfirm()
     const router = useRouter()
     const [forums, setForums] = useState<Forum[]>([])
     const [loading, setLoading] = useState(true)
@@ -118,7 +120,8 @@ export default function ForumPage() {
     }
 
     const handleDelete = async (forumId: number) => {
-        if (!confirm('Yakin ingin menghapus thread ini?')) return
+        const ok = await confirmDialog('Yakin ingin menghapus thread ini?')
+        if (!ok) return
 
         try {
             await api.delete(`/forums/${forumId}`)
@@ -153,7 +156,7 @@ export default function ForumPage() {
                             <KeyboardIcon className='text-3xl text-white' />
                         </div>
                         <div>
-                            <h1 className='text-4xl font-[600]'>Forum Komunitas Smith Origin</h1>
+                            <h1 className='text-4xl font-semibold'>Forum Komunitas Smith Origin</h1>
                             <p className='text-[13px] text-gray-600'>Platform untuk terhubung dan berbagi pengalaman</p>
                         </div>
                     </div>
@@ -186,7 +189,7 @@ export default function ForumPage() {
                                 const isMenuOpen = openMenuId === forum.id;
 
                                 return (
-                                    <div key={forum.id} className='bg-white border rounded-xl p-5 hover:shadow-md transition relative'>
+                                    <div key={forum.id} className='bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition relative'>
                                         <div className='flex items-start gap-4 mb-3'>
                                             <Link href={`/user/forum/${forum.id}`} className="flex-1 flex items-start gap-4">
                                                 <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
@@ -197,7 +200,7 @@ export default function ForumPage() {
                                                         <span className="font-semibold text-sm">{forum.user.username}</span>
                                                         <span className="text-xs text-gray-400">• {formatTime(forum.createdAt)}</span>
                                                     </div>
-                                                    <h3 className='text-xl font-semibold text-gray-900 hover:text-button transition cursor-pointer'>
+                                                    <h3 className='text-xl font-semibold text-gray-900 hover:text-red-800 transition cursor-pointer'>
                                                         {forum.title}
                                                     </h3>
                                                 </div>
@@ -206,24 +209,24 @@ export default function ForumPage() {
                                             <div className="relative">
                                                 <button
                                                     onClick={() => setOpenMenuId(isMenuOpen ? null : forum.id)}
-                                                    className="p-1 hover:bg-gray-200 rounded-full"
+                                                    className="p-1 hover:bg-gray-200 cursor-pointer rounded-full"
                                                 >
                                                     <FiMoreVertical className="w-5 h-5" />
                                                 </button>
 
                                                 {isMenuOpen && (
-                                                    <div className="absolute right-0 mt-1 w-32 bg-white border rounded-md shadow-lg z-10">
+                                                    <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                                                         {isOwner && (
                                                             <button
                                                                 onClick={() => { handleDelete(forum.id); setOpenMenuId(null); }}
-                                                                className="w-full text-left px-3 py-2 hover:bg-red-100 text-red-500"
+                                                                className="w-full text-left cursor-pointer px-3 py-2 hover:bg-red-100 text-red-500"
                                                             >
                                                                 Hapus
                                                             </button>
                                                         )}
                                                         <button
                                                             onClick={() => { handleReport(forum.id); setOpenMenuId(null); }}
-                                                            className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                                                            className="w-full text-left cursor-pointer px-3 py-2 hover:bg-gray-100"
                                                         >
                                                             Laporkan
                                                         </button>
@@ -260,16 +263,16 @@ export default function ForumPage() {
                     </div>
 
                     <div className='w-80'>
-                        <div className='border rounded-xl p-6 bg-white shadow-sm sticky top-24'>
+                        <div className='border border-gray-200 rounded-xl p-6 bg-white sticky top-24'>
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <ChatPlus className='text-3xl text-red-800' />
                             </div>
                             <div className='text-center mb-4'>
-                                <h3 className='font-[600] text-[19px] text-gray-900 mb-2'>Bagikan Cerita Anda</h3>
+                                <h3 className='font-semibold text-[19px] text-gray-900 mb-2'>Bagikan Cerita Anda</h3>
                                 <p className='text-[11px] text-gray-600'>Mulai percakapan baru, ajukan pertanyaan, atau berikan saran</p>
                             </div>
                             <Link href='/user/forumForm'>
-                                <button className="w-full bg-red-800 text-white text-[13px] font-[500] py-3 px-6 rounded-full hover:bg-red-900 cursor-pointer transition">
+                                <button className="w-full bg-red-800 text-white text-[13px] font-medium py-3 px-6 rounded-full hover:bg-red-900 cursor-pointer transition">
                                     Mulai Diskusi Baru
                                 </button>
                             </Link>

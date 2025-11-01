@@ -31,7 +31,7 @@ export function Footer() {
     }
 
     return (
-        <footer className="bg-button text-background">
+        <footer className="bg-red-800 text-background">
             <section className="container mx-auto px-6 py-14 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-10">
                 <div className="col-span-2 sm:col-span-2">
                     <div className="flex items-center mb-3 -translate-x-3">
@@ -42,7 +42,7 @@ export function Footer() {
                             height={80}
                             className="w-16 h-16"
                         />
-                        <h1 className="font-extrabold text-xl leading-tight ml-1">
+                        <h1 className="font-extrabold text-white text-xl leading-tight ml-1">
                             SMITH <br /> ORIGIN
                         </h1>
                     </div>
@@ -53,7 +53,7 @@ export function Footer() {
                 </div>
 
                 <div>
-                    <h2 className="font-semibold text-lg mb-3">Links</h2>
+                    <h2 className="font-semibold text-white text-lg mb-3">Links</h2>
                     <ul className="space-y-2 text-sm text-gray-100">
                         <li><Link href="/" className="hover:underline hover:text-white">Home</Link></li>
                         <li><Link href="#" className="hover:underline hover:text-white">Forum</Link></li>
@@ -62,7 +62,7 @@ export function Footer() {
                 </div>
 
                 <div>
-                    <h2 className="font-semibold text-lg mb-3">Category</h2>
+                    <h2 className="font-semibold text-white text-lg mb-3">Category</h2>
                     <ul className="space-y-2 text-sm text-gray-100">
                         {loading ? (
                             <>
@@ -88,7 +88,7 @@ export function Footer() {
                 </div>
 
                 <div>
-                    <h2 className="font-semibold text-lg mb-3">Follow Us</h2>
+                    <h2 className="font-semibold text-white text-lg mb-3">Follow Us</h2>
                     <ul className="space-y-2 text-sm text-gray-100">
                         <li>
                             <Link href="#" className="flex items-center gap-2 hover:text-white">
@@ -111,7 +111,7 @@ export function Footer() {
 
             <section className="bg-[#77000e] py-3">
                 <div className="container mx-auto px-6 flex justify-start items-center">
-                    <p className="text-[12px] text-background">
+                    <p className="text-[12px] text-white text-background">
                         © 2025 SMITH ORIGIN. All rights reserved.
                     </p>
                 </div>

@@ -69,9 +69,9 @@ export default function Header() {
         "fixed z-[1000] w-full mx-auto py-6 transition-colors duration-300",
         isHome
             ? navbarScrolled
-                ? "bg-white text-foreground border-b border"
+                ? "bg-white text-foreground border-b border-gray-200"
                 : "bg-transparent"
-            : "bg-white text-foreground border-b border"
+            : "bg-white text-foreground border-b border-gray-200"
     )
 
     const navItems = [
@@ -85,7 +85,6 @@ export default function Header() {
     return (
         <nav className={navClass}>
             <div className="container mx-auto px-10 flex items-center justify-between">
-                {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
                     <Image src="/Logo.png" alt="Logo" width={50} height={50} />
                     <h1
@@ -98,7 +97,6 @@ export default function Header() {
                     </h1>
                 </Link>
 
-                {/* Nav Menu */}
                 <div className="flex items-center gap-7">
                     <ul className="flex items-center gap-7 font-medium">
                         {navItems.map((item) => {
@@ -127,11 +125,10 @@ export default function Header() {
                         })}
                     </ul>
 
-                    {/* Search Bar */}
                     <form
                         action="POST"
                         className={clsx(
-                            "bg-background/30 py-3 px-5 text-[12px] flex items-center gap-3 rounded-full mr-2",
+                            "bg-white/30 py-3 px-5 text-[12px] flex items-center gap-3 rounded-full mr-2",
                             isHome && !navbarScrolled
                                 ? "border-none text-white"
                                 : "border border-gray-300 text-black"
@@ -205,8 +202,8 @@ export default function Header() {
                                             onClick={() => setIsOpened(false)}
                                         />
 
-                                        <div className="w-52 mt-3 p-2 right-0 bg-white absolute rounded-xl shadow-lg border z-20 flex flex-col gap-2">
-                                            <div className="px-2 py-3 border-b">
+                                        <div className="w-52 mt-3 p-2 right-0 bg-white absolute rounded-xl shadow-lg border border-gray-200 z-20 flex flex-col gap-2">
+                                            <div className="px-2 py-3 border-b border-gray-200">
                                                 <div className="flex items-center gap-3 mb-2">
                                                     <div className={`w-9 h-9 ${getUserColor(user?.username || '')} rounded-full flex items-center justify-center`}>
                                                         <span className="text-sm font-semibold text-black">
@@ -250,7 +247,7 @@ export default function Header() {
                                                 My Favorites
                                             </Link>
 
-                                            <hr className="my-1" />
+                                            <hr className="my-1 border-gray-200" />
 
                                             <button
                                                 onClick={handleLogout}

@@ -252,7 +252,7 @@ export default function ProductDetailPage() {
 
           <div className="w-full flex items-start gap-10">
             <div className="flex flex-col gap-5">
-              <div className="relative w-md h-112 border rounded-xl overflow-hidden">
+              <div className="relative w-md h-112 border border-gray-200 rounded-xl overflow-hidden">
                 <Image
                   src={selectedImage || '/placeholder.jpg'}
                   alt={product.name}
@@ -266,7 +266,7 @@ export default function ProductDetailPage() {
                   <div
                     key={index}
                     onClick={() => setSelectedImage(img)}
-                    className={`w-24 h-24 border-2 rounded-lg overflow-hidden cursor-pointer transition ${selectedImage === img ? 'border-button' : 'border-gray-200 hover:border-gray-400'
+                    className={`w-24 h-24 border-2 rounded-lg overflow-hidden cursor-pointer transition ${selectedImage === img ? 'border-red-800' : 'border-gray-200 hover:border-gray-400'
                       }`}
                   >
                     <Image
@@ -282,14 +282,14 @@ export default function ProductDetailPage() {
 
               <div className='w-full flex items-center gap-5'>
                 <Link href="/" className='w-full flex items-center gap-5'>
-                  <button className='w-full cursor-pointer bg-shoppe rounded-full text-white font-medium py-3 hover:bg-orange-600 transition'>
+                  <button className='w-full cursor-pointer bg-orange-600 rounded-full text-white font-medium py-3 hover:bg-orange-700 transition'>
                     Shopee
                   </button>
                 </Link>
                 <Link href="https://www.tokopedia.com/smithorigin?entrance_name=search_suggestion_store&st=product&source=search-initial.02.01.02" className='w-full flex items-center gap-5'>
-                  <button className='w-full cursor-pointer bg-tokopedia rounded-full text-white font-medium py-3 hover:bg-green-600 transition'>
+                  <button className='w-full cursor-pointer bg-green-600 rounded-full text-white font-medium py-3 hover:bg-green-700 transition'>
                     Tokopedia
-                  </button>~
+                  </button>
                 </Link>
               </div>
             </div>
@@ -336,7 +336,7 @@ export default function ProductDetailPage() {
                           key={variant.id}
                           onClick={() => selectVariant(variant)}
                           className={`px-4 py-2 border cursor-pointer rounded-lg transition ${selectedVariant === variant.id
-                            ? 'border-button bg-blue-50 text-button'
+                            ? 'border-red-800 bg-blue-50 text-button'
                             : 'border-gray-300 hover:border-gray-400'
                             }`}
                         >
@@ -350,7 +350,7 @@ export default function ProductDetailPage() {
               )}
 
               <div>
-                <div className='flex border-b'>
+                <div className='flex border-b border-gray-200'>
                   <button
                     onClick={() => setActiveTab('detail')}
                     className={`px-4 py-2 font-medium cursor-pointer transition ${activeTab === 'detail'

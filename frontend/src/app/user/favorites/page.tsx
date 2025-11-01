@@ -163,7 +163,7 @@ export default function FavoritesPage() {
         {loading ? (
           <SkeletonGrid />
         ) : favorites.length === 0 ? (
-          <div className="bg-white rounded-xl border p-12 text-center">
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <AiFillHeart className="w-12 h-12 text-gray-300" />
             </div>
@@ -190,7 +190,7 @@ export default function FavoritesPage() {
               return (
                 <div
                   key={favorite.id}
-                  className="bg-white rounded-xl border hover:shadow-md transition group"
+                  className="bg-white rounded-xl border border-gray-200 hover:shadow-md transition group"
                 >
                   <Link
                     href={`/user/product/${product.id}`}

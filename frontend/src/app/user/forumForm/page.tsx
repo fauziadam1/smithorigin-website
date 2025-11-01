@@ -86,7 +86,7 @@ export default function ForumForm() {
           </Link>
         </div>
 
-        <div className="bg-white border rounded-xl p-8">
+        <div className="bg-white border border-gray-200 rounded-xl p-8">
           <h2 className="text-xl font-semibold mb-2">Detail Percakapan</h2>
           <p className="text-sm text-gray-500 mb-6">
             Isi detail berikut untuk memulai diskusi baru
@@ -103,7 +103,7 @@ export default function ForumForm() {
                 placeholder="Berikan judul diskusi"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-500"
               />
               <span className="text-xs text-gray-400">
                 Buat judul yang singkat dan jelas.
@@ -116,7 +116,7 @@ export default function ForumForm() {
                 placeholder="Tuliskan apa yang ada di benak Anda"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none h-32"
+                className="border border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 resize-none h-32"
               />
               <span className="text-xs text-gray-400">
                 Kritik maupun saran akan sangat membantu website ini untuk lebih berkembang dan inovatif.

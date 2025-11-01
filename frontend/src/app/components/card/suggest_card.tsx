@@ -53,7 +53,7 @@ export default function SuggestCard() {
           {SuggestContent.slice(0, 3).map((item, index) => (
             <div
               key={index}
-              className="flex items-center gap-5 bg-white border rounded-2xl shadow-sm px-6 py-5 hover:shadow-md transition"
+              className="flex items-center gap-5 bg-white border border-gray-200 rounded-2xl shadow-sm px-6 py-5 hover:shadow-md transition"
             >
               <div className="shrink-0">{item.logo}</div>
               <div className="flex flex-col">
@@ -72,7 +72,7 @@ export default function SuggestCard() {
           {SuggestContent.slice(3, 5).map((item, index) => (
             <div
               key={index}
-              className="flex items-center gap-5 bg-white border rounded-2xl shadow-sm px-6 py-5 hover:shadow-md transition"
+              className="flex items-center gap-5 bg-white border border-gray-200 rounded-2xl shadow-sm px-6 py-5 hover:shadow-md transition"
             >
               <div className="shrink-0">{item.logo}</div>
               <div className="flex flex-col">

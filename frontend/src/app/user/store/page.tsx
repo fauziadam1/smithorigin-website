@@ -117,7 +117,7 @@ export default function StorePage(): React.JSX.Element {
                         <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
                     </div>
 
-                    <div className="flex gap-6 border-b mb-8">
+                    <div className="flex gap-6 border-b border-gray-200 mb-8">
                         {[
                             { id: 'best-seller' as const, label: 'Best Seller' },
                             { id: 'new-product' as const, label: 'New Product' },
@@ -126,7 +126,7 @@ export default function StorePage(): React.JSX.Element {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`pb-2 relative cursor-pointer text-base font-medium transition-colors ${activeTab === tab.id
-                                    ? 'text-red-800 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-red-800'
+                                    ? 'text-red-800 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-red-800'
                                     : 'text-gray-500 hover:text-red-800'
                                     }`}
                             >
