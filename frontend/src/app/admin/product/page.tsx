@@ -1,10 +1,12 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
-import { Search, MoreVertical, Edit2, Trash2, Filter, Plus } from 'lucide-react'
-import api from '../../../../lib/axios'
 import { AxiosError } from 'axios'
+import api from '../../../../lib/axios'
+import { useState, useEffect } from 'react'
+import { useAlert } from '@/app/components/alert/alert_context'
+import { useConfirm } from '@/app/components/alert/confirm_context'
+import { Search, MoreVertical, Edit2, Trash2, Filter, Plus } from 'lucide-react'
 
 interface Product {
   id: number
@@ -28,6 +30,8 @@ interface Product {
 }
 
 export default function ProductPage() {
+  const { showAlert } = useAlert()
+  const { confirmDialog } = useConfirm()
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set())
@@ -95,21 +99,23 @@ export default function ProductPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Yakin ingin menghapus produk ini?')) return
+    const ok = await confirmDialog('Yakin ingin menghapus produk ini?')
+    if (!ok) return
     try {
       await api.delete(`/products/${id}`)
       setProducts((prev) => prev.filter((p) => p.id !== id))
       setOpenMenuId(null)
-      alert('Produk berhasil dihapus!')
+      showAlert('Produk berhasil dihapus!')
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>
-      alert(error.response?.data?.message || 'Gagal menghapus produk')
+      showAlert(error.response?.data?.message || 'Gagal menghapus produk')
     }
   }
 
   const handleDeleteAllSelected = async () => {
     if (selectedItems.size === 0) return
-    if (!confirm(`Yakin ingin menghapus ${selectedItems.size} produk?`)) return
+    const ok = await confirmDialog(`Yakin ingin menghapus ${selectedItems.size} produk ini?`)
+    if (!ok) return
 
     try {
       await Promise.all(
@@ -118,10 +124,10 @@ export default function ProductPage() {
       setProducts((prev) => prev.filter((p) => !selectedItems.has(p.id)))
       setSelectedItems(new Set())
       setOpenMenuId(null)
-      alert('Produk berhasil dihapus!')
+      showAlert('Produk berhasil dihapus!')
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>
-      alert(error.response?.data?.message || 'Gagal menghapus produk')
+      showAlert(error.response?.data?.message || 'Gagal menghapus produk')
     }
   }
 
@@ -144,7 +150,7 @@ export default function ProductPage() {
                 onClick={() =>
                   setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
                 }
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Filter className="w-4 h-4" />
                 <span className="text-sm font-medium">
@@ -313,7 +319,7 @@ export default function ProductPage() {
                           onClick={() =>
                             setOpenMenuId(openMenuId === product.id ? null : product.id)
                           }
-                          className="p-1 hover:bg-gray-100 rounded transition-colors"
+                          className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors"
                         >
                           <MoreVertical className="w-5 h-5 text-gray-400" />
                         </button>
@@ -328,7 +334,7 @@ export default function ProductPage() {
                               {selectedItems.size > 1 ? (
                                 <button
                                   onClick={handleDeleteAllSelected}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                  className="w-full cursor-pointer px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                   Hapus {selectedItems.size} Item
@@ -344,7 +350,7 @@ export default function ProductPage() {
                                   </Link>
                                   <button
                                     onClick={() => handleDelete(product.id)}
-                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                    className="w-full cursor-pointer px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                     Delete

@@ -4,6 +4,8 @@ export interface Product {
   price: number;
   discount: number | null;
   imageUrl: string | null;
+  categoryId: string;
   isBestSeller: boolean;
   createdAt: string;
+  variants: string;
 }

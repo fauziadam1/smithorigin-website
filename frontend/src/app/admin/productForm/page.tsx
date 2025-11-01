@@ -4,6 +4,8 @@ import api from '../../../../lib/axios'
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Upload, X, Save, ChevronDown, Check } from 'lucide-react'
+import { useAlert } from '@/app/components/alert/alert_context'
+import { useConfirm } from '@/app/components/alert/confirm_context'
 
 type Category = { id: number; name: string }
 
@@ -13,6 +15,7 @@ type ProductVariant = {
   imageUrl: string
   imagePreview: string
   imageFile: File | null
+  price: string
 }
 
 type ProductResponse = {
@@ -28,10 +31,13 @@ type ProductResponse = {
     id: number
     color: string
     imageUrl: string
+    price?: number | null
   }>
 }
 
 export default function ProductForm() {
+  const { showAlert } = useAlert()
+  const { confirmDialog } = useConfirm()
   const router = useRouter()
   const searchParams = useSearchParams()
   const productIdParam = searchParams?.get('id')
@@ -101,12 +107,13 @@ export default function ProductForm() {
           imageUrl: v.imageUrl,
           imagePreview: v.imageUrl,
           imageFile: null,
+          price: v.price ? String(v.price) : '',
         }))
         setVariants(loadedVariants)
       }
     } catch (err) {
       console.error('fetchProduct error', err)
-      alert('Gagal memuat produk')
+      showAlert('Gagal memuat produk')
     }
   }
 
@@ -137,6 +144,8 @@ export default function ProductForm() {
         current.imageUrl = value
         current.imageFile = null
         current.imagePreview = value
+      } else if (field === 'price' && typeof value === 'string') {
+        current.price = value
       }
 
       newVariants[index] = current
@@ -146,12 +155,12 @@ export default function ProductForm() {
 
   const handleAddVariant = () => {
     if (variants.length >= 5) {
-      alert('Maksimal 5 varian produk.')
+      showAlert('Maksimal 5 varian produk.')
       return
     }
     setVariants((v) => [
       ...v,
-      { id: null, color: '', imageUrl: '', imagePreview: '', imageFile: null },
+      { id: null, color: '', imageUrl: '', imagePreview: '', imageFile: null, price: '' },
     ])
   }
 
@@ -163,10 +172,10 @@ export default function ProductForm() {
 
       try {
         await api.delete(`/products/${productIdParam}/variants/${variantToRemove.id}`)
-        alert('Varian berhasil dihapus dari database.')
+        showAlert('Varian berhasil dihapus dari database.')
       } catch (err) {
         console.error('Gagal menghapus varian', err)
-        alert('Gagal menghapus varian.')
+        showAlert('Gagal menghapus varian.')
         return
       }
     }
@@ -177,7 +186,7 @@ export default function ProductForm() {
     e.preventDefault()
 
     if (!name.trim() || !price || (!mainImageFile && !mainImageUrl)) {
-      alert('Nama, harga, dan gambar utama wajib diisi.')
+      showAlert('Nama, harga, dan gambar utama wajib diisi.')
       return
     }
 
@@ -209,21 +218,25 @@ export default function ProductForm() {
           let variantImageUrl = variant.imageUrl
           if (variant.imageFile) variantImageUrl = await uploadImage(variant.imageFile)
 
-          const variantPayload = { color: variant.color, imageUrl: variantImageUrl }
+          const variantPayload = {
+            color: variant.color,
+            imageUrl: variantImageUrl,
+            price: variant.price ? parseFloat(variant.price) : undefined,
+          }
 
           if (variant.id) {
-            await api.put(`/products/${savedProduct.id}/variants/${variant.id}`, variantPayload)
+            await api.put(`/variants/${variant.id}`, variantPayload)
           } else {
             await api.post(`/products/${savedProduct.id}/variants`, variantPayload)
           }
         }
       }
 
-      alert(isEditMode ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!')
+      showAlert(isEditMode ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!')
       router.push('/admin/product')
     } catch (err) {
       console.error('submit error', err)
-      alert('Gagal menyimpan produk')
+      showAlert('Gagal menyimpan produk sesi anda telah berakhir')
     } finally {
       setLoading(false)
     }
@@ -238,7 +251,7 @@ export default function ProductForm() {
 
   return (
     <div className="mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+      <div className="bg-white rounded-lg border p-6 space-y-6">
         <h2 className="text-lg font-semibold">{isEditMode ? 'Edit Produk' : 'Tambah Produk'}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -311,8 +324,8 @@ export default function ProductForm() {
                             setCategoryOpen(false)
                           }}
                           className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center ${categoryId === String(cat.id)
-                              ? 'bg-blue-50 text-blue-600 font-medium'
-                              : ''
+                            ? 'bg-blue-50 text-blue-600 font-medium'
+                            : ''
                             }`}
                         >
                           {cat.name}
@@ -393,10 +406,10 @@ export default function ProductForm() {
 
           {enableVariant && (
             <div className="border-t pt-4">
-              <label className="block text-sm mb-2 font-medium">Gambar Varian (maks 5)</label>
+              <label className="block text-sm mb-2 font-medium">Gambar & Harga Varian (maks 5)</label>
               <div className="flex flex-wrap gap-4">
                 {variants.map((variant, i) => (
-                  <div key={variant.id || i} className="relative w-24">
+                  <div key={variant.id || i} className="relative w-28">
                     {variant.imagePreview ? (
                       <>
                         <Image
@@ -438,6 +451,13 @@ export default function ProductForm() {
                       onChange={(e) => handleVariantChange(i, 'color', e.target.value)}
                       className="mt-2 w-full text-xs border rounded px-2 py-1 focus:ring-1 focus:ring-blue-400"
                     />
+                    <input
+                      type="number"
+                      placeholder="Harga varian"
+                      value={variant.price}
+                      onChange={(e) => handleVariantChange(i, 'price', e.target.value)}
+                      className="mt-1 w-full text-xs border rounded px-2 py-1 focus:ring-1 focus:ring-blue-400"
+                    />
                   </div>
                 ))}
                 {variants.length < 5 && (
@@ -456,7 +476,7 @@ export default function ProductForm() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+            className="flex items-center cursor-pointer gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
           >
             <Save className="w-4 h-4" /> {isEditMode ? 'Update Produk' : 'Simpan Produk'}
           </button>

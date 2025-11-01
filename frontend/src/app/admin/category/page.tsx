@@ -1,8 +1,10 @@
 'use client'
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { Search, MoreVertical, Edit2, Trash2, Filter, Plus, X, Upload, ImagePlus, Save } from 'lucide-react';
 import api from '../../../../lib/axios';
+import { useState, useEffect } from 'react';
+import { useAlert } from '@/app/components/alert/alert_context';
+import { useConfirm } from '@/app/components/alert/confirm_context';
+import { Search, MoreVertical, Edit2, Trash2, Filter, Plus, X, Upload, ImagePlus, Save } from 'lucide-react';
 
 interface Category {
   id: number;
@@ -14,6 +16,8 @@ interface Category {
 }
 
 export default function CategoryPage() {
+  const { showAlert } = useAlert()
+  const { confirmDialog } = useConfirm()
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
@@ -83,19 +87,20 @@ export default function CategoryPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Yakin ingin menghapus kategori ini?')) return;
+    const ok = await confirmDialog('Yakin ingin menghapus kategori ini?')
+    if (!ok) return
 
     try {
       await api.delete(`/categories/${id}`);
       setCategories((prev) => prev.filter((cat) => cat.id !== id));
       setOpenMenuId(null);
-      alert('Kategori berhasil dihapus!');
+      showAlert('Kategori berhasil dihapus!');
     } catch (err: unknown) {
       const message =
         (err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : undefined) || 'Gagal menghapus kategori';
-      alert(message);
+      showAlert(message);
     }
   };
 
@@ -116,7 +121,7 @@ export default function CategoryPage() {
         (err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : undefined) || 'Gagal menghapus beberapa kategori';
-      alert(message);
+      showAlert(message);
     }
   };
 
@@ -147,7 +152,7 @@ export default function CategoryPage() {
         } catch (uploadErr: unknown) {
           console.error('Upload error:', uploadErr);
           if (!data.imageUrl) {
-            alert('Gagal upload gambar. Silakan gunakan URL gambar.');
+            showAlert('Gagal upload gambar. Silakan gunakan URL gambar.');
             return;
           }
         }
@@ -161,14 +166,14 @@ export default function CategoryPage() {
         setCategories((prev) =>
           prev.map((cat) => (cat.id === editingCategory.id ? response.data.data : cat))
         );
-        alert('Kategori berhasil diupdate!');
+        showAlert('Kategori berhasil diupdate!');
       } else {
         const response = await api.post('/categories', {
           name: data.name,
           imageUrl: finalImageUrl,
         });
         setCategories((prev) => [response.data.data, ...prev]);
-        alert('Kategori berhasil ditambahkan!');
+        showAlert('Kategori berhasil ditambahkan!');
       }
       setIsMakeCategoryOpen(false);
     } catch (err: unknown) {
@@ -176,7 +181,7 @@ export default function CategoryPage() {
         (err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : undefined) || 'Gagal menyimpan kategori';
-      alert(message);
+      showAlert(message);
     }
   };
 
@@ -191,7 +196,7 @@ export default function CategoryPage() {
               onClick={() =>
                 setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
               }
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Filter className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -210,11 +215,10 @@ export default function CategoryPage() {
               />
             </div>
 
-            {/* PERUBAHAN: Conditional button seperti BannerPage */}
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})
@@ -222,7 +226,7 @@ export default function CategoryPage() {
             ) : (
               <button
                 onClick={handleAddCategory}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Category
@@ -282,7 +286,7 @@ export default function CategoryPage() {
                     <td className="px-4 py-4 text-sm font-medium text-gray-900">{category.name}</td>
                     <td className="px-4 py-4">
                       {category.imageUrl ? (
-                        <img src={category.imageUrl} alt={category.name} className="w-12 h-12 rounded-lg object-cover" />
+                        <Image src={category.imageUrl} width={100} height={100} alt={category.name} className="w-12 h-12 rounded-lg object-cover" />
                       ) : (
                         <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
                           <span className="text-xs text-gray-400">No img</span>
@@ -293,7 +297,7 @@ export default function CategoryPage() {
                     <td className="px-4 py-4 text-right relative">
                       <button
                         onClick={() => setOpenMenuId(openMenuId === category.id ? null : category.id)}
-                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        className="p-1 hover:bg-gray-100 cursor-pointer rounded transition-colors"
                       >
                         <MoreVertical className="w-5 h-5 text-gray-400" />
                       </button>
@@ -305,7 +309,7 @@ export default function CategoryPage() {
                             {selectedItems.size > 1 ? (
                               <button
                                 onClick={handleDeleteAllSelected}
-                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                className="w-full px-4 py-2 cursor-pointer text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                               >
                                 <Trash2 className="w-4 h-4" />
                                 Hapus {selectedItems.size} Item
@@ -314,14 +318,14 @@ export default function CategoryPage() {
                               <>
                                 <button
                                   onClick={() => handleEditCategory(category)}
-                                  className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left cursor-pointer text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                   Edit
                                 </button>
                                 <button
                                   onClick={() => handleDelete(category.id)}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left cursor-pointer text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                   Delete

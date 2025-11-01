@@ -4,7 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, Package, Archive, Image, MoveLeft } from "lucide-react";
 
-const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) => {
+const AdminLayout = ({
+  children,
+}: Readonly<{ children: React.ReactNode }>) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
 
@@ -34,7 +36,7 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-2 rounded-lg hover:bg-gray-100 transition-all duration-200 group ${isCollapsed && "mx-auto"
+            className={`p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-all duration-200 group ${isCollapsed && "mx-auto"
               }`}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -58,7 +60,13 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
                       : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                       } ${isCollapsed ? "justify-center" : "justify-start"}`}
                   >
-                    <item.icon className={isCollapsed ? "w-5 h-5 flex-shrink-0 translate-x-1" : "w-5 h-5 flex-shrink-0"} />
+                    <item.icon
+                      className={
+                        isCollapsed
+                          ? "w-5 h-5 shrink-0 translate-x-1"
+                          : "w-5 h-5 shrink-0"
+                      }
+                    />
                     <span
                       className={`font-medium text-sm whitespace-nowrap transition-all duration-300 ${isCollapsed
                         ? "opacity-0 w-0 overflow-hidden"
@@ -85,7 +93,13 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
             className={`flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${isCollapsed ? "justify-center" : "justify-start"
               }`}
           >
-            <div className={isCollapsed ? "w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 translate-x-1" : "w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0"}>
+            <div
+              className={
+                isCollapsed
+                  ? "w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 translate-x-1"
+                  : "w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0"
+              }
+            >
               <span className="text-red-800 text-sm font-semibold">A</span>
             </div>
             <div
@@ -98,19 +112,34 @@ const AdminLayout = ({ children, }: Readonly<{ children: React.ReactNode; }>) =>
               <p className="text-xs text-gray-500">admin@example.com</p>
             </div>
           </div>
+
           <Link href="/user">
             <button
-              className="flex items-center mx-3 gap-2 px-4 py-2 bg-red-800 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-red-900 transition-colors"
+              className={`flex items-center gap-3 px-4 py-2 bg-red-800 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-red-900 transition-all duration-300 ${isCollapsed
+                ? "justify-center w-11 mx-auto"
+                : "justify-start w-full"
+                }`}
             >
-              <MoveLeft className="w-4 h-4" />
-              Kembali
+              <MoveLeft className={
+                isCollapsed
+                  ? "w-4 h-4 shrink-0 translate-x-1"
+                  : "w-4 h-4 shrink-0"
+              } />
+              <span
+                className={`transition-all whitespace-nowrap duration-300 ${isCollapsed
+                  ? "opacity-0 w-0 overflow-hidden"
+                  : "opacity-100 w-auto"
+                  }`}
+              >
+                Kembali
+              </span>
             </button>
           </Link>
         </div>
       </aside>
 
       <main
-        className={`flex-1 transition-all duration-300 ${isCollapsed ? "ml-[70px]" : "ml-[240px]"
+        className={`flex-1 transition-all duration-300 ${isCollapsed ? "ml-[70px]" : "ml-60"
           }`}
       >
         <div className="p-8">{children}</div>

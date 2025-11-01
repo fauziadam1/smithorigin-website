@@ -1,14 +1,11 @@
 'use client'
 import clsx from "clsx"
 import Link from "next/link"
-import * as React from "react"
 import Image from "next/image"
 import { LogIn } from 'lucide-react'
-import { Button } from "@heroui/button"
 import { useState, useEffect } from "react"
 import { getAuth, clearAuth } from "../../../../lib/auth"
 import { usePathname, useRouter } from "next/navigation"
-import { HiMiniUser as UserIcon } from 'react-icons/hi2'
 import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi'
 import { AiOutlineHeart as FavoriteIcon } from 'react-icons/ai'
 import { getUserColor } from "../../../../utils/color"
@@ -23,14 +20,18 @@ interface User {
 export default function Header() {
     const pathname = usePathname()
     const router = useRouter()
-    const isHome = pathname === "/user"
-
-    const [navbarScrolled, setNavbarScrolled] = React.useState(false)
+    const [navbarScrolled, setNavbarScrolled] = useState(false)
+    const [mounted, setMounted] = useState(false)
     const [isOpened, setIsOpened] = useState(false)
     const [user, setUser] = useState<User | null>(null)
     const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-    // ✅ Check authentication safely
+    const isHome = mounted && pathname === "/user"
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
     useEffect(() => {
         const auth = getAuth()
         if (auth?.token && auth?.user) {
@@ -42,17 +43,19 @@ export default function Header() {
         }
     }, [pathname])
 
-    // ✅ Scroll effect for home header
-    React.useEffect(() => {
-        if (!isHome) return
-
-        const handleScroll = () => {
+    useEffect(() => {
+        if (!mounted) return
+        if (isHome) {
             setNavbarScrolled(window.scrollY > window.innerHeight - 80)
+            const handleScroll = () => {
+                setNavbarScrolled(window.scrollY > window.innerHeight - 80)
+            }
+            window.addEventListener("scroll", handleScroll)
+            return () => window.removeEventListener("scroll", handleScroll)
+        } else {
+            setNavbarScrolled(true)
         }
-
-        window.addEventListener("scroll", handleScroll)
-        return () => window.removeEventListener("scroll", handleScroll)
-    }, [isHome])
+    }, [mounted, isHome])
 
     const handleLogout = () => {
         clearAuth()
@@ -71,6 +74,14 @@ export default function Header() {
             : "bg-white text-foreground border-b border"
     )
 
+    const navItems = [
+        { name: "Home", href: "/user" },
+        { name: "Forum", href: "/user/forum" },
+        { name: "Store", href: "/user/store" },
+    ]
+
+    if (!mounted) return null
+
     return (
         <nav className={navClass}>
             <div className="container mx-auto px-10 flex items-center justify-between">
@@ -78,7 +89,7 @@ export default function Header() {
                     <Image src="/Logo.png" alt="Logo" width={50} height={50} />
                     <h1
                         className={clsx(
-                            "font-[700] text-[15px] leading-5 transition-colors",
+                            "font-bold text-[15px] leading-5 transition-colors",
                             isHome && !navbarScrolled ? "text-white" : "text-black"
                         )}
                     >
@@ -87,25 +98,31 @@ export default function Header() {
                 </Link>
 
                 <div className="flex items-center gap-7">
-                    {/* Links */}
-                    <ul className="flex items-center gap-7 font-[500]">
-                        {[
-                            { name: "Home", href: "/user" },
-                            { name: "Forum", href: "/user/forum" },
-                            { name: "Store", href: "/user/store" },
-                        ].map((item) => (
-                            <li
-                                key={item.name}
-                                className={clsx(
-                                    "cursor-pointer transition-colors",
-                                    isHome && !navbarScrolled
-                                        ? "text-white hover:text-gray-300"
-                                        : "text-black hover:text-gray-600"
-                                )}
-                            >
-                                <Link href={item.href}>{item.name}</Link>
-                            </li>
-                        ))}
+                    <ul className="flex items-center gap-7 font-medium">
+                        {navItems.map((item) => {
+                            const isActive =
+                                pathname === item.href ||
+                                (item.href !== "/user" && pathname.startsWith(item.href))
+                            return (
+                                <li key={item.name}>
+                                    <Link
+                                        href={item.href}
+                                        className={clsx(
+                                            "transition-colors",
+                                            isHome && !navbarScrolled
+                                                ? isActive
+                                                    ? "text-red-800 font-semibold"
+                                                    : "text-white hover:text-gray-300"
+                                                : isActive
+                                                    ? "text-red-800 font-semibold"
+                                                    : "text-black hover:text-gray-600"
+                                        )}
+                                    >
+                                        {item.name}
+                                    </Link>
+                                </li>
+                            )
+                        })}
                     </ul>
 
                     <form
@@ -120,7 +137,7 @@ export default function Header() {
                         <label htmlFor="search">
                             <SearchIcon
                                 className={clsx(
-                                    "w-[20px] h-[20px]",
+                                    "w-5 h-5",
                                     isHome && !navbarScrolled ? "text-white" : "text-black"
                                 )}
                             />
@@ -140,7 +157,7 @@ export default function Header() {
 
                     {!isAuthenticated && (
                         <Link href="/auth/sign-in">
-                            <button className="bg-red-800 hover:bg-red-700 flex item-center gap-3 rounded-full px-4 py-3 text-white font-[500] cursor-pointer">
+                            <button className="bg-red-800 hover:bg-red-700 flex item-center gap-3 rounded-full px-4 py-3 text-white font-medium cursor-pointer">
                                 <LogIn className="w-5 h-5" />
                                 Log In
                             </button>
@@ -152,7 +169,7 @@ export default function Header() {
                             <Link href="/user/favorites">
                                 <button
                                     className={clsx(
-                                        "p-3 rounded-full transition-colors",
+                                        "p-3 rounded-full transition-colors cursor-pointer",
                                         isHome && !navbarScrolled
                                             ? "text-white hover:bg-white/20"
                                             : "text-black hover:bg-gray-100"
@@ -189,7 +206,7 @@ export default function Header() {
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-sm">{user?.username}</p>
-                                                        <p className="text-[10px] text-gray-500 max-w-[120px] truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                                                        <p className="text-[10px] text-gray-500 max-w-[120px] truncate">
                                                             {user?.email}
                                                         </p>
                                                     </div>
@@ -208,7 +225,7 @@ export default function Header() {
 
                                             {user?.isAdmin && (
                                                 <Link
-                                                    className="w-full font-[500] py-2 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors text-sm text-blue-600"
+                                                    className="w-full font-medium py-2 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors text-sm text-blue-600"
                                                     href="/admin"
                                                     onClick={() => setIsOpened(false)}
                                                 >
@@ -217,7 +234,7 @@ export default function Header() {
                                             )}
 
                                             <Link
-                                                className="w-full font-[500] py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors text-sm"
+                                                className="w-full font-medium py-2 px-3 rounded-lg hover:bg-gray-100 transition-colors text-sm"
                                                 href="/user/favorites"
                                                 onClick={() => setIsOpened(false)}
                                             >
@@ -228,7 +245,7 @@ export default function Header() {
 
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-full font-[500] text-white py-2 px-3 rounded-lg bg-red-500 hover:bg-red-600 transition-colors text-sm"
+                                                className="w-full font-medium cursor-pointer text-white py-2 px-3 rounded-lg bg-red-500 hover:bg-red-600 transition-colors text-sm"
                                             >
                                                 Log Out
                                             </button>

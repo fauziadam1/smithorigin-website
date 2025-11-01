@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { getAuth } from '../../../../lib/auth'
 import { useAlert } from '../../components/alert/alert_context'
-import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
+import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
 import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
 import { useConfirm } from '../../components/alert/confirm_context'
 
@@ -32,22 +32,48 @@ interface FavoriteProduct {
   product: Product
 }
 
+function SkeletonCard() {
+  return (
+    <div className="bg-white rounded-xl border animate-pulse">
+      <div className="aspect-square bg-gray-200 rounded-t-xl" />
+      <div className="p-4 space-y-3">
+        <div className="h-4 bg-gray-200 rounded w-3/4" />
+        <div className="h-3 bg-gray-200 rounded w-1/2" />
+        <div className="flex gap-2">
+          <div className="h-8 bg-gray-200 rounded flex-1" />
+          <div className="h-8 bg-gray-200 rounded flex-1" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <SkeletonCard key={i} />
+      ))}
+    </div>
+  )
+}
+
 export default function FavoritesPage() {
   const router = useRouter()
   const { user } = getAuth()
-  const [favorites, setFavorites] = useState<FavoriteProduct[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const { showAlert } = useAlert()
   const { confirmDialog } = useConfirm()
 
+  const [favorites, setFavorites] = useState<FavoriteProduct[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!user) {
       router.push('/auth/sign-in')
       return
     }
-    fetchFavorites()
+    void fetchFavorites()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -101,20 +127,9 @@ export default function FavoritesPage() {
     }
   }
 
-  const calculateFinalPrice = (price: number, discount: number | null): number => {
-    return discount ? price - price * (discount / 100) : price
-  }
+  const calculateFinalPrice = (price: number, discount: number | null): number =>
+    discount ? price - price * (discount / 100) : price
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading...</p>
-        </div>
-      </div>
-    )
-  }
   return (
     <div className="min-h-screen bg-gray-50 py-40">
       <div className="container mx-auto px-10">
@@ -134,7 +149,7 @@ export default function FavoritesPage() {
           <Link href="/user">
             <button className="flex items-center gap-2 px-4 py-2 hover:text-red-800 cursor-pointer transition">
               <ArrowIcon />
-              Kembali ke Forum
+              Kembali
             </button>
           </Link>
         </div>
@@ -145,8 +160,10 @@ export default function FavoritesPage() {
           </div>
         )}
 
-        {favorites.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
+        {loading ? (
+          <SkeletonGrid />
+        ) : favorites.length === 0 ? (
+          <div className="bg-white rounded-xl border p-12 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <AiFillHeart className="w-12 h-12 text-gray-300" />
             </div>
@@ -166,16 +183,21 @@ export default function FavoritesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {favorites.map((favorite) => {
-              const product = favorite.product
+              const { product } = favorite
               const finalPrice = calculateFinalPrice(product.price, product.discount)
               const hasDiscount = product.discount && product.discount > 0
 
               return (
                 <div
                   key={favorite.id}
-                  className="bg-white rounded-xl shadow-sm border hover:shadow-md transition group"
+                  className="bg-white rounded-xl border hover:shadow-md transition group"
                 >
-                  <Link href={`/user/product/${product.id}`} onClick={() => sessionStorage.setItem("previousPage", window.location.pathname)}>
+                  <Link
+                    href={`/user/product/${product.id}`}
+                    onClick={() =>
+                      sessionStorage.setItem('previousPage', window.location.pathname)
+                    }
+                  >
                     <div className="relative aspect-square overflow-hidden rounded-t-xl">
                       <Image
                         src={product.imageUrl || '/placeholder.jpg'}
@@ -192,7 +214,12 @@ export default function FavoritesPage() {
                   </Link>
 
                   <div className="p-4">
-                    <Link href={`/user/product/${product.id}`} onClick={() => sessionStorage.setItem("previousPage", window.location.pathname)}>
+                    <Link
+                      href={`/user/product/${product.id}`}
+                      onClick={() =>
+                        sessionStorage.setItem('previousPage', window.location.pathname)
+                      }
+                    >
                       <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-red-500 transition">
                         {product.name}
                       </h3>
@@ -224,14 +251,16 @@ export default function FavoritesPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => removeFavorite(product.id)}
-                        className="flex-1 flex items-center justify-center gap-2 border border-red-300 text-red-500 py-2 rounded-lg hover:bg-red-50 transition text-sm font-medium"
+                        className="flex-1 flex cursor-pointer items-center justify-center gap-2 border border-red-300 text-red-500 py-2 rounded-lg hover:bg-red-50 transition text-sm font-medium"
                       >
                         <BiTrash className="w-4 h-4" />
                         Remove
                       </button>
                       <Link
                         href={`/user/product/${product.id}`}
-                        onClick={() => sessionStorage.setItem("previousPage", window.location.pathname)}
+                        onClick={() =>
+                          sessionStorage.setItem('previousPage', window.location.pathname)
+                        }
                         className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition text-sm font-medium"
                       >
                         <AiOutlineShoppingCart className="w-4 h-4" />
