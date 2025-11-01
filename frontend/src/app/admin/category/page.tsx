@@ -540,14 +540,14 @@ function MakeCategoryForm({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex-1 border border-gray-300 text-gray-700 font-medium cursor-pointer py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
+          className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           {loading ? 'Menyimpan...' : 'Simpan'}

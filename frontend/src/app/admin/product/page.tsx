@@ -173,7 +173,7 @@ export default function ProductPage() {
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})

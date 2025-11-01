@@ -1,8 +1,10 @@
 'use client';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { Search, Filter, Trash2, Plus, MoreVertical, X, Save, ImagePlus } from 'lucide-react';
 import api from '../../../../lib/axios';
+import { useState, useEffect } from 'react';
+import { useAlert } from '@/app/components/alert/alert_context';
+import { useConfirm } from '@/app/components/alert/confirm_context';
+import { Search, Filter, Trash2, Plus, MoreVertical, X, Save, ImagePlus } from 'lucide-react';
 
 interface Banner {
   id: number;
@@ -11,6 +13,8 @@ interface Banner {
 }
 
 export default function BannerPage() {
+  const { showAlert } = useAlert()
+  const { confirmDialog } = useConfirm()
   const [banners, setBanners] = useState<Banner[]>([]);
   const [filteredBanners, setFilteredBanners] = useState<Banner[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
@@ -79,12 +83,14 @@ export default function BannerPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Yakin ingin menghapus banner ini?')) return;
+    const ok = await confirmDialog('Yakin ingin menghapus banner ini?')
+    if (!ok) return
+
     try {
       await api.delete(`/banners/${id}`);
       setBanners((prev) => prev.filter((b) => b.id !== id));
       setOpenMenuId(null);
-      alert('Banner berhasil dihapus!');
+      showAlert('Banner berhasil dihapus!');
     } catch (err: unknown) {
       console.error(err);
       const message =
@@ -92,13 +98,14 @@ export default function BannerPage() {
           ? (err as { response?: { data?: { message?: string } } }).response
             ?.data?.message || 'Gagal menghapus banner'
           : 'Gagal menghapus banner';
-      alert(message);
+      showAlert(message);
     }
   };
 
   const handleDeleteAllSelected = async () => {
     if (selectedItems.size === 0) return;
-    if (!confirm(`Yakin ingin menghapus ${selectedItems.size} banner?`)) return;
+    const ok = await confirmDialog(`Yakin ingin menghapus ${selectedItems.size} banner?`)
+    if (!ok) return
 
     try {
       await Promise.all(
@@ -107,20 +114,20 @@ export default function BannerPage() {
       setBanners((prev) => prev.filter((b) => !selectedItems.has(b.id)));
       setSelectedItems(new Set());
       setOpenMenuId(null);
-      alert('Semua banner terpilih berhasil dihapus!');
+      showAlert('Semua banner terpilih berhasil dihapus!');
     } catch (err: unknown) {
       const message =
         err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { message?: string } } }).response
             ?.data?.message || 'Gagal menghapus beberapa banner'
           : 'Gagal menghapus beberapa banner';
-      alert(message);
+      showAlert(message);
     }
   };
 
   const handleSaveBanner = async (file: File | null, url: string) => {
     if (!file && !url) {
-      alert('Gambar wajib diisi!');
+      showAlert('Gambar wajib diisi!');
       return;
     }
 
@@ -139,7 +146,7 @@ export default function BannerPage() {
 
       const res = await api.post('/banners', { imageUrl: finalImageUrl });
       setBanners((prev) => [res.data.data, ...prev]);
-      alert('Banner berhasil ditambahkan!');
+      showAlert('Banner berhasil ditambahkan!');
       setIsMakeBannerOpen(false);
     } catch (err: unknown) {
       console.error(err);
@@ -148,7 +155,7 @@ export default function BannerPage() {
           ? (err as { response?: { data?: { message?: string } } }).response
             ?.data?.message || 'Gagal menambahkan banner'
           : 'Gagal menambahkan banner';
-      alert(message);
+      showAlert(message);
     }
   };
 
@@ -164,7 +171,7 @@ export default function BannerPage() {
               onClick={() =>
                 setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
               }
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Filter className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -186,7 +193,7 @@ export default function BannerPage() {
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})
@@ -194,7 +201,7 @@ export default function BannerPage() {
             ) : (
               <button
                 onClick={() => setIsMakeBannerOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Banner
@@ -345,14 +352,15 @@ function MakeBannerForm({
   const [preview, setPreview] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { showAlert } = useAlert()
 
   const handleFileChange = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('File harus berupa gambar!');
+      showAlert('File harus berupa gambar!');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert('Ukuran file maksimal 5MB!');
+      showAlert('Ukuran file maksimal 5MB!');
       return;
     }
     setImageFile(file);
@@ -394,8 +402,8 @@ function MakeBannerForm({
           }}
           onDrop={handleDrop}
           className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${isDragging
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-blue-400'
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300 hover:border-blue-400'
             }`}
         >
           {preview ? (
@@ -465,14 +473,14 @@ function MakeBannerForm({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 border border-gray-300 text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex-1 border border-gray-300 cursor-pointer text-gray-700 font-medium py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
+          className="flex-1 flex items-center cursor-pointer justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           {loading ? 'Menyimpan...' : 'Simpan'}

@@ -281,12 +281,16 @@ export default function ProductDetailPage() {
               </div>
 
               <div className='w-full flex items-center gap-5'>
-                <button className='w-full bg-orange-500 rounded-full text-white font-medium py-3 hover:bg-orange-600 transition'>
-                  Shopee
-                </button>
-                <button className='w-full bg-green-500 rounded-full text-white font-medium py-3 hover:bg-green-600 transition'>
-                  Tokopedia
-                </button>
+                <Link href="/" className='w-full flex items-center gap-5'>
+                  <button className='w-full cursor-pointer bg-shoppe rounded-full text-white font-medium py-3 hover:bg-orange-600 transition'>
+                    Shopee
+                  </button>
+                </Link>
+                <Link href="https://www.tokopedia.com/smithorigin?entrance_name=search_suggestion_store&st=product&source=search-initial.02.01.02" className='w-full flex items-center gap-5'>
+                  <button className='w-full cursor-pointer bg-tokopedia rounded-full text-white font-medium py-3 hover:bg-green-600 transition'>
+                    Tokopedia
+                  </button>~
+                </Link>
               </div>
             </div>
 
@@ -311,7 +315,7 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                <button onClick={toggleFavorite} className='p-3 hover:bg-gray-100 rounded-full transition'>
+                <button onClick={toggleFavorite} className='p-3 cursor-pointer hover:bg-gray-100 rounded-full transition'>
                   {isFavorite ? (
                     <HeartFillIcon className='w-7 h-7 text-red-500' />
                   ) : (

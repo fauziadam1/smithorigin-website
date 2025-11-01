@@ -22,7 +22,7 @@ export default function ForumForm() {
     e.preventDefault()
 
     if (!user) {
-      setError('Anda harus login terlebih dahulu untuk membuat forum.')
+      setError('Anda harus login terlebih dahulu untuk membuat thread.')
       setTimeout(() => router.push('/auth/sign-in'), 3000)
       return
     }
@@ -45,7 +45,6 @@ export default function ForumForm() {
 
       console.log('Response dari server:', response.data)
 
-      // Redirect otomatis ke halaman forum setelah 1 detik
       setTimeout(() => {
         router.push('/user/forum')
       }, 1000)
@@ -80,9 +79,9 @@ export default function ForumForm() {
             <h1 className="text-4xl font-bold">Bagikan Pendapat Anda</h1>
           </div>
           <Link href="/user/forum">
-            <button className="flex items-center gap-2 px-4 py-2 hover:text-red-800 transition">
+            <button className="flex items-center cursor-pointer gap-2 px-4 py-2 hover:text-red-800 transition">
               <ArrowIcon />
-              Kembali ke Forum
+              Kembali
             </button>
           </Link>
         </div>

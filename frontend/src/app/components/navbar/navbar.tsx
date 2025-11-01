@@ -85,6 +85,7 @@ export default function Header() {
     return (
         <nav className={navClass}>
             <div className="container mx-auto px-10 flex items-center justify-between">
+                {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
                     <Image src="/Logo.png" alt="Logo" width={50} height={50} />
                     <h1
@@ -97,6 +98,7 @@ export default function Header() {
                     </h1>
                 </Link>
 
+                {/* Nav Menu */}
                 <div className="flex items-center gap-7">
                     <ul className="flex items-center gap-7 font-medium">
                         {navItems.map((item) => {
@@ -125,6 +127,7 @@ export default function Header() {
                         })}
                     </ul>
 
+                    {/* Search Bar */}
                     <form
                         action="POST"
                         className={clsx(
@@ -157,13 +160,19 @@ export default function Header() {
 
                     {!isAuthenticated && (
                         <Link href="/auth/sign-in">
-                            <button className="bg-red-800 hover:bg-red-700 flex item-center gap-3 rounded-full px-4 py-3 text-white font-medium cursor-pointer">
-                                <LogIn className="w-5 h-5" />
-                                Log In
+                            <button
+                                className={clsx(
+                                    "flex items-center cursor-pointer gap-2 rounded-full px-5 py-2.5 font-medium transition-all duration-200",
+                                    isHome && !navbarScrolled
+                                        ? "bg-white/20 text-white border border-white hover:bg-white/30"
+                                        : "bg-red-800 text-white hover:bg-red-700 shadow-sm"
+                                )}
+                            >
+                                <LogIn className="w-4 h-4" />
+                                <span className="text-sm">Log In</span>
                             </button>
                         </Link>
                     )}
-
                     {isAuthenticated && (
                         <>
                             <Link href="/user/favorites">
