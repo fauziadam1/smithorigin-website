@@ -97,7 +97,7 @@ export default function SignUp() {
             <section className="container px-10 mx-auto flex items-center justify-center h-screen">
                 <div className="flex flex-col gap-7">
                     <div className="text-center space-y-3">
-                        <h1 className="text-5xl text-button font-[600]">Create Account</h1>
+                        <h1 className="text-5xl text-red-800 font-semibold">Create Account</h1>
                         <p className="text-gray-500 text-sm">Register your account to get started</p>
                     </div>
 
@@ -113,7 +113,7 @@ export default function SignUp() {
                                 <User />
                             </label>
                             <input
-                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-button focus:border-transparent"
+                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                 id="username"
                                 type="text"
                                 placeholder="Username"
@@ -128,7 +128,7 @@ export default function SignUp() {
                                 <Mail />
                             </label>
                             <input
-                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-button focus:border-transparent"
+                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                 id="email"
                                 type="email"
                                 placeholder="Email"
@@ -143,7 +143,7 @@ export default function SignUp() {
                                 <Lock />
                             </label>
                             <input
-                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-button focus:border-transparent"
+                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                 id="password"
                                 type="password"
                                 placeholder="Password (min 6 karakter)"
@@ -157,14 +157,14 @@ export default function SignUp() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-button text-white text-xl font-[500] w-full py-4 rounded-full cursor-pointer hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-red-800 text-white text-xl font-medium w-full py-4 rounded-full cursor-pointer hover:bg-red-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Creating...' : 'Create'}
                         </button>
                     </form>
                     <p className="text-[12px] text-center">
                         You already have an account?{' '}
-                        <Link href="/auth/sign-in" className="text-button font-[600] hover:underline">
+                        <Link href="/auth/sign-in" className="text-red-800 font-semibold hover:underline">
                             Sign In
                         </Link>
                     </p>

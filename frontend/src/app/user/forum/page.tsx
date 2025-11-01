@@ -127,7 +127,7 @@ export default function ForumPage() {
             await api.delete(`/forums/${forumId}`)
             setForums(prev => prev.filter(f => f.id !== forumId))
         } catch (err: unknown) {
-            alert(getErrorMessage(err) || 'Gagal menghapus thread')
+            showAlert(getErrorMessage(err) || 'Gagal menghapus thread')
         }
     }
 

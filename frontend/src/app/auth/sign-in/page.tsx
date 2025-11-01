@@ -80,7 +80,7 @@ export default function SignIn() {
             <section className="container px-10 mx-auto flex items-center justify-center h-screen">
                 <div className="flex flex-col gap-7">
                     <div className="text-center space-y-5">
-                        <h1 className="text-5xl text-button font-[600]">Login</h1>
+                        <h1 className="text-5xl text-red-800 font-semibold">Login</h1>
                         <p className="text-gray-500 text-sm">Masukkan detail anda untuk masuk ke akun</p>
                     </div>
 
@@ -96,7 +96,7 @@ export default function SignIn() {
                                 <User />
                             </label>
                             <input
-                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-button focus:border-transparent"
+                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                 id="username"
                                 type="text"
                                 placeholder="Username"
@@ -111,7 +111,7 @@ export default function SignIn() {
                                 <Lock />
                             </label>
                             <input
-                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-button focus:border-transparent"
+                                className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                 id="password"
                                 type="password"
                                 placeholder="Password"
@@ -124,14 +124,14 @@ export default function SignIn() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-button text-white text-xl font-[500] w-full py-4 rounded-full cursor-pointer hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-red-800 text-white text-xl font-semibold w-full py-4 rounded-full cursor-pointer hover:bg-red-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Loading...' : 'Login'}
                         </button>
                     </form>
                     <p className="text-[12px] text-center">
                         Don&apos;t have an account?{' '}
-                        <Link href="/auth/sign-up" className="text-button font-[600] hover:underline">
+                        <Link href="/auth/sign-up" className="text-red-800 font-semibold hover:underline">
                             SignUp
                         </Link>
                     </p>
