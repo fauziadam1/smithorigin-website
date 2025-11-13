@@ -16,12 +16,10 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
@@ -33,7 +31,6 @@ app.use('/api', replyRouter);
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static('public/uploads'));
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({ message: 'Server is running' });
 });

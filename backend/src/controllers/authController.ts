@@ -155,7 +155,7 @@ export class AuthService {
       where: { id: targetUserId },
       data: { 
         password: hashedPassword,
-        refreshToken: null // Logout user tersebut
+        refreshToken: null
       },
     });
   }

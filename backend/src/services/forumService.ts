@@ -49,7 +49,6 @@ export class FavoriteService {
       throw new Error('Favorit tidak ditemukan');
     }
 
-    // Favorite hanya relasi, tidak ada file untuk dihapus
     await prisma.favorite.delete({
       where: {
         userId_productId: { userId, productId },
@@ -58,7 +57,6 @@ export class FavoriteService {
   }
 }
 
-// ==================== ForumService ====================
 export class ForumService {
   static async getAll(page = 1, limit = 10, search?: string) {
     const skip = (page - 1) * limit;

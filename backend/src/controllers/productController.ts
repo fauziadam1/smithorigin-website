@@ -15,7 +15,7 @@ export class ProductController {
         message: 'Berhasil mengambil data produk',
         data: result.products.map(p => ({
           ...p,
-          createdAt: p.createdAt, // pastikan dikirim
+          createdAt: p.createdAt,
         })),
         pagination: result.pagination,
       });
