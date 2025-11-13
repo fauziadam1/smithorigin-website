@@ -35,7 +35,6 @@ export default function Carousel() {
     }
   }
 
-  // 🩶 Skeleton shimmer saat loading
   if (loading) {
     return (
       <div className="w-full flex flex-col gap-6 animate-pulse">

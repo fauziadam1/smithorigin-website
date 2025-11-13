@@ -41,7 +41,6 @@ export function ButtonCategory() {
     }
   }
 
-  // 🩶 Skeleton shimmer effect saat loading
   if (loading) {
     return (
       <div className="w-full flex flex-col gap-10 animate-pulse">

@@ -370,7 +370,6 @@ export default function CategoryPage() {
   );
 }
 
-// ... MakeCategoryForm tetap sama
 function MakeCategoryForm({
   initialData,
   onSave,
