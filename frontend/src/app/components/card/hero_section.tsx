@@ -19,7 +19,7 @@ export default function HeaderSection() {
                             Toko penyedia gaming gear nomor 1 di Indonesia. Ikuti terus perkembangan dan produk terbaru dari kami.
                         </p>
 
-                        <Link href="user/store">
+                        <Link href="#featured-product">
                             <button
                                 className="bg-red-800 cursor-pointer text-white font-medium py-3 px-6 md:py-4 md:px-7 md:text-[15px] rounded-full hover:bg-red-900 transition-all duration-200"
                             >

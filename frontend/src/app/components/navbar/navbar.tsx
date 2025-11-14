@@ -76,8 +76,7 @@ export default function Header() {
 
     const navItems = [
         { name: "Home", href: "/user" },
-        { name: "Forum", href: "/user/forum" },
-        { name: "Store", href: "/user/store" },
+        { name: "Forum", href: "/user/forum" }
     ]
 
     if (!mounted) return null
@@ -128,7 +127,7 @@ export default function Header() {
                     <form
                         action="POST"
                         className={clsx(
-                            "bg-white/30 py-3 px-5 text-[12px] flex items-center gap-3 rounded-full mr-2",
+                            "bg-white/30 py-3 px-5 text-[12px] flex items-center gap-3 rounded-full",
                             isHome && !navbarScrolled
                                 ? "border-none text-white"
                                 : "border border-gray-300 text-black"
@@ -159,11 +158,7 @@ export default function Header() {
                         <Link href="/auth/sign-in">
                             <button
                                 className={clsx(
-                                    "flex items-center cursor-pointer gap-2 rounded-full px-5 py-2.5 font-medium transition-all duration-200",
-                                    isHome && !navbarScrolled
-                                        ? "bg-white/20 text-white border border-white hover:bg-white/30"
-                                        : "bg-red-800 text-white hover:bg-red-700 shadow-sm"
-                                )}
+                                    "flex items-center cursor-pointer gap-2 rounded-full px-5 py-3 font-medium transition-all duration-200 bg-red-800 text-white hover:bg-red-900 shadow-sm")}
                             >
                                 <LogIn className="w-4 h-4" />
                                 <span className="text-sm">Log In</span>
