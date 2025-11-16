@@ -47,8 +47,7 @@ export function Footer() {
                         </h1>
                     </div>
                     <p className="text-sm text-gray-100 max-w-xs leading-relaxed">
-                        Terima kasih telah mengunjungi website resmi kami. Semoga Anda puas
-                        dengan pelayanan dan produk kami.
+                        Thank you for visiting our official website. We hope you are satisfied with our service and products.
                     </p>
                 </div>
 
@@ -56,8 +55,7 @@ export function Footer() {
                     <h2 className="font-semibold text-white text-lg mb-3">Links</h2>
                     <ul className="space-y-2 text-sm text-gray-100">
                         <li><Link href="/" className="hover:underline hover:text-white">Home</Link></li>
-                        <li><Link href="#" className="hover:underline hover:text-white">Forum</Link></li>
-                        <li><Link href="#" className="hover:underline hover:text-white">Product</Link></li>
+                        <li><Link href="/user/forum" className="hover:underline hover:text-white">Forum</Link></li>
                     </ul>
                 </div>
 

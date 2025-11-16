@@ -6,11 +6,8 @@ export function BrandCard() {
     <section className="max-w-5xl mx-auto py-12 px-4">
       <div className="text-center mb-6">
         <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
-          Our Partner Brands
+          Brands we had
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Brands we trust for quality and innovation
-        </p>
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-20 place-items-center">

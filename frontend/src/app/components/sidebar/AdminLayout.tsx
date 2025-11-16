@@ -115,9 +115,9 @@ const AdminLayout = ({
 
           <Link href="/user">
             <button
-              className={`flex items-center gap-3 px-4 py-2 bg-red-800 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-red-900 transition-all duration-300 ${isCollapsed
+              className={`flex items-center justify-between gap-3 px-4 py-2 border border-red-800 text-red-800 cursor-pointer text-sm font-medium rounded-lg hover:text-white hover:bg-red-900 transition-all duration-300 ${isCollapsed
                 ? "justify-center w-11 mx-auto"
-                : "justify-start w-full"
+                : "justify w-full"
                 }`}
             >
               <MoveLeft className={

@@ -184,7 +184,7 @@ export default function CategoryPage() {
 
           <div className="flex items-center gap-5">
             {category.imageUrl && (
-              <div className="w-20 h-20 rounded-lg overflow-hidden border">
+              <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200">
                 <Image
                   src={category.imageUrl}
                   alt={category.name}

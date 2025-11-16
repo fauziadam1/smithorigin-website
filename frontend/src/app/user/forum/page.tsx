@@ -155,9 +155,9 @@ export default function ForumPage() {
                         <div className="w-16 h-16 bg-red-800 rounded-lg flex items-center justify-center">
                             <KeyboardIcon className='text-3xl text-white' />
                         </div>
-                        <div>
-                            <h1 className='text-4xl font-semibold'>Forum Komunitas Smith Origin</h1>
-                            <p className='text-[13px] text-gray-600'>Platform untuk terhubung dan berbagi pengalaman</p>
+                        <div className='space-y-2'>
+                            <h1 className='text-4xl font-semibold'>Smith Origin Community Forum</h1>
+                            <p className='text-[13px] text-gray-600'>Platform to connect and share experiences</p>
                         </div>
                     </div>
                 </div>
@@ -165,8 +165,8 @@ export default function ForumPage() {
                 <div className='flex items-start gap-5'>
                     <div className='flex-1 flex flex-col gap-5'>
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">Diskusi Terbaru</h2>
-                            <p className="text-sm text-gray-500">{forums.length} diskusi aktif dalam komunitas</p>
+                            <h2 className="text-lg font-semibold">Current Discussion</h2>
+                            <p className="text-sm text-gray-500">{forums.length} Discuss active</p>
                         </div>
 
                         {loading ? (
@@ -179,8 +179,8 @@ export default function ForumPage() {
                             <div className="text-center py-10 text-red-500">{error}</div>
                         ) : forums.length === 0 ? (
                             <div className="text-center py-10 text-gray-500">
-                                <h1 className='font-medium'>Belum Ada Diskusi</h1>
-                                <p className='text-xs'>Jadilah yang pertama</p>
+                                <h1 className='font-medium'>No discussion yet</h1>
+                                <p className='text-xs'>Be the first one </p>
                             </div>
                         ) : (
                             forums.map((forum) => {

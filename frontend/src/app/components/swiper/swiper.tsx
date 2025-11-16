@@ -78,14 +78,14 @@ export default function CustomCarousel() {
 
           <button
             onClick={prevSlide}
-            className="absolute top-1/2 left-3 -translate-y-1/2 z-20 bg-white/80 backdrop-blur p-2 rounded-full shadow hover:bg-white"
+            className="absolute cursor-pointer top-1/2 left-3 -translate-y-1/2 z-20 bg-white/80 backdrop-blur p-2 rounded-full shadow hover:bg-white"
           >
             <ChevronLeft className="w-8 h-8 text-gray-700" />
           </button>
 
           <button
             onClick={nextSlide}
-            className="absolute top-1/2 right-3 -translate-y-1/2 z-20 bg-white/80 backdrop-blur p-2 rounded-full shadow hover:bg-white"
+            className="absolute cursor-pointer top-1/2 right-3 -translate-y-1/2 z-20 bg-white/80 backdrop-blur p-2 rounded-full shadow hover:bg-white"
           >
             <ChevronRight className="w-8 h-8 text-gray-700" />
           </button>
@@ -95,8 +95,8 @@ export default function CustomCarousel() {
               <div
                 key={i}
                 onClick={() => setIndex(i)}
-                className={`w-8 h-2 cursor-pointer rounded ${
-                  index === i ? 'bg-black' : 'bg-gray-400'
+                className={`w-6 h-1.5 cursor-pointer rounded ${
+                  index === i ? 'bg-white' : 'bg-gray-400'
                 }`}
               />
             ))}
