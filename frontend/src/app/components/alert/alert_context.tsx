@@ -47,11 +47,11 @@ export function AlertProvider({ children }: { children: ReactNode }) {
             transition={{ duration: 0.3 }}
             className={`
               fixed top-5 right-5 w-[300px] px-4 py-3 rounded-lg shadow-md 
-              border-l-4 flex items-start gap-3 z-[9999]
+              border-l-4 flex items-start gap-3 z-9999
               ${typeStyles[type]}
             `}
           >
-            <div className="flex-shrink-0 mt-[2px]">{typeIcons[type]}</div>
+            <div className="shrink-0 mt-0.5">{typeIcons[type]}</div>
             <div className="flex-1">
               <p className="font-medium text-sm">{message}</p>
             </div>

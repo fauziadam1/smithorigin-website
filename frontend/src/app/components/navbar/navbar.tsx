@@ -4,11 +4,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { LogIn } from 'lucide-react'
 import { useState, useEffect } from "react"
-import { getAuth, clearAuth } from "../../../../lib/auth"
+import { getUserColor } from "../../../../utils/color"
 import { usePathname, useRouter } from "next/navigation"
+import { getAuth, clearAuth } from "../../../../lib/auth"
 import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi'
 import { AiOutlineHeart as FavoriteIcon } from 'react-icons/ai'
-import { getUserColor } from "../../../../utils/color"
 
 interface User {
     username: string
