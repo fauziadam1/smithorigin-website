@@ -121,7 +121,7 @@ export default function FeaturedProduct() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`pb-2 cursor-pointer relative text-base font-medium transition-colors ${activeTab === tab.id
-                ? 'text-red-800 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-red-800'
+                ? 'text-red-800 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-red-800'
                 : "text-gray-500 hover:text-red-800"
               }`}
           >

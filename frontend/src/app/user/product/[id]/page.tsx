@@ -239,7 +239,7 @@ export default function ProductDetailPage() {
       <div className="flex flex-col items-center gap-25">
         <div className="flex flex-col items-center gap-5 w-full">
           <div className="w-full flex items-center text-sm text-gray-600">
-            <Link href="/" className="hover:text-button">
+            <Link href="/" className="hover:text-red-800 cursor-pointer">
               Home
             </Link>
             <span className="mx-2">

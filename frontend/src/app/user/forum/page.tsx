@@ -31,7 +31,7 @@ interface Forum {
 
 function ForumSkeleton() {
     return (
-        <div className="bg-white border rounded-xl p-5 animate-pulse">
+        <div className="bg-white border border-gray-200 rounded-xl p-5 animate-pulse">
             <div className="flex items-start gap-4 mb-3">
                 <div className="w-10 h-10 bg-gray-200 rounded-full" />
 
@@ -156,8 +156,8 @@ export default function ForumPage() {
                             <KeyboardIcon className='text-3xl text-white' />
                         </div>
                         <div className='space-y-2'>
-                            <h1 className='text-4xl font-semibold'>Smith Origin Community Forum</h1>
-                            <p className='text-[13px] text-gray-600'>Platform to connect and share experiences</p>
+                            <h1 className='text-4xl font-semibold'>Forum Komunitas</h1>
+                            <p className='text-[13px] text-gray-600'>Platform untuk terhubung dan berbagi pengalaman</p>
                         </div>
                     </div>
                 </div>
@@ -165,8 +165,8 @@ export default function ForumPage() {
                 <div className='flex items-start gap-5'>
                     <div className='flex-1 flex flex-col gap-5'>
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">Current Discussion</h2>
-                            <p className="text-sm text-gray-500">{forums.length} Discuss active</p>
+                            <h2 className="text-lg font-semibold">Diskusi terbaru</h2>
+                            <p className="text-sm text-gray-500">{forums.length} Diskusi aktif</p>
                         </div>
 
                         {loading ? (
@@ -179,8 +179,8 @@ export default function ForumPage() {
                             <div className="text-center py-10 text-red-500">{error}</div>
                         ) : forums.length === 0 ? (
                             <div className="text-center py-10 text-gray-500">
-                                <h1 className='font-medium'>No discussion yet</h1>
-                                <p className='text-xs'>Be the first one </p>
+                                <h1 className='font-medium'>Belum ada diskusi</h1>
+                                <p className='text-xs'>Jadilah yang pertama</p>
                             </div>
                         ) : (
                             forums.map((forum) => {

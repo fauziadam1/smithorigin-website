@@ -3,11 +3,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import api from '../../../../lib/axios'
 import { BiTrash } from 'react-icons/bi'
-import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { getAuth } from '../../../../lib/auth'
-import { useAlert } from '../../components/alert/alert_context'
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
+import { useAlert } from '../../components/alert/alert_context'
 import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
 import { useConfirm } from '../../components/alert/confirm_context'
 
@@ -34,7 +34,7 @@ interface FavoriteProduct {
 
 function SkeletonCard() {
   return (
-    <div className="bg-white rounded-xl border animate-pulse">
+    <div className="bg-white rounded-xl border border-gray-200 animate-pulse">
       <div className="aspect-square bg-gray-200 rounded-t-xl" />
       <div className="p-4 space-y-3">
         <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -51,7 +51,7 @@ function SkeletonCard() {
 function SkeletonGrid() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {Array.from({ length: 8 }).map((_, i) => (
+      {Array.from({ length: 4 }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
     </div>

@@ -251,7 +251,7 @@ export default function ProductForm() {
 
   return (
     <div className="mx-auto p-6">
-      <div className="bg-white rounded-lg border p-6 space-y-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
         <h2 className="text-lg font-semibold">{isEditMode ? 'Edit Produk' : 'Tambah Produk'}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -260,7 +260,7 @@ export default function ProductForm() {
               <label className="block text-sm mb-1 font-medium">Nama Produk</label>
               <input
                 type="text"
-                className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -269,7 +269,7 @@ export default function ProductForm() {
               <label className="block text-sm mb-1 font-medium">Harga (IDR)</label>
               <input
                 type="number"
-                className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
@@ -280,7 +280,7 @@ export default function ProductForm() {
             <label className="block text-sm mb-1 font-medium">Deskripsi</label>
             <textarea
               rows={4}
-              className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+              className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -293,7 +293,7 @@ export default function ProductForm() {
                 type="number"
                 min="0"
                 max="100"
-                className="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                 value={discount}
                 onChange={(e) => setDiscount(e.target.value)}
               />
@@ -304,7 +304,7 @@ export default function ProductForm() {
               <button
                 type="button"
                 onClick={() => setCategoryOpen((o) => !o)}
-                className="w-full flex justify-between items-center border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full flex justify-between items-center border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               >
                 {categoryId
                   ? categories.find((c) => c.id === parseInt(categoryId))?.name || 'Pilih Kategori'
@@ -313,7 +313,7 @@ export default function ProductForm() {
               </button>
 
               {categoryOpen && (
-                <div className="absolute z-20 w-full mt-1 bg-white border rounded-md shadow-lg">
+                <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
                   <ul className="max-h-40 overflow-y-auto">
                     {categories.length ? (
                       categories.map((cat) => (
@@ -341,7 +341,7 @@ export default function ProductForm() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t pt-4">
+          <div className="flex items-center justify-between border-t border-gray-200 pt-4">
             <label className="text-sm font-medium">Tandai sebagai Best Seller</label>
             <div
               onClick={() => setIsBestSeller((prev) => !prev)}

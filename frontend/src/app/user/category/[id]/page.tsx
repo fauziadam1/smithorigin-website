@@ -177,8 +177,8 @@ export default function CategoryPage() {
       <section className="container px-10 py-40 mx-auto h-fit flex items-start justify-center">
         <div className="w-full flex flex-col gap-10">
           <div className="w-full flex item-center text-sm text-gray-600">
-            <Link href="/" className="hover:text-button">Home</Link>
-            <span className="mx-2"><Arrow className='w-4 h-4 translate-y-[2px]' /></span>
+            <Link href="/" className="hover:text-red-800 cursor-pointer">Home</Link>
+            <span className="mx-2"><Arrow className='w-4 h-4 translate-y-0.5' /></span>
             <span className="text-gray-900">{category.name}</span>
           </div>
 
