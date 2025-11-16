@@ -4,10 +4,12 @@ import Link from "next/link"
 
 export default function HeaderSection() {
     return (
-        <div>
-            <section className="w-full h-screen bg-cover bg-center bg-hero pt-15">
-                <div className="container mx-auto px-10 flex items-center justify-between">
-                    <div className="flex flex-col items-start justify-center h-[80vh] text-white gap-5">
+        <section className="w-full h-screen bg-cover bg-center bg-hero relative pt-15">
+            {/* Kontainer isi harus berada DI ATAS overlay */}
+            <div className="absolute inset-0 z-10">
+                <div className="container mx-auto px-10 flex items-center justify-between h-full">
+                    <div className="flex flex-col items-start justify-center h-full text-white gap-5">
+                        
                         <h1 className="text-red-800 font-black text-5xl md:text-7xl sm:text-7xl leading-10 md:leading-15 sm:leading-14">
                             LEVEL UP <br />
                             <span className="text-white text-3xl md:text-5xl sm:text-5xl font-bold">
@@ -20,9 +22,7 @@ export default function HeaderSection() {
                         </p>
 
                         <Link href="#featured-product">
-                            <button
-                                className="bg-red-800 cursor-pointer text-white font-medium py-3 px-6 md:py-4 md:px-7 md:text-[15px] rounded-full hover:bg-red-900 transition-all duration-200"
-                            >
+                            <button className="bg-red-800 text-white font-medium py-3 px-6 md:py-4 md:px-7 md:text-[15px] rounded-full hover:bg-red-900 transition-all duration-200">
                                 Start Shopping
                             </button>
                         </Link>
@@ -36,7 +36,7 @@ export default function HeaderSection() {
                         className="hidden lg:block xl:translate-x-5 xl:w-80 lg:w-70"
                     />
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
     )
 }

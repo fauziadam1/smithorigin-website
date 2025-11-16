@@ -20,5 +20,14 @@ main {
 }
 
 .bg-hero {
-  background-image: url('/Image1.jpg');
+  background-image: url('/herosection.jpg');
+  position: relative;
+}
+
+.bg-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
 }
