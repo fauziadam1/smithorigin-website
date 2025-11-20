@@ -4,8 +4,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
 import { BiUser as UserIcon } from 'react-icons/bi';
 import Link from 'next/link';
-import api from '../../../../../lib/axios';
-import { getAuth } from '../../../../../lib/auth';
+import api from '../../../../lib/axios';
+import { getAuth } from '../../../../lib/auth';
 
 interface ForumUser {
   id: number

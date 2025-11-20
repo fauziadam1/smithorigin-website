@@ -6,8 +6,8 @@ import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
 import { PiNotePencilDuotone as EditIcon } from 'react-icons/pi'
 import { PiPaperPlaneRightFill as PlaneIcon } from 'react-icons/pi'
 import { LuCircleAlert as AlertIcon } from 'react-icons/lu'
-import api from '../../../../lib/axios'
-import { getAuth } from '../../../../lib/auth'
+import api from '../../../lib/axios'
+import { getAuth } from '../../../lib/auth'
 
 export default function ForumForm() {
   const router = useRouter()

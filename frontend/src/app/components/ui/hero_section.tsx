@@ -5,7 +5,6 @@ import Link from "next/link"
 export default function HeaderSection() {
     return (
         <section className="w-full h-screen bg-cover bg-center bg-hero relative pt-15">
-            {/* Kontainer isi harus berada DI ATAS overlay */}
             <div className="absolute inset-0 z-10">
                 <div className="container mx-auto px-10 flex items-center justify-between h-full">
                     <div className="flex flex-col items-start justify-center h-full text-white gap-5">

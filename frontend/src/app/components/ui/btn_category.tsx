@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import api from '../../../../lib/axios'
+import api from '../../../lib/axios'
 import { AxiosError } from 'axios'
 
 interface Category {

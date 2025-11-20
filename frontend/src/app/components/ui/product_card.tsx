@@ -1,12 +1,12 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import api from '../../../../lib/axios'
+import api from '../../../lib/axios'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { getAuth } from '../../../../lib/auth'
-import { Product } from '../../../../lib/product'
-import { useAlert } from '../alert/alert_context'
+import { getAuth } from '../../../lib/auth'
+import { Product } from '../../../lib/product'
+import { useAlert } from './alert_context'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 
 export function ProductCard({ product }: { product: Product }) {

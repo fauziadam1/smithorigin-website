@@ -5,8 +5,8 @@ import Link from "next/link";
 import { HiOutlineMail as Mail } from 'react-icons/hi';
 import { BiUser as User } from 'react-icons/bi';
 import { BiLockAlt as Lock } from 'react-icons/bi';
-import api from '../../../../lib/axios';
-import { saveAuth } from '../../../../lib/auth';
+import api from '../../../lib/axios';
+import { saveAuth } from '../../../lib/auth';
 import jwt from 'jsonwebtoken';
 
 interface DecodedUser {

@@ -2,10 +2,10 @@
 import Link from "next/link";
 import jwt from 'jsonwebtoken';
 import { useState } from 'react';
-import api from '../../../../lib/axios';
+import api from '../../../lib/axios';
 import { useRouter } from 'next/navigation';
 import { BiUser as User } from 'react-icons/bi';
-import { saveAuth } from '../../../../lib/auth';
+import { saveAuth } from '../../../lib/auth';
 import { BiLockAlt as Lock } from 'react-icons/bi';
 
 interface DecodedUser {

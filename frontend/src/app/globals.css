@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "tailwindcss";
 
 html,
 body {
@@ -20,7 +19,7 @@ main {
 }
 
 .bg-hero {
-  background-image: url('/herosection.jpg');
+  background-image: url('/assets/Hero-Image.jpg');
   position: relative;
 }
 

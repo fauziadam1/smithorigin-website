@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import api from '../../../../lib/axios'
+import api from '../../../lib/axios'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Banner {

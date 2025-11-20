@@ -1,15 +1,15 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import api from '../../../../lib/axios'
+import api from '../../../lib/axios'
 import { BiTrash } from 'react-icons/bi'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getAuth } from '../../../../lib/auth'
+import { getAuth } from '../../../lib/auth'
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
-import { useAlert } from '../../components/alert/alert_context'
+import { useAlert } from '../../components/ui/alert_context'
 import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
-import { useConfirm } from '../../components/alert/confirm_context'
+import { useConfirm } from '../../components/ui/confirm_context'
 
 interface Category {
   id: number

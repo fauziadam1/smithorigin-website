@@ -1,17 +1,17 @@
 'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import api from '../../../../lib/axios'
-import { getAuth } from '../../../../lib/auth'
+import api from '../../../lib/axios'
+import { getAuth } from '../../../lib/auth'
 import { FiMoreVertical } from 'react-icons/fi'
 import { BiMessageRounded } from 'react-icons/bi'
 import React, { useState, useEffect } from 'react'
-import { getUserColor } from '../../../../utils/color'
+import { getUserColor } from '../../../utils/color'
 import { RiChatNewLine as ChatPlus } from 'react-icons/ri'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { useAlert } from '@/app/components/alert/alert_context'
+import { useAlert } from '@/app/components/ui/alert_context'
 import { BsFillKeyboardFill as KeyboardIcon } from 'react-icons/bs'
-import { useConfirm } from '@/app/components/alert/confirm_context'
+import { useConfirm } from '@/app/components/ui/confirm_context'
 
 interface Forum {
     id: number

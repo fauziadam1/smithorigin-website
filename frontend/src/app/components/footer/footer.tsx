@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Instagram, Youtube, Music2 } from "lucide-react"
-import api from "../../../../lib/axios"
+import api from "../../../lib/axios"
 import { useEffect, useState } from "react"
 
 interface Category {
