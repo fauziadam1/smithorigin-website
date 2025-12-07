@@ -4,8 +4,8 @@ import Image from 'next/image'
 import { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import { useState, useEffect } from 'react'
-import { useAlert } from '@/app/components/ui/alert_context'
-import { useConfirm } from '@/app/components/ui/confirm_context'
+import { useAlert } from '@/app/components/ui/Alert'
+import { useConfirm } from '@/app/components/ui/Confirm'
 import { Search, MoreVertical, Edit2, Trash2, Filter, Plus } from 'lucide-react'
 
 interface Product {

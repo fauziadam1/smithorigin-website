@@ -7,9 +7,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getAuth } from '../../../lib/auth'
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
-import { useAlert } from '../../components/ui/alert_context'
+import { useAlert } from '../../components/ui/Alert'
 import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
-import { useConfirm } from '../../components/ui/confirm_context'
+import { useConfirm } from '../../components/ui/Confirm'
 
 interface Category {
   id: number

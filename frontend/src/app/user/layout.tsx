@@ -1,5 +1,5 @@
-import Header from "../components/navbar/navbar";
-import { Footer } from "../components/footer/footer";
+import Header from "../components/navbar/Navbar";
+import Footer from "../components/footer/Footer";
 
 export default async function SiteLayout({
   children,

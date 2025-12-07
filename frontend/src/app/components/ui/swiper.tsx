@@ -9,7 +9,7 @@ interface Banner {
   imageUrl: string
 }
 
-export default function CustomCarousel() {
+export default function Carousel() {
   const [banners, setBanners] = useState<Banner[]>([])
   const [loading, setLoading] = useState(true)
   const [index, setIndex] = useState(0)

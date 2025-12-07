@@ -2,7 +2,7 @@
 import Link from "next/link";
 import api from "../../../lib/axios";
 import { ChevronRight } from "lucide-react";
-import { ProductCard } from "./product_card";
+import { ProductCard } from "./ProductCard";
 import { Product } from "../../../lib/product";
 import React, { useState, useEffect } from "react";
 

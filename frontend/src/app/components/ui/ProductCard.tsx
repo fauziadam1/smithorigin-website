@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { getAuth } from '../../../lib/auth'
 import { Product } from '../../../lib/product'
-import { useAlert } from './alert_context'
+import { useAlert } from './Alert'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 
 export function ProductCard({ product }: { product: Product }) {

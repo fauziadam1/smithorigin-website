@@ -7,7 +7,7 @@ import { getAuth } from '../../../../lib/auth'
 import { ChevronRight as Arrow } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { useAlert } from '../../../components/ui/alert_context'
+import { useAlert } from '../../../components/ui/Alert'
 import { isAxiosError } from 'axios'
 
 interface Product {

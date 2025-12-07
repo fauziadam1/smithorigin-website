@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { getAuth } from '../../../../lib/auth';
 import { ChevronRight as Arrow } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAlert } from '@/app/components/ui/alert_context';
+import { useAlert } from '@/app/components/ui/Alert';
 import { AiOutlineHeart as HeartIcon, AiFillHeart as HeartFillIcon } from 'react-icons/ai';
 
 interface ProductVariant {

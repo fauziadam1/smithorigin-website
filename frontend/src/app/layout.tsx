@@ -1,8 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import { AlertProvider } from "./components/ui/alert_context";
-import { ConfirmProvider } from "./components/ui/confirm_context";
+import { AlertProvider } from "./components/ui/Alert";
+import { ConfirmProvider } from "./components/ui/Confirm";
 
 const poppins = Poppins({
   subsets: ["latin"],

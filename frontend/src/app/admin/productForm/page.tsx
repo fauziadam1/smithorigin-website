@@ -4,8 +4,8 @@ import api from '../../../lib/axios'
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Upload, X, Save, ChevronDown, Check } from 'lucide-react'
-import { useAlert } from '@/app/components/ui/alert_context'
-import { useConfirm } from '@/app/components/ui/confirm_context'
+import { useAlert } from '@/app/components/ui/Alert'
+import { useConfirm } from '@/app/components/ui/Confirm'
 
 type Category = { id: number; name: string }
 

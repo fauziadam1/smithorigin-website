@@ -9,9 +9,9 @@ import React, { useState, useEffect } from 'react'
 import { getUserColor } from '../../../utils/color'
 import { RiChatNewLine as ChatPlus } from 'react-icons/ri'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { useAlert } from '@/app/components/ui/alert_context'
+import { useAlert } from '@/app/components/ui/Alert'
 import { BsFillKeyboardFill as KeyboardIcon } from 'react-icons/bs'
-import { useConfirm } from '@/app/components/ui/confirm_context'
+import { useConfirm } from '@/app/components/ui/Confirm'
 
 interface Forum {
     id: number

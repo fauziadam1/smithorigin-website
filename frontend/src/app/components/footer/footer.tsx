@@ -11,7 +11,7 @@ interface Category {
     name: string
 }
 
-export function Footer() {
+export default function Footer() {
     const [categories, setCategories] = useState<Category[]>([])
     const [loading, setLoading] = useState(true)
 
