@@ -1,181 +1,193 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { prisma } from '../lib/prisma';
-import { JWT_SECRET, JWT_REFRESH_SECRET, JWT_EXPIRE, JWT_REFRESH_EXPIRE } from '../utils/jwt';
-import { JwtPayload } from '../types';
+import { Request, Response } from 'express';
+import { AuthService } from '../services/authService';
 
-export class AuthService {
-  static async register(username: string, email: string, password: string) {
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { username }],
-      },
-    });
-
-    if (existingUser) {
-      throw new Error('Username atau email sudah digunakan');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-      },
-    });
-
-    return this.generateTokens(user);
-  }
-
-  static async registerAdmin(username: string, password: string) {
-    const existingUser = await prisma.user.findUnique({
-      where: { username },
-    });
-
-    if (existingUser) {
-      throw new Error('Username sudah digunakan');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const adminEmail = `${username}@admin.local`;
-
-    const admin = await prisma.user.create({
-      data: {
-        username,
-        email: adminEmail,
-        password: hashedPassword,
-        isAdmin: true,
-      },
-    });
-
-    return this.generateTokens(admin);
-  }
-
-  static async login(username: string, password: string) {
-    const user = await prisma.user.findUnique({
-      where: { username },
-    });
-
-    if (!user) {
-      throw new Error('Username atau password salah');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new Error('Username atau password salah');
-    }
-
-    const tokens = this.generateTokens(user);
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { refreshToken: tokens.refreshToken },
-    });
-
-    return tokens;
-  }
-
-  static async refreshToken(refreshToken: string) {
+export class AuthController {
+  static async register(req: Request, res: Response) {
     try {
-      const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as JwtPayload;
+      const { username, email, password } = req.body;
 
-      const user = await prisma.user.findUnique({
-        where: { id: decoded.id },
-      });
-
-      if (!user || user.refreshToken !== refreshToken) {
-        throw new Error('Refresh token tidak valid');
+      if (!username || !email || !password) {
+        return res.status(400).json({ 
+          message: 'Username, email, dan password harus diisi' 
+        });
       }
 
-      return this.generateTokens(user);
+      const result = await AuthService.register(username, email, password);
+
+      res.status(201).json({
+        message: 'Registrasi berhasil',
+        data: result,
+      });
     } catch (error) {
-      throw new Error('Refresh token tidak valid');
+      console.error('Register error:', error);
+      res.status(400).json({ 
+        message: (error as Error).message || 'Registrasi gagal' 
+      });
     }
   }
 
-  static async logout(userId: number) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken: null },
-    });
+  static async registerAdmin(req: Request, res: Response) {
+    try {
+      const { username, password } = req.body;
+
+      if (!username || !password) {
+        return res.status(400).json({ 
+          message: 'Username dan password harus diisi' 
+        });
+      }
+
+      const result = await AuthService.registerAdmin(username, password);
+
+      res.status(201).json({
+        message: 'Admin berhasil didaftarkan',
+        data: result,
+      });
+    } catch (error) {
+      console.error('Register admin error:', error);
+      res.status(400).json({ 
+        message: (error as Error).message || 'Registrasi admin gagal' 
+      });
+    }
   }
 
-  static async changePassword(userId: number, oldPassword: string, newPassword: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+  static async login(req: Request, res: Response) {
+    try {
+      const { username, password } = req.body;
 
-    if (!user) {
-      throw new Error('User tidak ditemukan');
+      if (!username || !password) {
+        return res.status(400).json({ 
+          message: 'Username dan password harus diisi' 
+        });
+      }
+
+      const result = await AuthService.login(username, password);
+
+      res.status(200).json({
+        message: 'Login berhasil',
+        data: result,
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      // Check if it's a Prisma error (table not found)
+      const errorMessage = (error as Error).message;
+      
+      if (errorMessage.includes('does not exist in the current database')) {
+        return res.status(500).json({ 
+          message: 'Database belum disetup. Silakan jalankan migration terlebih dahulu.' 
+        });
+      }
+      
+      res.status(401).json({ 
+        message: errorMessage || 'Login gagal' 
+      });
     }
-
-    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-    if (!isPasswordValid) {
-      throw new Error('Password lama salah');
-    }
-
-    if (oldPassword === newPassword) {
-      throw new Error('Password baru tidak boleh sama dengan password lama');
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { 
-        password: hashedPassword,
-        refreshToken: null
-      },
-    });
   }
 
-  static async resetPassword(adminId: number, targetUserId: number, newPassword: string) {
-    const admin = await prisma.user.findUnique({
-      where: { id: adminId },
-    });
+  static async refreshToken(req: Request, res: Response) {
+    try {
+      const { refreshToken } = req.body;
 
-    if (!admin || !admin.isAdmin) {
-      throw new Error('Hanya admin yang bisa reset password');
+      if (!refreshToken) {
+        return res.status(400).json({ 
+          message: 'Refresh token harus diisi' 
+        });
+      }
+
+      const result = await AuthService.refreshToken(refreshToken);
+
+      res.status(200).json({
+        message: 'Token berhasil diperbarui',
+        data: result,
+      });
+    } catch (error) {
+      console.error('Refresh token error:', error);
+      res.status(401).json({ 
+        message: (error as Error).message || 'Token tidak valid' 
+      });
     }
-
-    const targetUser = await prisma.user.findUnique({
-      where: { id: targetUserId },
-    });
-
-    if (!targetUser) {
-      throw new Error('User tidak ditemukan');
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await prisma.user.update({
-      where: { id: targetUserId },
-      data: { 
-        password: hashedPassword,
-        refreshToken: null
-      },
-    });
   }
 
-  private static generateTokens(user: any) {
-    const payload: JwtPayload = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin,
-    };
+  static async logout(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
 
-    const accessToken = jwt.sign(payload, JWT_SECRET, {
-      expiresIn: JWT_EXPIRE,
-    });
+      if (!userId) {
+        return res.status(401).json({ 
+          message: 'User tidak terautentikasi' 
+        });
+      }
 
-    const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
-      expiresIn: JWT_REFRESH_EXPIRE,
-    });
+      await AuthService.logout(userId);
 
-    return { accessToken, refreshToken };
+      res.status(200).json({
+        message: 'Logout berhasil',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ 
+        message: 'Logout gagal' 
+      });
+    }
+  }
+
+  static async changePassword(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+      const { oldPassword, newPassword } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({ 
+          message: 'User tidak terautentikasi' 
+        });
+      }
+
+      if (!oldPassword || !newPassword) {
+        return res.status(400).json({ 
+          message: 'Password lama dan baru harus diisi' 
+        });
+      }
+
+      await AuthService.changePassword(userId, oldPassword, newPassword);
+
+      res.status(200).json({
+        message: 'Password berhasil diubah',
+      });
+    } catch (error) {
+      console.error('Change password error:', error);
+      res.status(400).json({ 
+        message: (error as Error).message || 'Gagal mengubah password' 
+      });
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response) {
+    try {
+      const adminId = req.user?.id;
+      const { targetUserId, newPassword } = req.body;
+
+      if (!adminId) {
+        return res.status(401).json({ 
+          message: 'Admin tidak terautentikasi' 
+        });
+      }
+
+      if (!targetUserId || !newPassword) {
+        return res.status(400).json({ 
+          message: 'Target user ID dan password baru harus diisi' 
+        });
+      }
+
+      await AuthService.resetPassword(adminId, parseInt(targetUserId), newPassword);
+
+      res.status(200).json({
+        message: 'Password berhasil direset',
+      });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(400).json({ 
+        message: (error as Error).message || 'Gagal reset password' 
+      });
+    }
   }
 }

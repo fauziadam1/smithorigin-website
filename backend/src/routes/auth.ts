@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { AuthService } from '../controllers/authController';
+import { AuthService } from '../services/authService';
 import { authMiddleware } from '../middleware/auth';
 import { prisma } from '../lib/prisma';
 import bcrypt from 'bcrypt';
