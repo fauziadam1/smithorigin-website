@@ -148,7 +148,7 @@ export default function ForumPage() {
     }
 
     return (
-        <div className="min-h-fit bg-gray-50 py-40">
+        <div className="min-h-screen py-40">
             <section className='w-full container mx-auto px-10 flex flex-col gap-10'>
                 <div className='flex flex-col gap-3'>
                     <div className='flex items-center gap-4'>
@@ -162,7 +162,7 @@ export default function ForumPage() {
                     </div>
                 </div>
 
-                <div className='flex items-start gap-5'>
+                <div className='flex items-stretch gap-5'>
                     <div className='flex-1 flex flex-col gap-5'>
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold">Diskusi terbaru</h2>
@@ -178,9 +178,11 @@ export default function ForumPage() {
                         ) : error ? (
                             <div className="text-center py-10 text-red-500">{error}</div>
                         ) : forums.length === 0 ? (
-                            <div className="text-center py-10 text-gray-500">
-                                <h1 className='font-medium'>Belum ada diskusi</h1>
-                                <p className='text-xs'>Jadilah yang pertama</p>
+                            <div className="flex-1 flex items-center justify-center">
+                                <div className="text-center mt-50 text-gray-500">
+                                    <h1 className='font-medium'>Belum ada diskusi</h1>
+                                    <p className='text-xs'>Jadilah yang pertama</p>
+                                </div>
                             </div>
                         ) : (
                             forums.map((forum) => {
@@ -190,6 +192,7 @@ export default function ForumPage() {
 
                                 return (
                                     <div key={forum.id} className='bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition relative'>
+                                        {/* ... (sisa kode forum item tetap sama) */}
                                         <div className='flex items-start gap-4 mb-3'>
                                             <Link href={`/user/forum/${forum.id}`} className="flex-1 flex items-start gap-4">
                                                 <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>

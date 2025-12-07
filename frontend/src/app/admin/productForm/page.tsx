@@ -25,6 +25,9 @@ type ProductResponse = {
   price: number
   discount: number | null
   imageUrl: string
+  productUrl?: string
+  shopeeUrl?: string
+  tokopediaUrl?: string
   categoryId: number | null
   isBestSeller: boolean
   variants?: Array<{
@@ -53,6 +56,10 @@ export default function ProductForm() {
   const [enableVariant, setEnableVariant] = useState(false)
   const [isBestSeller, setIsBestSeller] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  // Product URLs
+  const [shopeeUrl, setShopeeUrl] = useState('')
+  const [tokopediaUrl, setTokopediaUrl] = useState('')
 
   const [mainImageFile, setMainImageFile] = useState<File | null>(null)
   const [mainImageUrl, setMainImageUrl] = useState('')
@@ -98,6 +105,18 @@ export default function ProductForm() {
       setMainImageUrl(p.imageUrl || '')
       setMainImagePreview(p.imageUrl || '')
       setIsBestSeller(Boolean(p.isBestSeller))
+
+      // Parse productUrl to shopee and tokopedia
+      if (p.productUrl) {
+        try {
+          const urls = JSON.parse(p.productUrl)
+          setShopeeUrl(urls.shopee || '')
+          setTokopediaUrl(urls.tokopedia || '')
+        } catch {
+          // Legacy single URL - ignore or set to one of them
+          setShopeeUrl(p.productUrl || '')
+        }
+      }
 
       if (p.variants?.length) {
         setEnableVariant(true)
@@ -201,6 +220,8 @@ export default function ProductForm() {
         price: parseFloat(price),
         discount: discount ? parseFloat(discount) : null,
         imageUrl: mainUrl,
+        shopeeUrl: shopeeUrl.trim() || null,
+        tokopediaUrl: tokopediaUrl.trim() || null,
         categoryId: categoryId ? parseInt(categoryId, 10) : null,
         isBestSeller,
       }
@@ -286,6 +307,32 @@ export default function ProductForm() {
             />
           </div>
 
+          <div className="border-t border-gray-200 pt-4">
+            <label className="block text-sm mb-3 font-medium text-gray-700">Link Produk (Opsional)</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs mb-1 text-gray-600">Shopee URL</label>
+                <input
+                  type="url"
+                  placeholder="https://shopee.co.id/..."
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 outline-none"
+                  value={shopeeUrl}
+                  onChange={(e) => setShopeeUrl(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-xs mb-1 text-gray-600">Tokopedia URL</label>
+                <input
+                  type="url"
+                  placeholder="https://tokopedia.com/..."
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none"
+                  value={tokopediaUrl}
+                  onChange={(e) => setTokopediaUrl(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm mb-1 font-medium">Diskon (%)</label>
@@ -324,8 +371,8 @@ export default function ProductForm() {
                             setCategoryOpen(false)
                           }}
                           className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center ${categoryId === String(cat.id)
-                            ? 'bg-blue-50 text-blue-600 font-medium'
-                            : ''
+                              ? 'bg-blue-50 text-blue-600 font-medium'
+                              : ''
                             }`}
                         >
                           {cat.name}
@@ -341,7 +388,7 @@ export default function ProductForm() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+          <div className="flex items-center gap-8 border-t border-gray-200 pt-4">
             <label className="text-sm font-medium">Tandai sebagai Best Seller</label>
             <div
               onClick={() => setIsBestSeller((prev) => !prev)}
@@ -449,14 +496,14 @@ export default function ProductForm() {
                       placeholder="Nama varian"
                       value={variant.color}
                       onChange={(e) => handleVariantChange(i, 'color', e.target.value)}
-                      className="mt-2 w-full text-xs border rounded px-2 py-1 focus:ring-1 focus:ring-blue-400"
+                      className="mt-2 w-full text-xs border border-gray-200 rounded px-2 py-1 no-spinner outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     <input
                       type="number"
                       placeholder="Harga varian"
                       value={variant.price}
                       onChange={(e) => handleVariantChange(i, 'price', e.target.value)}
-                      className="mt-1 w-full text-xs border rounded px-2 py-1 focus:ring-1 focus:ring-blue-400"
+                      className="mt-1 w-full text-xs border border-gray-200 rounded px-2 py-1 no-spinner focus:ring-2 outline-none focus:ring-blue-400"
                     />
                   </div>
                 ))}
@@ -476,7 +523,7 @@ export default function ProductForm() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center cursor-pointer gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+            className="flex items-center cursor-pointer gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition disabled:bg-gray-400"
           >
             <Save className="w-4 h-4" /> {isEditMode ? 'Update Produk' : 'Simpan Produk'}
           </button>

@@ -155,7 +155,7 @@ export default function Header() {
                     </form>
 
                     {!isAuthenticated && (
-                        <Link href="/auth/sign-in">
+                        <Link href="/auth/login">
                             <button
                                 className={clsx(
                                     "flex items-center cursor-pointer gap-2 rounded-full px-5 py-3 font-medium transition-all duration-200 bg-red-800 text-white hover:bg-red-900 shadow-sm")}

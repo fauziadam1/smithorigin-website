@@ -8,4 +8,6 @@ export interface Product {
   isBestSeller: boolean;
   createdAt: string;
   variants: string;
+  shopeeUrl?: string | null;
+  tokopediaUrl?: string | null;
 }

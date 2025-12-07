@@ -6,17 +6,17 @@ export function BrandCard() {
     <section className="max-w-5xl mx-auto py-12 px-4">
       <div className="text-center mb-6">
         <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
-          Brands we had
+          Brands We Had
         </h1>
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-20 place-items-center">
         {[
-          "/Logo Aula.png",
-          "/Logo Leobog.png",
-          "/Logo Vortex.png",
-          "/Logo WK.png",
-          "/Logo MCHOSE.png",
+          "/Aula.png",
+          "/Leobog.png",
+          "/VortexSeries.png",
+          "/WK.png",
+          "/MCHOSE.png",
         ].map((src, i) => (
           <div
             key={i}

@@ -21,7 +21,7 @@ export default function HeaderSection() {
                         </p>
 
                         <Link href="#featured-product">
-                            <button className="bg-red-800 text-white font-medium py-3 px-6 md:py-4 md:px-7 md:text-[15px] rounded-full hover:bg-red-900 transition-all duration-200">
+                            <button className="bg-red-800 cursor-pointer text-white font-medium py-3 px-6 md:py-4 md:px-7 md:text-[15px] rounded-full hover:bg-red-900 transition-all duration-200">
                                 Start Shopping
                             </button>
                         </Link>

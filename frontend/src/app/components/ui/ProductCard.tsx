@@ -100,7 +100,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <button
         onClick={toggleFavorite}
-        className="w-full bg-white border cursor-pointer border-gray-300 rounded-full py-2 mt-1 flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+        className="w-full bg-white border cursor-pointer border-gray-300 rounded-full py-2 mt-1 flex items-center justify-center gap-2 hover:bg-gray-100 transition"
       >
         {isFavorite ? (
           <AiFillHeart className="w-4 h-4 text-red-500" />

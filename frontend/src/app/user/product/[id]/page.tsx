@@ -31,7 +31,11 @@ interface Product {
   categoryId: number | null;
   category: ProductCategory | null;
   variants: ProductVariant[];
+  shopeeUrl?: string | null;
+  tokopediaUrl?: string | null;
 }
+
+
 
 interface Favorite {
   productId: number;
@@ -281,17 +285,37 @@ export default function ProductDetailPage() {
               </div>
 
               <div className='w-full flex items-center gap-5'>
-                <Link href="/" className='w-full flex items-center gap-5'>
-                  <button className='w-full cursor-pointer bg-orange-600 rounded-full text-white font-medium py-3 hover:bg-orange-700 transition'>
+                <Link
+                  href={product.shopeeUrl && product.shopeeUrl.trim() !== "" ? product.shopeeUrl : "#"}
+                  target="_blank"
+                  className='w-full flex items-center gap-5'
+                >
+                  <button
+                    className={`w-full cursor-pointer rounded-full text-white font-medium py-3 transition
+        ${product.shopeeUrl ? 'bg-orange-600 hover:bg-orange-700' : 'bg-gray-400 cursor-not-allowed'}
+      `}
+                    disabled={!product.shopeeUrl}
+                  >
                     Shopee
                   </button>
                 </Link>
-                <Link href="https://www.tokopedia.com/smithorigin?entrance_name=search_suggestion_store&st=product&source=search-initial.02.01.02" className='w-full flex items-center gap-5'>
-                  <button className='w-full cursor-pointer bg-green-600 rounded-full text-white font-medium py-3 hover:bg-green-700 transition'>
+
+                <Link
+                  href={product.tokopediaUrl && product.tokopediaUrl.trim() !== "" ? product.tokopediaUrl : "#"}
+                  target="_blank"
+                  className='w-full flex items-center gap-5'
+                >
+                  <button
+                    className={`w-full cursor-pointer rounded-full text-white font-medium py-3 transition
+        ${product.tokopediaUrl ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'}
+      `}
+                    disabled={!product.tokopediaUrl}
+                  >
                     Tokopedia
                   </button>
                 </Link>
               </div>
+
             </div>
 
             <div className='w-160'>
@@ -336,7 +360,7 @@ export default function ProductDetailPage() {
                           key={variant.id}
                           onClick={() => selectVariant(variant)}
                           className={`px-4 py-2 border cursor-pointer rounded-lg transition ${selectedVariant === variant.id
-                            ? 'border-red-800 bg-blue-50 text-button'
+                            ? 'border-red-800 bg-red-100 text-button'
                             : 'border-gray-300 hover:border-gray-400'
                             }`}
                         >
