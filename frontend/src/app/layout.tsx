@@ -1,10 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 import { AlertProvider } from "./components/ui/Alert";
 import { ConfirmProvider } from "./components/ui/Confirm";
 
-const poppins = Poppins({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
 });
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.className} scroll-smooth`}>
+    <html lang="en" className={`${inter.className} scroll-smooth`}>
       <body>
         <AlertProvider>
           <ConfirmProvider>

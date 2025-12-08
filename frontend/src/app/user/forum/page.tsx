@@ -1,17 +1,16 @@
 'use client'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import api from '../../../lib/axios'
 import { getAuth } from '../../../lib/auth'
+import { useRouter } from 'next/navigation'
 import { FiMoreVertical } from 'react-icons/fi'
 import { BiMessageRounded } from 'react-icons/bi'
 import React, { useState, useEffect } from 'react'
 import { getUserColor } from '../../../utils/color'
-import { RiChatNewLine as ChatPlus } from 'react-icons/ri'
-import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { useAlert } from '@/app/components/ui/Alert'
-import { BsFillKeyboardFill as KeyboardIcon } from 'react-icons/bs'
 import { useConfirm } from '@/app/components/ui/Confirm'
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
+import { Info, MessageCircleMore, MessageCirclePlus } from 'lucide-react'
 
 interface Forum {
     id: number
@@ -67,6 +66,7 @@ export default function ForumPage() {
 
     useEffect(() => {
         fetchForums()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const getErrorMessage = (err: unknown): string => {
@@ -151,21 +151,21 @@ export default function ForumPage() {
         <div className="min-h-screen py-40">
             <section className='w-full container mx-auto px-10 flex flex-col gap-10'>
                 <div className='flex flex-col gap-3'>
-                    <div className='flex items-center gap-4'>
-                        <div className="w-16 h-16 bg-red-800 rounded-lg flex items-center justify-center">
-                            <KeyboardIcon className='text-3xl text-white' />
+                    <div className='space-y-3'>
+                        <div className="flex items-center gap-4">
+                            <MessageCircleMore className='w-10 h-10 text-red-800' />
+                            <h1 className='text-4xl font-bold'>Forum Komunitas Smith Origin</h1>
                         </div>
                         <div className='space-y-2'>
-                            <h1 className='text-4xl font-semibold'>Forum Komunitas</h1>
                             <p className='text-[13px] text-gray-600'>Platform untuk terhubung dan berbagi pengalaman</p>
                         </div>
                     </div>
                 </div>
 
-                <div className='flex items-stretch gap-5'>
+                <div className='flex items-stretch gap-10'>
                     <div className='flex-1 flex flex-col gap-5'>
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold">Diskusi terbaru</h2>
+                            <h2 className="text-xl font-semibold">Diskusi terbaru</h2>
                             <p className="text-sm text-gray-500">{forums.length} Diskusi aktif</p>
                         </div>
 
@@ -178,8 +178,8 @@ export default function ForumPage() {
                         ) : error ? (
                             <div className="text-center py-10 text-red-500">{error}</div>
                         ) : forums.length === 0 ? (
-                            <div className="flex-1 flex items-center justify-center">
-                                <div className="text-center mt-50 text-gray-500">
+                            <div className="flex items-center justify-center mt-50">
+                                <div className="text-center text-gray-500">
                                     <h1 className='font-medium'>Belum ada diskusi</h1>
                                     <p className='text-xs'>Jadilah yang pertama</p>
                                 </div>
@@ -192,9 +192,8 @@ export default function ForumPage() {
 
                                 return (
                                     <div key={forum.id} className='bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition relative'>
-                                        {/* ... (sisa kode forum item tetap sama) */}
-                                        <div className='flex items-start gap-4 mb-3'>
-                                            <Link href={`/user/forum/${forum.id}`} className="flex-1 flex items-start gap-4">
+                                        <Link href={`/user/forum/${forum.id}`} className='flex items-start gap-4 mb-3'>
+                                            <div className="flex-1 flex items-start gap-4">
                                                 <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
                                                     <span className="text-sm font-semibold">{forum.user.username[0].toUpperCase()}</span>
                                                 </div>
@@ -207,7 +206,7 @@ export default function ForumPage() {
                                                         {forum.title}
                                                     </h3>
                                                 </div>
-                                            </Link>
+                                            </div>
 
                                             <div className="relative">
                                                 <button
@@ -236,7 +235,7 @@ export default function ForumPage() {
                                                     </div>
                                                 )}
                                             </div>
-                                        </div>
+                                        </Link>
 
                                         <p className='text-sm text-gray-600 line-clamp-2 mb-4 ml-14'>
                                             {forum.content}
@@ -264,15 +263,14 @@ export default function ForumPage() {
                             })
                         )}
                     </div>
-
-                    <div className='w-80'>
-                        <div className='border border-gray-200 rounded-xl p-6 bg-white sticky top-24'>
+                    <div className='w-80 space-y-5'>
+                        <div className='border border-gray-200 rounded-xl p-6 bg-white'>
                             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <ChatPlus className='text-3xl text-red-800' />
+                                <MessageCirclePlus className='text-3xl text-red-800' />
                             </div>
                             <div className='text-center mb-4'>
                                 <h3 className='font-semibold text-[19px] text-gray-900 mb-2'>Bagikan Cerita Anda</h3>
-                                <p className='text-[11px] text-gray-600'>Mulai percakapan baru, ajukan pertanyaan, atau berikan saran</p>
+                                <p className='text-[12px] text-gray-500'>Mulai percakapan baru, ajukan pertanyaan, atau berikan saran</p>
                             </div>
                             <Link href='/user/forumForm'>
                                 <button className="w-full bg-red-800 text-white text-[13px] font-medium py-3 px-6 rounded-full hover:bg-red-900 cursor-pointer transition">
@@ -280,7 +278,17 @@ export default function ForumPage() {
                                 </button>
                             </Link>
                         </div>
+                        <div className='border border-gray-200 rounded-xl p-6 space-y-5 bg-white'>
+                            <div className='flex items-center gap-4'>
+                                <Info className='w-8 h-8 text-red-800' />
+                                <h1 className='text-red-800 font-semibold'>Pedoman Komunitas</h1>
+                            </div>
+                            <div>
+                                <p className='text-[12px] text-gray-500'>Mari jaga lingkungan ini tetap positif, informatif, dan saling menghormati.</p>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </section>
         </div>

@@ -1,13 +1,14 @@
 'use client'
-import React, { useState } from 'react'
 import Link from 'next/link'
+import api from '../../../lib/axios'
+import React, { useState } from 'react'
+import { SquarePen } from 'lucide-react'
+import { getAuth } from '../../../lib/auth'
 import { useRouter } from 'next/navigation'
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
+import { LuCircleAlert as AlertIcon } from 'react-icons/lu'
 import { PiNotePencilDuotone as EditIcon } from 'react-icons/pi'
 import { PiPaperPlaneRightFill as PlaneIcon } from 'react-icons/pi'
-import { LuCircleAlert as AlertIcon } from 'react-icons/lu'
-import api from '../../../lib/axios'
-import { getAuth } from '../../../lib/auth'
 
 export default function ForumForm() {
   const router = useRouter()
@@ -42,18 +43,15 @@ export default function ForumForm() {
       setSuccess('Percakapan berhasil dikirim!')
       setTitle('')
       setContent('')
-
       console.log('Response dari server:', response.data)
 
       setTimeout(() => {
         router.push('/user/forum')
       }, 1000)
+
     } catch (err: unknown) {
       console.error('Error saat submit forum:', err)
-
-      if (err instanceof Error) {
-        setError(err.message)
-      } else if (
+      if (
         typeof err === 'object' &&
         err !== null &&
         'response' in err &&
@@ -63,7 +61,7 @@ export default function ForumForm() {
           (err as { response?: { data?: { message?: string } } }).response!.data!.message!
         )
       } else {
-        setError('Gagal mengirim percakapan.')
+        setError('Terjadi kesalahan. Gagal mengirim percakapan.')
       }
     } finally {
       setLoading(false)
@@ -71,11 +69,11 @@ export default function ForumForm() {
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 my-40">
+    <div className="w-full min-h-screen my-40">
       <section className="w-full max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-7">
           <div className="flex items-center gap-4">
-            <EditIcon className="text-5xl text-red-800" />
+            <SquarePen className="w-11 h-11 text-red-800" />
             <h1 className="text-4xl font-bold">Bagikan Pendapat Anda</h1>
           </div>
           <Link href="/user/forum">
@@ -136,7 +134,7 @@ export default function ForumForm() {
           </form>
 
           <div className="mt-6 flex items-center gap-2 text-xs text-gray-500">
-            <AlertIcon className="text-blue-600" />
+            <AlertIcon className="text-red-800" />
             Ingatlah untuk bijak dalam berkomunikasi dan menjaga privasi.
           </div>
         </div>

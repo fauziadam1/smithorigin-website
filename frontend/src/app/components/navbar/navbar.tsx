@@ -88,7 +88,7 @@ export default function Header() {
                     <Image src="/Logo.png" alt="Logo" width={50} height={50} />
                     <h1
                         className={clsx(
-                            "font-bold text-[15px] leading-5 transition-colors",
+                            "font-extrabold text-[15px] leading-5 transition-colors",
                             isHome && !navbarScrolled ? "text-white" : "text-black"
                         )}
                     >
