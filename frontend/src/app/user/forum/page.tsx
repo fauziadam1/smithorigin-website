@@ -10,7 +10,7 @@ import { getUserColor } from '../../../utils/color'
 import { useAlert } from '@/app/components/ui/Alert'
 import { useConfirm } from '@/app/components/ui/Confirm'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { Info, MessageCircleMore, MessageCirclePlus } from 'lucide-react'
+import { Info, MessageCircleMore, MessageCirclePlus, Clock } from 'lucide-react'
 
 interface Forum {
     id: number
@@ -191,72 +191,72 @@ export default function ForumPage() {
                                 const isMenuOpen = openMenuId === forum.id;
 
                                 return (
-                                    <div key={forum.id} className='bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition relative'>
-                                        <Link href={`/user/forum/${forum.id}`} className='flex items-start gap-4 mb-3'>
-                                            <div className="flex-1 flex items-start gap-4">
+                                    <div key={forum.id} className='bg-white border border-gray-200 rounded-xl hover:shadow-md transition relative'>
+                                        <Link href={`/user/forum/${forum.id}`} className='flex items-start gap-4'>
+                                            <div className="flex-1 flex items-start gap-4 border-b border-gray-200 p-5 bg-red-100/20">
                                                 <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
                                                     <span className="text-sm font-semibold">{forum.user.username[0].toUpperCase()}</span>
                                                 </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className="font-semibold text-sm">{forum.user.username}</span>
-                                                        <span className="text-xs text-gray-400">• {formatTime(forum.createdAt)}</span>
-                                                    </div>
-                                                    <h3 className='text-xl font-semibold text-gray-900 hover:text-red-800 transition cursor-pointer'>
-                                                        {forum.title}
-                                                    </h3>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-semibold text-sm">{forum.user.username}</span>
+                                                    <span className="text-xs flex items-center gap-1 text-gray-400"><Clock className='w-3 h-3' />{formatTime(forum.createdAt)}</span>
                                                 </div>
                                             </div>
 
-                                            <div className="relative">
-                                                <button
-                                                    onClick={() => setOpenMenuId(isMenuOpen ? null : forum.id)}
-                                                    className="p-1 hover:bg-gray-200 cursor-pointer rounded-full"
-                                                >
-                                                    <FiMoreVertical className="w-5 h-5" />
-                                                </button>
-
-                                                {isMenuOpen && (
-                                                    <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                                                        {isOwner && (
-                                                            <button
-                                                                onClick={() => { handleDelete(forum.id); setOpenMenuId(null); }}
-                                                                className="w-full text-left cursor-pointer px-3 py-2 hover:bg-red-100 text-red-500"
-                                                            >
-                                                                Hapus
-                                                            </button>
-                                                        )}
-                                                        <button
-                                                            onClick={() => { handleReport(forum.id); setOpenMenuId(null); }}
-                                                            className="w-full text-left cursor-pointer px-3 py-2 hover:bg-gray-100"
-                                                        >
-                                                            Laporkan
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
                                         </Link>
+                                        {/* <div className="relative">
+                                            <button
+                                                onClick={() => setOpenMenuId(isMenuOpen ? null : forum.id)}
+                                                className="p-1 hover:bg-gray-200 cursor-pointer rounded-full"
+                                            >
+                                                <FiMoreVertical className="w-5 h-5" />
+                                            </button>
 
-                                        <p className='text-sm text-gray-600 line-clamp-2 mb-4 ml-14'>
-                                            {forum.content}
-                                        </p>
+                                            {isMenuOpen && (
+                                                <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                                    {isOwner && (
+                                                        <button
+                                                            onClick={() => { handleDelete(forum.id); setOpenMenuId(null); }}
+                                                            className="w-full text-left cursor-pointer px-3 py-2 hover:bg-red-100 text-red-500"
+                                                        >
+                                                            Hapus
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => { handleReport(forum.id); setOpenMenuId(null); }}
+                                                        className="w-full text-left cursor-pointer px-3 py-2 hover:bg-gray-100"
+                                                    >
+                                                        Laporkan
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div> */}
 
-                                        <div className='flex items-center gap-4 ml-14 text-sm text-gray-500'>
+                                        <div className='border-b border-gray-200 p-5 flex flex-col gap-2'>
+                                            <h3 className='text-xl font-semibold text-gray-900 hover:text-red-800 transition cursor-pointer'>
+                                                {forum.title}
+                                            </h3>
+                                            <p className='text-sm text-gray-600 line-clamp-2'>
+                                                {forum.content}
+                                            </p>
+                                        </div>
+
+                                        <div className='flex items-center gap-4 p-5 text-sm text-gray-500'>
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation()
                                                     handleLike(forum.id)
                                                 }}
-                                                className={`flex items-center gap-1 cursor-pointer hover:text-red-500 transition ${isLiked ? 'text-red-500' : ''}`}
+                                                className={`flex items-center gap-1 cursor-pointer hover:text-red-800 transition ${isLiked ? 'text-red-800' : ''}`}
                                             >
                                                 {isLiked ? <AiFillHeart className="w-5 h-5" /> : <AiOutlineHeart className="w-5 h-5" />}
                                                 <span className="font-medium">{forum._count.likes}</span>
                                             </button>
 
-                                            <div className="flex items-center gap-1">
+                                            <Link href={`/user/forum/${forum.id}`} className="flex items-center gap-1 hover:text-red-800">
                                                 <BiMessageRounded className="w-5 h-5" />
                                                 <span>{forum._count.replies} Komentar</span>
-                                            </div>
+                                            </Link>
                                         </div>
                                     </div>
                                 )

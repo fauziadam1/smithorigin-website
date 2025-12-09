@@ -19,9 +19,9 @@ const AdminLayout = ({
   const isActive = (path: string) => pathname === path;
 
   return (
-    <div className="fixed flex h-screen overflow-auto w-full bg-gray-100">
+    <div className="fixed flex h-screen overflow-auto w-full">
       <aside
-        className={`fixed h-screen bg-white border-r border-gray-200 shadow-sm flex flex-col transition-all duration-300 ease-in-out z-50 ${isCollapsed ? "w-[70px]" : "w-[240px]"
+        className={`fixed h-screen bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out z-50 ${isCollapsed ? "w-[70px]" : "w-[240px]"
           }`}
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-4">

@@ -1,7 +1,7 @@
 'use client'
-import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import api from '../../../lib/axios'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Banner {
@@ -49,27 +49,27 @@ export default function Carousel() {
       <h1 className="text-center font-[700] text-2xl">What&apos;s New?</h1>
 
       {loading && (
-        <div className="relative w-full max-w-[1440px] mx-auto h-[500px] bg-gray-200 rounded-lg animate-pulse" />
+        <div className="relative w-full max-w-[1440px] mx-auto aspect-2/1 bg-gray-200 rounded-lg animate-pulse" />
       )}
 
       {!loading && banners.length === 0 && (
-        <div className="text-center py-20 text-gray-500">Tidak ada banner</div>
+        <div className="text-center py-8 text-gray-500">Tidak ada banner</div>
       )}
 
       {!loading && banners.length > 0 && (
-        <div className="relative w-full max-w-[1440px] mx-auto h-[500px] overflow-hidden rounded-lg select-none">
+        <div className="relative w-full max-w-[1500px] mx-auto aspect-2/1 overflow-hidden rounded-lg select-none">
 
           <div
             className="flex h-full transition-transform duration-300 ease-out"
             style={{ transform: `translateX(-${index * 100}%)` }}
           >
             {banners.map((banner) => (
-              <div key={banner.id} className="min-w-full h-full">
+              <div key={banner.id} className="relative min-w-full h-full">
                 <Image
                   src={banner.imageUrl}
-                  alt=""
-                  width={1440}
-                  height={500}
+                  alt="banner"
+                  width={1920}
+                  height={1080}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -106,3 +106,4 @@ export default function Carousel() {
     </div>
   )
 }
+

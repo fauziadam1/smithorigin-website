@@ -189,7 +189,7 @@ export default function CategoryPage() {
 
   return (
     <div className="mx-auto p-6 relative">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <button
@@ -211,14 +211,14 @@ export default function CategoryPage() {
                 placeholder="Cari kategori..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
               />
             </div>
 
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})
@@ -226,7 +226,7 @@ export default function CategoryPage() {
             ) : (
               <button
                 onClick={handleAddCategory}
-                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-800 text-white text-sm font-medium rounded-lg hover:bg-red-900 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Category
@@ -457,7 +457,7 @@ function MakeCategoryForm({
           placeholder="Masukkan nama category..."
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-800"
           required
         />
       </div>
@@ -473,7 +473,7 @@ function MakeCategoryForm({
           onDrop={handleDrop}
           className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${isDragging
             ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 hover:border-blue-400'
+            : 'border-gray-300 hover:border-red-800'
             }`}
         >
           {preview ? (
@@ -530,7 +530,7 @@ function MakeCategoryForm({
             value={imageUrl}
             onChange={(e) => handleUrlChange(e.target.value)}
             disabled={!!imageFile}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-800 disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
         </div>
       </div>
@@ -546,7 +546,7 @@ function MakeCategoryForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
+          className="flex-1 flex items-center justify-center cursor-pointer gap-2 bg-red-800 hover:bg-red-900 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
           {loading ? 'Menyimpan...' : 'Simpan'}

@@ -111,7 +111,7 @@ export function ButtonCategory() {
               />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900 group-hover:text-red-600 transition">
+              <h2 className="font-semibold text-gray-900 group-hover:text-red-800 transition">
                 {cat.name}
               </h2>
               {/* {cat._count && (

@@ -117,7 +117,7 @@ export default function ForumDetailPage() {
   }
 
   return (
-    <div className="min-h-fit bg-gray-50 py-40">
+    <div className="min-h-screen py-40">
       <div className="container mx-auto px-10 max-w-4xl">
         <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-red-800 mb-6 transition">
           <ArrowIcon /> Kembali ke Forum

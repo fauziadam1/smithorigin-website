@@ -2,12 +2,11 @@
 import clsx from "clsx"
 import Link from "next/link"
 import Image from "next/image"
-import { LogIn } from 'lucide-react'
 import { useState, useEffect } from "react"
+import { LogIn, Search } from 'lucide-react'
 import { getUserColor } from "../../../utils/color"
 import { usePathname, useRouter } from "next/navigation"
 import { getAuth, clearAuth } from "../../../lib/auth"
-import { BiSearchAlt2 as SearchIcon } from 'react-icons/bi'
 import { AiOutlineHeart as FavoriteIcon } from 'react-icons/ai'
 
 interface User {
@@ -130,14 +129,14 @@ export default function Header() {
                             "bg-white/30 py-3 px-5 text-[12px] flex items-center gap-3 rounded-full",
                             isHome && !navbarScrolled
                                 ? "border-none text-white"
-                                : "border border-gray-300 text-black"
+                                : "border border-gray-200 text-black"
                         )}
                     >
                         <label htmlFor="search">
-                            <SearchIcon
+                            <Search
                                 className={clsx(
-                                    "w-5 h-5",
-                                    isHome && !navbarScrolled ? "text-white" : "text-black"
+                                    "w-4 h-4",
+                                    isHome && !navbarScrolled ? "text-white" : "text-gray-500"
                                 )}
                             />
                         </label>
@@ -167,7 +166,12 @@ export default function Header() {
                     )}
                     {isAuthenticated && (
                         <>
-                            <Link href="/user/favorites">
+                            <Link href="/user/favorites" className={clsx(
+                                "border rounded-full",
+                                isHome && !navbarScrolled
+                                    ? "border-white/30"
+                                    : "border-gray-200"
+                            )}>
                                 <button
                                     className={clsx(
                                         "p-3 rounded-full transition-colors cursor-pointer",
@@ -176,7 +180,7 @@ export default function Header() {
                                             : "text-black hover:bg-gray-100"
                                     )}
                                 >
-                                    <FavoriteIcon className="w-6 h-6" />
+                                    <FavoriteIcon className="w-5 h-5" />
                                 </button>
                             </Link>
 
