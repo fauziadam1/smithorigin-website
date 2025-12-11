@@ -31,12 +31,12 @@ export default function Footer() {
     }
 
     return (
-        <footer className="bg-red-800 text-background">
+        <footer className="bg-red-800 text-background z-1000">
             <section className="container mx-auto px-6 py-14 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-10">
                 <div className="col-span-2 sm:col-span-2">
                     <div className="flex items-center mb-3 -translate-x-3">
                         <Image
-                            src="/Logo White.png"
+                            src="/LogoWhite.png"
                             alt="Logo"
                             width={80}
                             height={80}

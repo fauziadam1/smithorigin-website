@@ -84,7 +84,7 @@ export default function Header() {
         <nav className={navClass}>
             <div className="container mx-auto px-10 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2">
-                    <Image src="/Logo.png" alt="Logo" width={50} height={50} />
+                    <Image src="/LogoMain.png" alt="Logo" width={50} height={50} />
                     <h1
                         className={clsx(
                             "font-extrabold text-[15px] leading-5 transition-colors",

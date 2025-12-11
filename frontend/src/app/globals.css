@@ -19,7 +19,7 @@ main {
 }
 
 .bg-hero {
-  background-image: url('/assets/Hero-Image.jpg');
+  background-image: url('/HeroImage.jpg');
   position: relative;
 }
 

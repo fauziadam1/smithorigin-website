@@ -3,7 +3,6 @@ import Link from 'next/link'
 import api from '../../../lib/axios'
 import { getAuth } from '../../../lib/auth'
 import { useRouter } from 'next/navigation'
-import { FiMoreVertical } from 'react-icons/fi'
 import { BiMessageRounded } from 'react-icons/bi'
 import React, { useState, useEffect } from 'react'
 import { getUserColor } from '../../../utils/color'
@@ -148,7 +147,7 @@ export default function ForumPage() {
     }
 
     return (
-        <div className="min-h-screen py-40">
+        <div className="min-h-screen mt-40">
             <section className='w-full container mx-auto px-10 flex flex-col gap-10'>
                 <div className='flex flex-col gap-3'>
                     <div className='space-y-3'>
