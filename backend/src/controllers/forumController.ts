@@ -1,5 +1,8 @@
+// src/controllers/forumController.ts
+
 import { Request, Response } from 'express';
 import { ForumService } from '../services/forumService';
+import { ForumReplyService } from '../services/forumService';
 
 export class ForumController {
   static async getAll(req: Request, res: Response) {
@@ -115,6 +118,84 @@ export class ForumController {
       res.status(200).json({ message: 'Success', data: result });
     } catch (error) {
       res.status(500).json({ message: (error as Error).message });
+    }
+  }
+
+  static async createReply(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Tidak terautentikasi' });
+      }
+
+      const forumId = parseInt(req.params.forumId);
+      const { content, parentId } = req.body;
+
+      if (isNaN(forumId)) {
+        return res.status(400).json({ message: 'ID forum tidak valid' });
+      }
+      if (!content || content.trim() === '') {
+        return res.status(400).json({ message: 'Konten balasan tidak boleh kosong' });
+      }
+
+      const reply = await ForumReplyService.create(
+        forumId,
+        req.user.id,
+        content,
+        parentId ? parseInt(parentId) : null
+      );
+
+      res.status(201).json({
+        message: 'Balasan berhasil dibuat',
+        data: reply,
+      });
+    } catch (error) {
+      res.status(400).json({ message: (error as Error).message });
+    }
+  }
+
+  static async updateReply(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Tidak terautentikasi' });
+      }
+
+      const id = parseInt(req.params.id);
+      const { content } = req.body;
+
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID balasan tidak valid' });
+      }
+      if (!content || content.trim() === '') {
+        return res.status(400).json({ message: 'Konten balasan tidak boleh kosong' });
+      }
+
+      const reply = await ForumReplyService.update(id, req.user.id, req.user.isAdmin, content);
+
+      res.status(200).json({
+        message: 'Balasan berhasil diupdate',
+        data: reply,
+      });
+    } catch (error) {
+      res.status(403).json({ message: (error as Error).message });
+    }
+  }
+
+  static async deleteReply(req: Request, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: 'Tidak terautentikasi' });
+      }
+
+      const id = parseInt(req.params.id);
+
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID balasan tidak valid' });
+      }
+
+      await ForumReplyService.delete(id, req.user.id, req.user.isAdmin);
+      res.status(200).json({ message: 'Balasan berhasil dihapus' });
+    } catch (error) {
+      res.status(403).json({ message: (error as Error).message });
     }
   }
 }

@@ -95,15 +95,30 @@ export class ForumService {
     };
   }
 
+  private static async addRepliesRecursively(replies: any[]): Promise<any[]> {
+    for (const reply of replies) {
+      const children = await prisma.forumReply.findMany({
+        where: { parentId: reply.id },
+        include: {
+          user: { select: { id: true, username: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (children.length > 0) {
+        reply.replies = await this.addRepliesRecursively(children);
+      } else {
+        reply.replies = [];
+      }
+    }
+    return replies;
+  }
+
   static async getById(id: number) {
     const forum = await prisma.forum.findUnique({
       where: { id },
       include: {
         user: { select: { id: true, username: true } },
-        replies: {
-          include: { user: { select: { id: true, username: true } } },
-          orderBy: { createdAt: 'asc' },
-        },
         likes: { select: { userId: true } },
         _count: { select: { replies: true, likes: true } },
       },
@@ -111,7 +126,17 @@ export class ForumService {
 
     if (!forum) throw new Error('Forum tidak ditemukan');
 
-    return forum;
+    const topLevelReplies = await prisma.forumReply.findMany({
+      where: { forumId: id, parentId: null },
+      include: {
+        user: { select: { id: true, username: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const nestedReplies = await this.addRepliesRecursively(topLevelReplies);
+
+    return { ...forum, replies: nestedReplies };
   }
 
   static async create(userId: number, title: string, content: string) {
@@ -158,5 +183,42 @@ export class ForumService {
     const likeCount = await prisma.forumLike.count({ where: { forumId } });
 
     return { forumId, liked: !existingLike, likeCount };
+  }
+}
+
+export class ForumReplyService {
+  static async create(forumId: number, userId: number, content: string, parentId?: number | null) {
+    const forum = await prisma.forum.findUnique({ where: { id: forumId } });
+    if (!forum) throw new Error('Forum tidak ditemukan');
+
+    if (parentId) {
+      const parentReply = await prisma.forumReply.findUnique({ where: { id: parentId } });
+      if (!parentReply) throw new Error('Balasan induk tidak ditemukan');
+    }
+
+    return await prisma.forumReply.create({
+      data: { forumId, userId, content, parentId },
+      include: { user: { select: { id: true, username: true } } },
+    });
+  }
+
+  static async update(id: number, userId: number, isAdmin: boolean, content: string) {
+    const reply = await prisma.forumReply.findUnique({ where: { id } });
+    if (!reply) throw new Error('Balasan tidak ditemukan');
+    if (reply.userId !== userId && !isAdmin) throw new Error('Tidak memiliki akses untuk mengupdate balasan ini');
+
+    return await prisma.forumReply.update({
+      where: { id },
+      data: { content },
+      include: { user: { select: { id: true, username: true } } },
+    });
+  }
+
+  static async delete(id: number, userId: number, isAdmin: boolean) {
+    const reply = await prisma.forumReply.findUnique({ where: { id } });
+    if (!reply) throw new Error('Balasan tidak ditemukan');
+    if (reply.userId !== userId && !isAdmin) throw new Error('Tidak memiliki akses untuk menghapus balasan ini');
+
+    await prisma.forumReply.delete({ where: { id } });
   }
 }
