@@ -1,12 +1,12 @@
 'use client'
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
 import Link from 'next/link';
 import api from '../../../../lib/axios';
-import { getAuth } from '../../../../lib/auth';
-import { MessagesSquare, MessageCirclePlus } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { getUserColor } from '@/utils/color';
+import { getAuth } from '../../../../lib/auth';
+import { useParams, useRouter } from 'next/navigation';
+import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
+import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ForumUser {
   id: number
@@ -94,7 +94,7 @@ function CommentItem({
   }
 
   return (
-    <div className={`${depth > 0 ? 'ml-6' : ''}`}>
+    <div className={`${depth > 0 ? 'ml-10' : ''}`}>
       <div className={`p-3 rounded-lg ${isReplying ? 'bg-red-50 border border-red-200' : ''} transition-colors`}>
         <div className="flex gap-3">
           <div className={`w-8 h-8 ${getUserColor(reply.user.username)} rounded-full flex items-center justify-center flex-shrink-0`}>
@@ -111,16 +111,15 @@ function CommentItem({
                 <>
                   <button
                     onClick={() => setReplyingTo(isReplying ? null : reply.id)}
-                    className="text-xs text-gray-500 hover:text-red-600 font-medium transition"
+                    className="text-xs text-gray-500 hover:text-red-800 font-medium transition"
                   >
                     {isReplying ? 'Batal' : 'Balas'}
                   </button>
 
-                  {/* Tombol Hapus jika user adalah pemilik */}
-                  {user.id === reply.user.id && (
+                  {user && (user.id === reply.user.id || user.isAdmin) && (
                     <button
                       onClick={handleDelete}
-                      className="text-xs text-gray-500 hover:text-red-600 font-medium transition"
+                      className="text-xs text-gray-500 hover:text-red-800 font-medium transition"
                     >
                       Hapus
                     </button>
@@ -134,7 +133,7 @@ function CommentItem({
       </div>
 
       {isReplying && user && (
-        <form onSubmit={handleFormSubmit} className="mt-4 ml-11">
+        <form onSubmit={handleFormSubmit} className="mt-4">
           <div className="bg-gray-100 rounded-t-md p-2 border-b border-gray-200 text-xs text-gray-600">
             Membalas ke <span className="font-semibold text-gray-800">@{reply.user.username}</span>
           </div>
@@ -208,10 +207,12 @@ export default function ForumDetailPage() {
 
   const handleDeleteReply = async (id: number) => {
     try {
-      await api.delete(`/forums/${forumId}/replies/${id}`)
+      await api.delete(`/forums/replies/${id}`)
       await fetchForumDetail()
-    } catch (err) {
-      alert('Gagal menghapus komentar')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error(err.response?.data || err)
+      alert(err.response?.data?.message || 'Gagal menghapus komentar')
     }
   }
 
@@ -285,7 +286,11 @@ export default function ForumDetailPage() {
   }
 
   const totalComments = countAllReplies(forum.replies)
-  const flat = flattenReplies(forum.replies)
+  const sortedReplies = [...forum.replies].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )
+
+  const flat = flattenReplies(sortedReplies)
 
   return (
     <div className="min-h-screen mt-40">
@@ -351,20 +356,32 @@ export default function ForumDetailPage() {
                   <Link href="/auth/sign-in" className="text-red-800 hover:underline font-medium">Login Sekarang</Link>
                 </div>
               )}
-
-              <div className="space-y-4">
+              <div>
                 {flat.map((item) => {
                   if (item.depth > 0 && !expanded[item.topLevelId] && replyingTo !== item.reply.id) {
                     return null
                   }
 
+                  const countRepliesDeep = (reply: ForumReply): number => {
+                    if (!reply.replies || reply.replies.length === 0) return 0
+
+                    let count = reply.replies.length
+                    for (const child of reply.replies) {
+                      count += countRepliesDeep(child)
+                    }
+                    return count
+                  }
+
                   const isTop = item.depth === 0
                   const topReply = forum.replies.find(r => r.id === item.reply.id)
                   const hasChildren = Boolean(topReply && topReply.replies && topReply.replies.length > 0)
-                  const childrenCount = topReply?.replies?.length || 0
+                  const childrenCount = topReply ? countRepliesDeep(topReply) : 0
+
+
+                  const spacingClass = isTop ? '-mb-1' : '-mb-2'
 
                   return (
-                    <div key={item.reply.id}>
+                    <div key={item.reply.id} className={spacingClass}>
                       <CommentItem
                         item={item}
                         formatDate={formatDate}
@@ -385,7 +402,20 @@ export default function ForumDetailPage() {
                               }
                               className="text-xs text-gray-600 hover:text-red-800"
                             >
-                              {expanded[item.reply.id] ? 'Sembunyikan balasan ▲' : `Lihat ${childrenCount} balasan ▼`}
+                              <span className="flex items-center gap-1">
+                                {expanded[item.reply.id] ? (
+                                  <>
+                                    Sembunyikan balasan
+                                    <ChevronUp size={14} />
+                                  </>
+                                ) : (
+                                  <>
+                                    Lihat {childrenCount} balasan
+                                    <ChevronDown size={14} />
+                                  </>
+                                )}
+                              </span>
+
                             </button>
                           ) : null
                         }
@@ -411,6 +441,10 @@ export default function ForumDetailPage() {
                   Mulai Diskusi Baru
                 </button>
               </Link>
+            </div>
+
+            <div>
+
             </div>
           </div>
 

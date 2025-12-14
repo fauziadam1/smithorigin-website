@@ -174,7 +174,6 @@ export default function AuthPage() {
                         </div>
                     )}
 
-                    {/* SignIn Form */}
                     {activeTab === 'signin' && (
                         <form onSubmit={handleSignIn} className="space-y-4 w-110">
                             <div className="relative">
