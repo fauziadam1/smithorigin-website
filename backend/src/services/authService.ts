@@ -125,7 +125,7 @@ export class AuthService {
 
     await prisma.user.update({
       where: { id: userId },
-      data: { 
+      data: {
         password: hashedPassword,
         refreshToken: null
       },
@@ -153,7 +153,7 @@ export class AuthService {
 
     await prisma.user.update({
       where: { id: targetUserId },
-      data: { 
+      data: {
         password: hashedPassword,
         refreshToken: null
       },
@@ -176,7 +176,16 @@ export class AuthService {
       expiresIn: JWT_REFRESH_EXPIRE,
     });
 
-    return { accessToken, refreshToken };
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      },
+    };
   }
 }
 

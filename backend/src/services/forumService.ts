@@ -18,19 +18,13 @@ export class FavoriteService {
 
   static async addFavorite(userId: number, productId: number) {
     const product = await prisma.product.findUnique({ where: { id: productId } });
-    if (!product) {
-      throw new Error('Produk tidak ditemukan');
-    }
+    if (!product) throw new Error('Produk tidak ditemukan');
 
     const existing = await prisma.favorite.findUnique({
-      where: {
-        userId_productId: { userId, productId },
-      },
+      where: { userId_productId: { userId, productId } },
     });
 
-    if (existing) {
-      throw new Error('Produk sudah ada di favorit');
-    }
+    if (existing) throw new Error('Produk sudah ada di favorit');
 
     return await prisma.favorite.create({
       data: { userId, productId },
@@ -40,19 +34,13 @@ export class FavoriteService {
 
   static async removeFavorite(userId: number, productId: number) {
     const favorite = await prisma.favorite.findUnique({
-      where: {
-        userId_productId: { userId, productId },
-      },
+      where: { userId_productId: { userId, productId } },
     });
 
-    if (!favorite) {
-      throw new Error('Favorit tidak ditemukan');
-    }
+    if (!favorite) throw new Error('Favorit tidak ditemukan');
 
     await prisma.favorite.delete({
-      where: {
-        userId_productId: { userId, productId },
-      },
+      where: { userId_productId: { userId, productId } },
     });
   }
 }
@@ -105,11 +93,9 @@ export class ForumService {
         orderBy: { createdAt: 'asc' },
       });
 
-      if (children.length > 0) {
-        reply.replies = await this.addRepliesRecursively(children);
-      } else {
-        reply.replies = [];
-      }
+      reply.replies = children.length
+        ? await this.addRepliesRecursively(children)
+        : [];
     }
     return replies;
   }
@@ -149,7 +135,8 @@ export class ForumService {
   static async update(id: number, userId: number, isAdmin: boolean, title: string, content: string) {
     const forum = await prisma.forum.findUnique({ where: { id } });
     if (!forum) throw new Error('Forum tidak ditemukan');
-    if (forum.userId !== userId && !isAdmin) throw new Error('Tidak memiliki akses untuk mengupdate forum ini');
+    if (forum.userId !== userId && !isAdmin)
+      throw new Error('Tidak memiliki akses untuk mengupdate forum ini');
 
     return await prisma.forum.update({
       where: { id },
@@ -161,7 +148,8 @@ export class ForumService {
   static async delete(id: number, userId: number, isAdmin: boolean) {
     const forum = await prisma.forum.findUnique({ where: { id } });
     if (!forum) throw new Error('Forum tidak ditemukan');
-    if (forum.userId !== userId && !isAdmin) throw new Error('Tidak memiliki akses untuk menghapus forum ini');
+    if (forum.userId !== userId && !isAdmin)
+      throw new Error('Tidak memiliki akses untuk menghapus forum ini');
 
     await prisma.forum.delete({ where: { id } });
   }
@@ -184,16 +172,21 @@ export class ForumService {
 
     return { forumId, liked: !existingLike, likeCount };
   }
-}
 
-export class ForumReplyService {
-  static async create(forumId: number, userId: number, content: string, parentId?: number | null) {
+  // ===== REPLY (HASIL GABUNGAN) =====
+
+  static async createReply(
+    forumId: number,
+    userId: number,
+    content: string,
+    parentId?: number | null
+  ) {
     const forum = await prisma.forum.findUnique({ where: { id: forumId } });
     if (!forum) throw new Error('Forum tidak ditemukan');
 
     if (parentId) {
-      const parentReply = await prisma.forumReply.findUnique({ where: { id: parentId } });
-      if (!parentReply) throw new Error('Balasan induk tidak ditemukan');
+      const parent = await prisma.forumReply.findUnique({ where: { id: parentId } });
+      if (!parent) throw new Error('Balasan induk tidak ditemukan');
     }
 
     return await prisma.forumReply.create({
@@ -202,10 +195,16 @@ export class ForumReplyService {
     });
   }
 
-  static async update(id: number, userId: number, isAdmin: boolean, content: string) {
+  static async updateReply(
+    id: number,
+    userId: number,
+    isAdmin: boolean,
+    content: string
+  ) {
     const reply = await prisma.forumReply.findUnique({ where: { id } });
     if (!reply) throw new Error('Balasan tidak ditemukan');
-    if (reply.userId !== userId && !isAdmin) throw new Error('Tidak memiliki akses untuk mengupdate balasan ini');
+    if (reply.userId !== userId && !isAdmin)
+      throw new Error('Tidak memiliki akses untuk mengupdate balasan ini');
 
     return await prisma.forumReply.update({
       where: { id },
@@ -214,11 +213,24 @@ export class ForumReplyService {
     });
   }
 
-  static async delete(id: number, userId: number, isAdmin: boolean) {
+  static async deleteReply(
+    id: number,
+    userId: number,
+    isAdmin: boolean
+  ) {
     const reply = await prisma.forumReply.findUnique({ where: { id } });
     if (!reply) throw new Error('Balasan tidak ditemukan');
-    if (reply.userId !== userId && !isAdmin) throw new Error('Tidak memiliki akses untuk menghapus balasan ini');
+    if (reply.userId !== userId && !isAdmin)
+      throw new Error('Tidak memiliki akses untuk menghapus balasan ini');
 
-    await prisma.forumReply.delete({ where: { id } });
+    await prisma.forumReply.deleteMany({
+      where: {
+        OR: [
+          { id },
+          { parentId: id }
+        ]
+      }
+    });
   }
+
 }

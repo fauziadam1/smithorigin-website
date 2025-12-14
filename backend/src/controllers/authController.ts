@@ -7,8 +7,8 @@ export class AuthController {
       const { username, email, password } = req.body;
 
       if (!username || !email || !password) {
-        return res.status(400).json({ 
-          message: 'Username, email, dan password harus diisi' 
+        return res.status(400).json({
+          message: 'Username, email, dan password harus diisi'
         });
       }
 
@@ -20,8 +20,8 @@ export class AuthController {
       });
     } catch (error) {
       console.error('Register error:', error);
-      res.status(400).json({ 
-        message: (error as Error).message || 'Registrasi gagal' 
+      res.status(400).json({
+        message: (error as Error).message || 'Registrasi gagal'
       });
     }
   }
@@ -31,8 +31,8 @@ export class AuthController {
       const { username, password } = req.body;
 
       if (!username || !password) {
-        return res.status(400).json({ 
-          message: 'Username dan password harus diisi' 
+        return res.status(400).json({
+          message: 'Username dan password harus diisi'
         });
       }
 
@@ -44,8 +44,8 @@ export class AuthController {
       });
     } catch (error) {
       console.error('Register admin error:', error);
-      res.status(400).json({ 
-        message: (error as Error).message || 'Registrasi admin gagal' 
+      res.status(400).json({
+        message: (error as Error).message || 'Registrasi admin gagal'
       });
     }
   }
@@ -55,8 +55,8 @@ export class AuthController {
       const { username, password } = req.body;
 
       if (!username || !password) {
-        return res.status(400).json({ 
-          message: 'Username dan password harus diisi' 
+        return res.status(400).json({
+          message: 'Username dan password harus diisi'
         });
       }
 
@@ -68,29 +68,28 @@ export class AuthController {
       });
     } catch (error) {
       console.error('Login error:', error);
-      
-      // Check if it's a Prisma error (table not found)
+
       const errorMessage = (error as Error).message;
-      
+
       if (errorMessage.includes('does not exist in the current database')) {
-        return res.status(500).json({ 
-          message: 'Database belum disetup. Silakan jalankan migration terlebih dahulu.' 
+        return res.status(500).json({
+          message: 'Database belum disetup. Silakan jalankan migration terlebih dahulu.'
         });
       }
-      
-      res.status(401).json({ 
-        message: errorMessage || 'Login gagal' 
+
+      res.status(401).json({
+        message: errorMessage || 'Login gagal'
       });
     }
   }
 
   static async refreshToken(req: Request, res: Response) {
     try {
-      const { refreshToken } = req.body;
+      const refreshToken = req.cookies.refreshToken;
 
       if (!refreshToken) {
-        return res.status(400).json({ 
-          message: 'Refresh token harus diisi' 
+        return res.status(401).json({
+          message: 'Refresh token tidak ditemukan'
         });
       }
 
@@ -102,8 +101,8 @@ export class AuthController {
       });
     } catch (error) {
       console.error('Refresh token error:', error);
-      res.status(401).json({ 
-        message: (error as Error).message || 'Token tidak valid' 
+      res.status(401).json({
+        message: 'Refresh token tidak valid'
       });
     }
   }
@@ -113,8 +112,8 @@ export class AuthController {
       const userId = req.user?.id;
 
       if (!userId) {
-        return res.status(401).json({ 
-          message: 'User tidak terautentikasi' 
+        return res.status(401).json({
+          message: 'User tidak terautentikasi'
         });
       }
 
@@ -125,8 +124,8 @@ export class AuthController {
       });
     } catch (error) {
       console.error('Logout error:', error);
-      res.status(500).json({ 
-        message: 'Logout gagal' 
+      res.status(500).json({
+        message: 'Logout gagal'
       });
     }
   }
@@ -137,14 +136,14 @@ export class AuthController {
       const { oldPassword, newPassword } = req.body;
 
       if (!userId) {
-        return res.status(401).json({ 
-          message: 'User tidak terautentikasi' 
+        return res.status(401).json({
+          message: 'User tidak terautentikasi'
         });
       }
 
       if (!oldPassword || !newPassword) {
-        return res.status(400).json({ 
-          message: 'Password lama dan baru harus diisi' 
+        return res.status(400).json({
+          message: 'Password lama dan baru harus diisi'
         });
       }
 
@@ -155,8 +154,8 @@ export class AuthController {
       });
     } catch (error) {
       console.error('Change password error:', error);
-      res.status(400).json({ 
-        message: (error as Error).message || 'Gagal mengubah password' 
+      res.status(400).json({
+        message: (error as Error).message || 'Gagal mengubah password'
       });
     }
   }
@@ -167,14 +166,14 @@ export class AuthController {
       const { targetUserId, newPassword } = req.body;
 
       if (!adminId) {
-        return res.status(401).json({ 
-          message: 'Admin tidak terautentikasi' 
+        return res.status(401).json({
+          message: 'Admin tidak terautentikasi'
         });
       }
 
       if (!targetUserId || !newPassword) {
-        return res.status(400).json({ 
-          message: 'Target user ID dan password baru harus diisi' 
+        return res.status(400).json({
+          message: 'Target user ID dan password baru harus diisi'
         });
       }
 
@@ -185,8 +184,8 @@ export class AuthController {
       });
     } catch (error) {
       console.error('Reset password error:', error);
-      res.status(400).json({ 
-        message: (error as Error).message || 'Gagal reset password' 
+      res.status(400).json({
+        message: (error as Error).message || 'Gagal reset password'
       });
     }
   }

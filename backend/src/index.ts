@@ -1,16 +1,16 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+
 import authRoutes from './routes/auth';
-import replyRouter from './routes/reply';
+import cookieParser from 'cookie-parser';
 import forumRouter from './routes/forum';
+import uploadRoutes from './routes/upload';
 import bannerRouter from './routes/banner';
 import productRoutes from './routes/product';
 import variantRouter from './routes/variant';
 import favoriteRouter from './routes/favorite';
 import categoryRoutes from './routes/category';
-import { authMiddleware } from './middleware/auth';
-import uploadRoutes from './routes/upload';
 
 dotenv.config();
 
@@ -18,6 +18,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
@@ -27,7 +28,6 @@ app.use('/api', variantRouter);
 app.use('/api/banners', bannerRouter);
 app.use('/api/favorites', favoriteRouter);
 app.use('/api/forums', forumRouter);
-app.use('/api', replyRouter);
 app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static('public/uploads'));
 

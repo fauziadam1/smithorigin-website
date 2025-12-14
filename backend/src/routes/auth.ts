@@ -50,10 +50,20 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Username dan password harus diisi' });
     }
 
-    const tokens = await AuthService.login(username, password);
+    const { accessToken, refreshToken, user } = await AuthService.login(username, password);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
     res.status(200).json({
       message: 'Login berhasil',
-      data: tokens,
+      data: {
+        accessToken,
+        user,
+      },
     });
   } catch (error) {
     res.status(401).json({ message: (error as Error).message });
@@ -62,19 +72,20 @@ router.post('/login', async (req: Request, res: Response) => {
 
 router.post('/refresh', async (req: Request, res: Response) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-      return res.status(400).json({ message: 'Refresh token harus diisi' });
+      return res.status(401).json({ message: 'Refresh token tidak ditemukan' });
     }
 
     const tokens = await AuthService.refreshToken(refreshToken);
+
     res.status(200).json({
       message: 'Token diperbarui',
       data: tokens,
     });
   } catch (error) {
-    res.status(401).json({ message: (error as Error).message });
+    res.status(401).json({ message: 'Refresh token tidak valid' });
   }
 });
 
@@ -85,7 +96,8 @@ router.post('/logout', authMiddleware, async (req: Request, res: Response) => {
     }
 
     await AuthService.logout(req.user.id);
-    res.status(200).json({ message: 'Logout berhasil' });
+    res.clearCookie('refreshToken');
+    res.json({ message: 'Logout berhasil' });
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
   }
