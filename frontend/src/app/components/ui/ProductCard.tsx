@@ -1,63 +1,18 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import api from '../../../lib/axios'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { getAuth } from '../../../lib/auth'
 import { Product } from '../../../lib/product'
-import { useAlert } from './Alert'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
+import { useFavorite } from './FavoriteContext'
 
 export function ProductCard({ product }: { product: Product }) {
-  const router = useRouter()
-  const { showAlert } = useAlert()
-  const { user } = getAuth()
-  const [isFavorite, setIsFavorite] = useState(false)
+  const { favoriteIds, toggleFavorite } = useFavorite()
+  const isFavorite = favoriteIds.includes(product.id)
 
   const hasDiscount = product.discount && product.discount > 0
   const discountedPrice = hasDiscount
     ? product.price * (1 - product.discount! / 100)
     : product.price
-
-  useEffect(() => {
-    if (!user) return
-
-    const checkFavorite = async () => {
-      try {
-        const response = await api.get<{ data: { productId: number }[] }>('/favorites')
-        const favorites = response.data.data
-        const alreadyFavorite = favorites.some(fav => fav.productId === product.id)
-        setIsFavorite(alreadyFavorite)
-      } catch (error) {
-        console.error('Gagal memeriksa favorit:', error)
-      }
-    }
-
-    checkFavorite()
-  }, [user, product.id])
-
-  const toggleFavorite = async () => {
-    if (!user) {
-      showAlert('Silakan login untuk menambah ke wishlist')
-      setTimeout(() => router.push('/auth/sign-in'), 3000)
-      return
-    }
-
-    try {
-      if (isFavorite) {
-        await api.delete(`/favorites/${product.id}`)
-        setIsFavorite(false)
-      } else {
-        await api.post('/favorites', { productId: product.id })
-        setIsFavorite(true)
-      }
-    } catch (error: unknown) {
-      console.error(error)
-      const err = error as { response?: { data?: { message?: string } } }
-      showAlert(err.response?.data?.message || 'Gagal mengubah wishlist')
-    }
-  }
 
   return (
     <div className="w-full max-w-[250px] relative">
@@ -99,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <button
-        onClick={toggleFavorite}
+        onClick={() => toggleFavorite(product.id)}
         className="w-full bg-white border cursor-pointer border-gray-300 rounded-full py-2 mt-1 flex items-center justify-center gap-2 hover:bg-gray-100 transition"
       >
         {isFavorite ? (

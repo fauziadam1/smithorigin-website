@@ -1,29 +1,15 @@
 'use client'
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  isAdmin: boolean;
-}
 
-export const saveAuth = (token: string, user: User) => {
-  localStorage.setItem('token', token);
-  localStorage.setItem('user', JSON.stringify(user));
+export const saveAuth = (token: string) => {
+  localStorage.setItem('accessToken', token);
 };
 
-export const getAuth = (): { token: string | null; user: User | null } => {
-  if (typeof window === 'undefined') {
-    return { token: null, user: null };
-  }
-
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
-  return { token, user };
+export const getAuth = (): { token: string | null } => {
+  if (typeof window === 'undefined') return { token: null };
+  const token = localStorage.getItem('accessToken');
+  return { token };
 };
-
 
 export const clearAuth = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.removeItem('accessToken');
 };

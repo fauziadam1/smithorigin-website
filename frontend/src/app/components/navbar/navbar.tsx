@@ -1,30 +1,24 @@
-'use client'
 import clsx from "clsx"
 import Link from "next/link"
 import Image from "next/image"
+import { useAuth } from "../ui/AuthContext"
 import { useState, useEffect } from "react"
 import { LogIn, Search } from 'lucide-react'
+import { clearAuth } from "../../../lib/auth"
 import { getUserColor } from "../../../utils/color"
 import { usePathname, useRouter } from "next/navigation"
-import { getAuth, clearAuth } from "../../../lib/auth"
 import { AiOutlineHeart as FavoriteIcon } from 'react-icons/ai'
-
-interface User {
-    username: string
-    email: string
-    isAdmin?: boolean
-    avatarUrl?: string
-}
 
 export default function Header() {
     const pathname = usePathname()
     const router = useRouter()
+    const { user } = useAuth()
+
     const [navbarScrolled, setNavbarScrolled] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [isOpened, setIsOpened] = useState(false)
-    const [user, setUser] = useState<User | null>(null)
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
 
+    const isAuthenticated = !!user
     const isHome = mounted && pathname === "/user"
 
     useEffect(() => {
@@ -32,23 +26,15 @@ export default function Header() {
     }, [])
 
     useEffect(() => {
-        const auth = getAuth()
-        if (auth?.token && auth?.user) {
-            setUser(auth.user)
-            setIsAuthenticated(true)
-        } else {
-            setUser(null)
-            setIsAuthenticated(false)
-        }
-    }, [pathname])
-
-    useEffect(() => {
         if (!mounted) return
+
         if (isHome) {
             setNavbarScrolled(window.scrollY > window.innerHeight - 80)
+
             const handleScroll = () => {
                 setNavbarScrolled(window.scrollY > window.innerHeight - 80)
             }
+
             window.addEventListener("scroll", handleScroll)
             return () => window.removeEventListener("scroll", handleScroll)
         } else {
@@ -58,8 +44,6 @@ export default function Header() {
 
     const handleLogout = () => {
         clearAuth()
-        setUser(null)
-        setIsAuthenticated(false)
         setIsOpened(false)
         router.push('/')
     }

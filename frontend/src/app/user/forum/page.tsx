@@ -1,13 +1,13 @@
 'use client'
 import Link from 'next/link'
 import api from '../../../lib/axios'
-import { getAuth } from '../../../lib/auth'
 import { useRouter } from 'next/navigation'
 import { BiMessageRounded } from 'react-icons/bi'
 import React, { useState, useEffect } from 'react'
 import { getUserColor } from '../../../utils/color'
 import { useAlert } from '@/app/components/ui/Alert'
 import { useConfirm } from '@/app/components/ui/Confirm'
+import { useAuth } from '@/app/components/ui/AuthContext'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { Info, MessageCircleMore, MessageCirclePlus, Clock } from 'lucide-react'
 
@@ -61,11 +61,10 @@ export default function ForumPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
     const [openMenuId, setOpenMenuId] = useState<number | null>(null)
-    const { user } = getAuth()
+    const { user } = useAuth()
 
     useEffect(() => {
         fetchForums()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const getErrorMessage = (err: unknown): string => {

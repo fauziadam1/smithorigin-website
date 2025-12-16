@@ -3,8 +3,8 @@ import Link from 'next/link'
 import api from '../../../lib/axios'
 import React, { useState } from 'react'
 import { SquarePen } from 'lucide-react'
-import { getAuth } from '../../../lib/auth'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/app/components/ui/AuthContext'
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
 import { LuCircleAlert as AlertIcon } from 'react-icons/lu'
 import { PiNotePencilDuotone as EditIcon } from 'react-icons/pi'
@@ -12,7 +12,7 @@ import { PiPaperPlaneRightFill as PlaneIcon } from 'react-icons/pi'
 
 export default function ForumForm() {
   const router = useRouter()
-  const { user } = getAuth()
+  const { user } = useAuth()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
@@ -24,7 +24,7 @@ export default function ForumForm() {
 
     if (!user) {
       setError('Anda harus login terlebih dahulu untuk membuat thread.')
-      setTimeout(() => router.push('/auth/sign-in'), 3000)
+      setTimeout(() => router.push('/auth/login'), 3000)
       return
     }
 

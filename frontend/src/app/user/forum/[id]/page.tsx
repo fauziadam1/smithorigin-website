@@ -3,7 +3,7 @@ import Link from 'next/link';
 import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
 import { getUserColor } from '@/utils/color';
-import { getAuth } from '../../../../lib/auth';
+import { useAuth } from '@/app/components/ui/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
 import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp } from 'lucide-react';
@@ -177,10 +177,9 @@ function CommentItem({
 
 
 export default function ForumDetailPage() {
+  const { user } = useAuth()
   const params = useParams()
-  const router = useRouter()
   const forumId = params?.id as string | undefined
-  const { user } = getAuth()
 
   const [forum, setForum] = useState<ForumDetail | null>(null)
   const [mainReplyContent, setMainReplyContent] = useState('')
@@ -198,7 +197,7 @@ export default function ForumDetailPage() {
     try {
       const response = await api.get<ApiResponse<ForumDetail>>(`/forums/${forumId}`)
       setForum(response.data.data)
-    } catch (err) {
+    } catch {
       setError('Gagal memuat forum')
     } finally {
       setLoading(false)
@@ -206,16 +205,9 @@ export default function ForumDetailPage() {
   }
 
   const handleDeleteReply = async (id: number) => {
-    try {
-      await api.delete(`/forums/replies/${id}`)
-      await fetchForumDetail()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error(err.response?.data || err)
-      alert(err.response?.data?.message || 'Gagal menghapus komentar')
-    }
+    await api.delete(`/forums/replies/${id}`)
+    await fetchForumDetail()
   }
-
 
   const flattenReplies = (replies: ForumReply[]): FlatReply[] => {
     const result: FlatReply[] = []

@@ -1,157 +1,75 @@
 'use client'
 import { useState } from 'react';
+import api from '../../../lib/axios';
 import { useRouter } from 'next/navigation';
-import { HiOutlineMail as Mail } from 'react-icons/hi';
+import { saveAuth } from '../../../lib/auth';
 import { BiUser as User } from 'react-icons/bi';
 import { BiLockAlt as Lock } from 'react-icons/bi';
-import api from '../../../lib/axios';
-import { saveAuth } from '../../../lib/auth';
-import jwt from 'jsonwebtoken';
-
-interface DecodedUser {
-    id: number
-    username: string
-    email: string
-    isAdmin: boolean
-}
+import { HiOutlineMail as Mail } from 'react-icons/hi';
 
 export default function AuthPage() {
-    const router = useRouter()
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
-    
-    // SignIn states
-    const [signInUsername, setSignInUsername] = useState('')
-    const [signInPassword, setSignInPassword] = useState('')
-    
-    // SignUp states
-    const [signUpUsername, setSignUpUsername] = useState('')
-    const [signUpEmail, setSignUpEmail] = useState('')
-    const [signUpPassword, setSignUpPassword] = useState('')
-    
-    // Common states
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
+
+    const [signInUsername, setSignInUsername] = useState('');
+    const [signInPassword, setSignInPassword] = useState('');
+
+    const [signUpUsername, setSignUpUsername] = useState('');
+    const [signUpEmail, setSignUpEmail] = useState('');
+    const [signUpPassword, setSignUpPassword] = useState('');
+
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSignIn = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setError('')
-        setLoading(true)
-
+        e.preventDefault();
+        setError('');
+        setLoading(true);
         try {
             const response = await api.post('/auth/login', {
                 username: signInUsername,
                 password: signInPassword,
-            })
-
-            const accessToken: unknown = response?.data?.data?.accessToken
-
-            if (typeof accessToken !== 'string') {
-                throw new Error('Token tidak valid')
-            }
-
-            const decoded = jwt.decode(accessToken)
-
-            if (decoded && typeof decoded === 'object' && 'id' in decoded) {
-                const decodedUser = decoded as DecodedUser
-
-                saveAuth(accessToken, decodedUser)
-
-                if (decodedUser.isAdmin) {
-                    router.push('/user')
-                } else {
-                    router.push('/user')
-                }
-            } else {
-                throw new Error('Data token tidak valid')
-            }
-        } catch (err: unknown) {
-            if (
-                typeof err === 'object' &&
-                err !== null &&
-                'response' in err &&
-                typeof (err as { response?: { data?: { message?: string } } }).response === 'object'
-            ) {
-                const message =
-                    (err as { response?: { data?: { message?: string } } }).response?.data?.message ??
-                    'Login gagal. Silakan coba lagi.'
-                setError(message)
-            } else if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('Login gagal. Silakan coba lagi.')
-            }
+            });
+            const accessToken = response?.data?.data?.accessToken;
+            if (typeof accessToken !== 'string') throw new Error('Token tidak valid');
+            saveAuth(accessToken);
+            router.push('/user');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            const message = err?.response?.data?.message ?? err.message ?? 'Login gagal. Silakan coba lagi.';
+            setError(message);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     const handleSignUp = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setError('')
-        setLoading(true)
-
+        e.preventDefault();
+        setError('');
+        setLoading(true);
         if (signUpPassword.length < 6) {
-            setError('Password minimal 6 karakter')
-            setLoading(false)
-            return
+            setError('Password minimal 6 karakter');
+            setLoading(false);
+            return;
         }
-
         try {
             const response = await api.post('/auth/register', {
                 username: signUpUsername,
                 email: signUpEmail,
                 password: signUpPassword,
-            })
-
-            const accessToken: unknown = response?.data?.data?.accessToken
-            if (typeof accessToken !== 'string') {
-                throw new Error('Token tidak valid')
-            }
-
-            const decoded = jwt.decode(accessToken)
-
-            if (
-                decoded &&
-                typeof decoded === 'object' &&
-                'id' in decoded &&
-                'username' in decoded &&
-                'email' in decoded &&
-                'isAdmin' in decoded
-            ) {
-                const decodedUser: DecodedUser = {
-                    id: decoded.id as number,
-                    username: decoded.username as string,
-                    email: decoded.email as string,
-                    isAdmin: decoded.isAdmin as boolean,
-                }
-
-                saveAuth(accessToken, decodedUser)
-                router.push('/user')
-            } else {
-                throw new Error('Data token tidak valid')
-            }
-        } catch (err: unknown) {
-            console.error('Error saat registrasi:', err)
-
-            if (
-                typeof err === 'object' &&
-                err !== null &&
-                'response' in err &&
-                typeof (err as { response?: { data?: { message?: string } } }).response?.data
-                    ?.message === 'string'
-            ) {
-                setError(
-                    (err as { response: { data: { message: string } } }).response.data.message,
-                )
-            } else if (err instanceof Error) {
-                setError(err.message)
-            } else {
-                setError('Registrasi gagal. Silakan coba lagi.')
-            }
+            });
+            const accessToken = response?.data?.data?.accessToken;
+            if (typeof accessToken !== 'string') throw new Error('Token tidak valid');
+            saveAuth(accessToken);
+            router.push('/user');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            const message = err?.response?.data?.message ?? err.message ?? 'Registrasi gagal. Silakan coba lagi.';
+            setError(message);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div>
@@ -162,8 +80,8 @@ export default function AuthPage() {
                             {activeTab === 'signin' ? 'Login' : 'Create Account'}
                         </h1>
                         <p className="text-gray-500 text-sm">
-                            {activeTab === 'signin' 
-                                ? 'Masukkan detail anda untuk masuk ke akun' 
+                            {activeTab === 'signin'
+                                ? 'Masukkan detail anda untuk masuk ke akun'
                                 : 'Register your account to get started'}
                         </p>
                     </div>
@@ -177,14 +95,14 @@ export default function AuthPage() {
                     {activeTab === 'signin' && (
                         <form onSubmit={handleSignIn} className="space-y-4 w-110">
                             <div className="relative">
-                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400 placeholder:text-gray-200" htmlFor="signin-username">
+                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signin-username">
                                     <User />
                                 </label>
                                 <input
-                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     id="signin-username"
                                     type="text"
                                     placeholder="Username"
+                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     value={signInUsername}
                                     onChange={(e) => setSignInUsername(e.target.value)}
                                     required
@@ -196,10 +114,10 @@ export default function AuthPage() {
                                     <Lock />
                                 </label>
                                 <input
-                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     id="signin-password"
                                     type="password"
                                     placeholder="Password"
+                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     value={signInPassword}
                                     onChange={(e) => setSignInPassword(e.target.value)}
                                     required
@@ -216,18 +134,17 @@ export default function AuthPage() {
                         </form>
                     )}
 
-                    {/* SignUp Form */}
                     {activeTab === 'signup' && (
                         <form onSubmit={handleSignUp} className="space-y-4 w-110">
                             <div className="relative">
-                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400 placeholder:text-gray-200" htmlFor="signup-username">
+                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signup-username">
                                     <User />
                                 </label>
                                 <input
-                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     id="signup-username"
                                     type="text"
                                     placeholder="Username"
+                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     value={signUpUsername}
                                     onChange={(e) => setSignUpUsername(e.target.value)}
                                     required
@@ -235,14 +152,14 @@ export default function AuthPage() {
                                 />
                             </div>
                             <div className="relative">
-                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400 placeholder:text-gray-200" htmlFor="signup-email">
+                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signup-email">
                                     <Mail />
                                 </label>
                                 <input
-                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     id="signup-email"
                                     type="email"
                                     placeholder="Email"
+                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     value={signUpEmail}
                                     onChange={(e) => setSignUpEmail(e.target.value)}
                                     required
@@ -254,10 +171,10 @@ export default function AuthPage() {
                                     <Lock />
                                 </label>
                                 <input
-                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     id="signup-password"
                                     type="password"
                                     placeholder="Password (min 6 karakter)"
+                                    className="border-2 border-gray-200 py-4 px-4 pl-13 w-full rounded-2xl placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
                                     value={signUpPassword}
                                     onChange={(e) => setSignUpPassword(e.target.value)}
                                     required
@@ -276,10 +193,8 @@ export default function AuthPage() {
                     )}
 
                     <p className="text-[12px] text-center">
-                        {activeTab === 'signin' 
-                            ? "Don't have an account? " 
-                            : "You already have an account? "}
-                        <button 
+                        {activeTab === 'signin' ? "Don't have an account? " : "You already have an account? "}
+                        <button
                             onClick={() => setActiveTab(activeTab === 'signin' ? 'signup' : 'signin')}
                             className="bg-transparent border-none cursor-pointer text-red-800 font-semibold hover:underline p-0"
                         >

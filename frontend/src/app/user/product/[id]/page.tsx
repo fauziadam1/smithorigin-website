@@ -3,10 +3,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
-import { getAuth } from '../../../../lib/auth';
 import { ChevronRight as Arrow } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
 import { useAlert } from '@/app/components/ui/Alert';
+import { useParams, useRouter } from 'next/navigation';
+import { useAuth } from '@/app/components/ui/AuthContext';
+import { useFavorite } from '@/app/components/ui/FavoriteContext';
 import { AiOutlineHeart as HeartIcon, AiFillHeart as HeartFillIcon } from 'react-icons/ai';
 
 interface ProductVariant {
@@ -33,12 +34,6 @@ interface Product {
   variants: ProductVariant[];
   shopeeUrl?: string | null;
   tokopediaUrl?: string | null;
-}
-
-
-
-interface Favorite {
-  productId: number;
 }
 
 function SkeletonMain() {
@@ -94,22 +89,20 @@ export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const productId = params.id;
-  const { user, token } = getAuth();
+  const { user } = useAuth()
+  const { favoriteIds, toggleFavorite } = useFavorite()
 
+  const isFavorite = favoriteIds.includes(Number(productId))
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedImage, setSelectedImage] = useState('');
   const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'detail' | 'info'>('detail');
 
   useEffect(() => {
-    if (productId) {
-      void fetchProduct();
-      if (user) void checkFavorite();
-    }
-  }, [productId]);
+    if (productId) void fetchProduct()
+  }, [productId])
 
   const fetchProduct = async (): Promise<void> => {
     try {
@@ -145,53 +138,6 @@ export default function ProductDetailPage() {
       console.error('Error fetching related products:', error);
       setRelatedProducts([]);
     }
-  };
-
-  const checkFavorite = async (): Promise<void> => {
-    try {
-      const response = await api.get<{ data: Favorite[] }>('/favorites', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const favorites = response.data.data;
-      setIsFavorite(favorites.some((fav) => fav.productId === parseInt(productId)));
-    } catch (error) {
-      console.error('Gagal mengambil favorit:', error);
-    }
-  };
-
-  const toggleFavorite = async (): Promise<void> => {
-    if (!user || !token) {
-      showAlert('Silakan login terlebih dahulu');
-      setTimeout(() => router.push('/auth/sign-in'), 3000)
-      return;
-    }
-
-    try {
-      if (isFavorite) {
-        await api.delete(`/favorites/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsFavorite(false);
-        showAlert('Dihapus dari favorit');
-      } else {
-        await api.post(
-          '/favorites',
-          { productId: parseInt(productId) },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setIsFavorite(true);
-        showAlert('Ditambahkan ke favorit');
-      }
-    } catch (error: unknown) {
-      const errMsg =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (error as any)?.response?.data?.message ||
-        (error as Error)?.message ||
-        'Terjadi kesalahan';
-      console.error('Gagal mengubah favorit:', errMsg);
-      showAlert('Gagal mengubah favorit');
-    }
-
   };
 
   const selectVariant = (variant: ProductVariant): void => {
@@ -339,7 +285,7 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                <button onClick={toggleFavorite} className='p-3 cursor-pointer hover:bg-gray-100 rounded-full transition'>
+                <button onClick={() => toggleFavorite(Number(productId))} className='p-3 cursor-pointer hover:bg-gray-100 rounded-full transition'>
                   {isFavorite ? (
                     <HeartFillIcon className='w-7 h-7 text-red-500' />
                   ) : (

@@ -5,11 +5,11 @@ import api from '../../../lib/axios'
 import { BiTrash } from 'react-icons/bi'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getAuth } from '../../../lib/auth'
-import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
 import { useAlert } from '../../components/ui/Alert'
-import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
 import { useConfirm } from '../../components/ui/Confirm'
+import { useAuth } from '@/app/components/ui/AuthContext'
+import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
+import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
 
 interface Category {
   id: number
@@ -60,7 +60,7 @@ function SkeletonGrid() {
 
 export default function FavoritesPage() {
   const router = useRouter()
-  const { user } = getAuth()
+  const { user } = useAuth()
   const { showAlert } = useAlert()
   const { confirmDialog } = useConfirm()
 
@@ -68,14 +68,18 @@ export default function FavoritesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const isLoggedIn = Boolean(user)
+
   useEffect(() => {
-    if (!user) {
-      router.push('/auth/sign-in')
+    if (!isLoggedIn) {
+      setLoading(false)
+      setFavorites([])
       return
     }
+
     void fetchFavorites()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isLoggedIn])
 
   const fetchFavorites = async (): Promise<void> => {
     setLoading(true)
@@ -131,7 +135,7 @@ export default function FavoritesPage() {
     discount ? price - price * (discount / 100) : price
 
   return (
-    <div className="min-h-screen bg-gray-50 py-40">
+    <div className="min-h-screen py-40">
       <div className="container mx-auto px-10">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -163,22 +167,24 @@ export default function FavoritesPage() {
         {loading ? (
           <SkeletonGrid />
         ) : favorites.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AiFillHeart className="w-12 h-12 text-gray-300" />
+          <div className='flex items-center justify-center min-h-[80vh]'>
+            <div className="text-center max-w-md w-full">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AiFillHeart className="w-12 h-12 text-gray-300" />
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                Your Wishlist is Empty
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Start adding your favorite products to keep track of them!
+              </p>
+              <Link
+                href="/user/store"
+                className="inline-block bg-red-800 text-white px-6 py-3 rounded-full font-medium hover:bg-red-900 transition"
+              >
+                Browse Products
+              </Link>
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-              Your Wishlist is Empty
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Start adding your favorite products to keep track of them!
-            </p>
-            <Link
-              href="/user/store"
-              className="inline-block bg-red-500 text-white px-6 py-3 rounded-full font-medium hover:bg-red-600 transition"
-            >
-              Browse Products
-            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
