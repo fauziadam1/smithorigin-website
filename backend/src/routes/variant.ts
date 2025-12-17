@@ -7,6 +7,6 @@ const variantRouter = Router();
 variantRouter.get('/products/:productId/variants', VariantController.getByProductId);
 variantRouter.post('/products/:productId/variants', authMiddleware, adminMiddleware, VariantController.create);
 variantRouter.put('/variants/:id', authMiddleware, adminMiddleware, VariantController.update);
-variantRouter.delete('/variants/:id', authMiddleware, adminMiddleware, VariantController.delete);
+variantRouter.delete('/products/:productId/variants/:id', authMiddleware, adminMiddleware, VariantController.delete);
 
 export default variantRouter;

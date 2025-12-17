@@ -47,6 +47,8 @@ model Product {
   imageUrl     String?
   productUrl   String?
   categoryId   Int?
+  tokopediaUrl String?
+  shopeeUrl    String?
   isBestSeller Boolean          @default(false)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
@@ -118,21 +120,21 @@ model ForumLike {
 }
 
 model ForumReply {
-  id        Int          @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   content   String
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  
-  forumId   Int
-  userId    Int
-  
-  parentId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  forum     Forum        @relation(fields: [forumId], references: [id], onDelete: Cascade)
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  forumId Int
+  userId  Int
 
-  parent    ForumReply?  @relation("ReplyToReply", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   ForumReply[] @relation("ReplyToReply")
+  parentId Int?
+
+  forum Forum @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  parent  ForumReply?  @relation("ReplyToReply", fields: [parentId], references: [id], onDelete: Cascade)
+  replies ForumReply[] @relation("ReplyToReply")
 
   @@map("forum_replies")
 }

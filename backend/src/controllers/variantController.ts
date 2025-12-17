@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { VariantService } from "../services/variantService";
+import { Request, Response } from 'express'
+import { VariantService } from '../services/variantService'
 
 export class VariantController {
   static async getByProductId(req: Request, res: Response) {
@@ -10,33 +10,35 @@ export class VariantController {
       }
 
       const variants = await VariantService.getByProductId(productId)
+
       res.status(200).json({
         message: 'Berhasil mengambil data varian',
         data: variants,
       })
     } catch (error) {
-      res.status(404).json({ message: (error as Error).message })
+      res.status(400).json({ message: (error as Error).message })
     }
   }
 
   static async create(req: Request, res: Response) {
     try {
       const productId = parseInt(req.params.productId)
-      const { color, imageUrl, price } = req.body
-
       if (isNaN(productId)) {
         return res.status(400).json({ message: 'Product ID tidak valid' })
       }
 
-      if (!color) {
-        return res.status(400).json({ message: 'Warna harus diisi' })
+      const { color, imageUrl, price } = req.body
+
+      if (!color || !imageUrl) {
+        return res.status(400).json({ message: 'Color dan imageUrl harus diisi' })
       }
 
-      if (price !== undefined && isNaN(Number(price))) {
-        return res.status(400).json({ message: 'Harga harus berupa angka' })
-      }
+      const variant = await VariantService.create(productId, {
+        color,
+        imageUrl,
+        price: price ? parseFloat(price) : undefined,
+      })
 
-      const variant = await VariantService.create(productId, color, imageUrl, price)
       res.status(201).json({
         message: 'Varian berhasil dibuat',
         data: variant,
@@ -49,21 +51,18 @@ export class VariantController {
   static async update(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id)
-      const { color, imageUrl, price } = req.body
-
       if (isNaN(id)) {
         return res.status(400).json({ message: 'ID tidak valid' })
       }
 
-      if (!color) {
-        return res.status(400).json({ message: 'Warna harus diisi' })
-      }
+      const { color, imageUrl, price } = req.body
 
-      if (price !== undefined && isNaN(Number(price))) {
-        return res.status(400).json({ message: 'Harga harus berupa angka' })
-      }
+      const variant = await VariantService.update(id, {
+        color,
+        imageUrl,
+        price: price ? parseFloat(price) : undefined,
+      })
 
-      const variant = await VariantService.update(id, color, imageUrl, price)
       res.status(200).json({
         message: 'Varian berhasil diupdate',
         data: variant,
@@ -76,12 +75,13 @@ export class VariantController {
   static async delete(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id)
-
+      
       if (isNaN(id)) {
         return res.status(400).json({ message: 'ID tidak valid' })
       }
 
       await VariantService.delete(id)
+
       res.status(200).json({ message: 'Varian berhasil dihapus' })
     } catch (error) {
       res.status(400).json({ message: (error as Error).message })
