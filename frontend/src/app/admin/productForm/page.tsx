@@ -106,17 +106,8 @@ export default function ProductForm() {
       setMainImagePreview(p.imageUrl || '')
       setIsBestSeller(Boolean(p.isBestSeller))
 
-      // Parse productUrl to shopee and tokopedia
-      if (p.productUrl) {
-        try {
-          const urls = JSON.parse(p.productUrl)
-          setShopeeUrl(urls.shopee || '')
-          setTokopediaUrl(urls.tokopedia || '')
-        } catch {
-          // Legacy single URL - ignore or set to one of them
-          setShopeeUrl(p.productUrl || '')
-        }
-      }
+      setShopeeUrl(p.shopeeUrl || '')
+      setTokopediaUrl(p.tokopediaUrl || '')
 
       if (p.variants?.length) {
         setEnableVariant(true)
@@ -173,8 +164,8 @@ export default function ProductForm() {
   }
 
   const handleAddVariant = () => {
-    if (variants.length >= 5) {
-      showAlert('Maksimal 5 varian produk.')
+    if (variants.length >= 9) {
+      showAlert('Maksimal 9 varian produk.')
       return
     }
     setVariants((v) => [
@@ -185,19 +176,23 @@ export default function ProductForm() {
 
   const handleRemoveVariant = async (index: number) => {
     const variantToRemove = variants[index]
+
     if (isEditMode && variantToRemove.id) {
-      const isConfirmed = confirm('Yakin ingin menghapus varian ini?')
+      const isConfirmed = await confirmDialog('Yakin ingin menghapus varian ini?')
       if (!isConfirmed) return
 
       try {
-        await api.delete(`/products/${productIdParam}/variants/${variantToRemove.id}`)
-        showAlert('Varian berhasil dihapus dari database.')
+        await api.delete(
+          `/products/${productIdParam}/variants/${variantToRemove.id}`
+        )
+        showAlert('Varian berhasil dihapus')
       } catch (err) {
         console.error('Gagal menghapus varian', err)
         showAlert('Gagal menghapus varian.')
         return
       }
     }
+
     setVariants((v) => v.filter((_, i) => i !== index))
   }
 
@@ -207,6 +202,31 @@ export default function ProductForm() {
     if (!name.trim() || !price || (!mainImageFile && !mainImageUrl)) {
       showAlert('Nama, harga, dan gambar utama wajib diisi.')
       return
+    }
+
+    if (enableVariant && variants.length > 0) {
+      const incompleteVariants: string[] = []
+
+      variants.forEach((variant, index) => {
+        const issues: string[] = []
+
+        if (!variant.color.trim()) {
+          issues.push('nama varian')
+        }
+
+        if (!variant.imageFile && !variant.imageUrl) {
+          issues.push('gambar')
+        }
+
+        if (issues.length > 0) {
+          incompleteVariants.push(`Varian ${index + 1}: belum ada ${issues.join(' dan ')}`)
+        }
+      })
+
+      if (incompleteVariants.length > 0) {
+        showAlert(`Lengkapi data varian berikut:\n${incompleteVariants.join('\n')}`)
+        return
+      }
     }
 
     setLoading(true)
@@ -220,8 +240,9 @@ export default function ProductForm() {
         price: parseFloat(price),
         discount: discount ? parseFloat(discount) : null,
         imageUrl: mainUrl,
-        shopeeUrl: shopeeUrl.trim() || null,
-        tokopediaUrl: tokopediaUrl.trim() || null,
+        shopeeUrl: shopeeUrl.trim() || undefined,
+        tokopediaUrl: tokopediaUrl.trim() || undefined,
+
         categoryId: categoryId ? parseInt(categoryId, 10) : null,
         isBestSeller,
       }
@@ -234,15 +255,17 @@ export default function ProductForm() {
 
       if (enableVariant) {
         for (const variant of variants) {
-          if (!variant.color.trim() && !variant.imageFile && !variant.imageUrl) continue
+          if (!variant.color.trim() || (!variant.imageFile && !variant.imageUrl)) {
+            continue
+          }
 
           let variantImageUrl = variant.imageUrl
           if (variant.imageFile) variantImageUrl = await uploadImage(variant.imageFile)
 
           const variantPayload = {
-            color: variant.color,
+            color: variant.color.trim(),
             imageUrl: variantImageUrl,
-            price: variant.price ? parseFloat(variant.price) : undefined,
+            price: variant.price ? parseFloat(variant.price) : null,
           }
 
           if (variant.id) {
@@ -255,9 +278,11 @@ export default function ProductForm() {
 
       showAlert(isEditMode ? 'Produk berhasil diupdate!' : 'Produk berhasil ditambahkan!')
       router.push('/admin/product')
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error('submit error', err)
-      showAlert('Gagal menyimpan produk sesi anda telah berakhir')
+      const errorMsg = err?.response?.data?.message || err?.message || 'Terjadi kesalahan'
+      showAlert(`Gagal menyimpan produk: ${errorMsg}`)
     } finally {
       setLoading(false)
     }
@@ -270,6 +295,19 @@ export default function ProductForm() {
     setMainImagePreview('')
   }
 
+  const handleCancel = async () => {
+    const isConfirmed = await confirmDialog(
+      isEditMode
+        ? 'Batalkan perubahan produk?'
+        : 'Batalkan input produk?'
+    )
+
+    if (!isConfirmed) return
+
+    router.push('/admin/product')
+  }
+
+
   return (
     <div className="mx-auto p-6">
       <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
@@ -281,7 +319,7 @@ export default function ProductForm() {
               <label className="block text-sm mb-1 font-medium">Nama Produk</label>
               <input
                 type="text"
-                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-800 outline-none"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -290,7 +328,7 @@ export default function ProductForm() {
               <label className="block text-sm mb-1 font-medium">Harga (IDR)</label>
               <input
                 type="number"
-                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-800 outline-none"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
@@ -301,14 +339,14 @@ export default function ProductForm() {
             <label className="block text-sm mb-1 font-medium">Deskripsi</label>
             <textarea
               rows={4}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+              className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-800 outline-none resize-none"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
           <div className="border-t border-gray-200 pt-4">
-            <label className="block text-sm mb-3 font-medium text-gray-700">Link Produk (Opsional)</label>
+            <label className="block text-sm mb-3 font-medium">Link Produk</label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs mb-1 text-gray-600">Shopee URL</label>
@@ -340,7 +378,7 @@ export default function ProductForm() {
                 type="number"
                 min="0"
                 max="100"
-                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-800 outline-none"
                 value={discount}
                 onChange={(e) => setDiscount(e.target.value)}
               />
@@ -351,7 +389,7 @@ export default function ProductForm() {
               <button
                 type="button"
                 onClick={() => setCategoryOpen((o) => !o)}
-                className="w-full flex justify-between items-center border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full flex justify-between items-center border border-gray-200 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-red-800 outline-none"
               >
                 {categoryId
                   ? categories.find((c) => c.id === parseInt(categoryId))?.name || 'Pilih Kategori'
@@ -371,8 +409,8 @@ export default function ProductForm() {
                             setCategoryOpen(false)
                           }}
                           className={`px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center ${categoryId === String(cat.id)
-                              ? 'bg-blue-50 text-blue-600 font-medium'
-                              : ''
+                            ? 'bg-blue-50 text-blue-600 font-medium'
+                            : ''
                             }`}
                         >
                           {cat.name}
@@ -392,7 +430,7 @@ export default function ProductForm() {
             <label className="text-sm font-medium">Tandai sebagai Best Seller</label>
             <div
               onClick={() => setIsBestSeller((prev) => !prev)}
-              className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${isBestSeller ? 'bg-blue-600' : 'bg-gray-300'
+              className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${isBestSeller ? 'bg-red-800' : 'bg-gray-300'
                 }`}
             >
               <div
@@ -446,17 +484,22 @@ export default function ProductForm() {
               type="checkbox"
               checked={enableVariant}
               onChange={(e) => setEnableVariant(e.target.checked)}
-              className="w-4 h-4"
+              className="w-4 h-4 accent-red-800"
             />
             <label className="text-sm">Aktifkan varian produk</label>
           </div>
 
           {enableVariant && (
-            <div className="border-t pt-4">
-              <label className="block text-sm mb-2 font-medium">Gambar & Harga Varian (maks 5)</label>
+            <div className="border-t border-gray-200 pt-4">
+              <label className="block text-sm mb-2 font-medium">
+                Varian Produk (maks 9)
+                <span className="text-xs text-gray-500 ml-2">
+                  * Nama varian dan gambar wajib diisi
+                </span>
+              </label>
               <div className="flex flex-wrap gap-4">
                 {variants.map((variant, i) => (
-                  <div key={variant.id || i} className="relative w-28">
+                  <div key={`variant-${i}`} className="relative w-28">
                     {variant.imagePreview ? (
                       <>
                         <Image
@@ -475,9 +518,9 @@ export default function ProductForm() {
                         </button>
                       </>
                     ) : (
-                      <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-blue-400">
+                      <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-red-800">
                         <Upload className="w-6 h-6 text-gray-400" />
-                        <span className="text-xs mt-1">Tambah</span>
+                        <span className="text-xs mt-1 text-gray-500">Tambah</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -493,25 +536,25 @@ export default function ProductForm() {
                     )}
                     <input
                       type="text"
-                      placeholder="Nama varian"
+                      placeholder="Nama varian *"
                       value={variant.color}
                       onChange={(e) => handleVariantChange(i, 'color', e.target.value)}
-                      className="mt-2 w-full text-xs border border-gray-200 rounded px-2 py-1 no-spinner outline-none focus:ring-2 focus:ring-blue-400"
+                      className="mt-2 w-full text-xs border border-gray-200 rounded px-2 py-1 outline-none focus:ring-2 focus:ring-red-800"
                     />
                     <input
                       type="number"
-                      placeholder="Harga varian"
+                      placeholder="Harga (opsional)"
                       value={variant.price}
                       onChange={(e) => handleVariantChange(i, 'price', e.target.value)}
-                      className="mt-1 w-full text-xs border border-gray-200 rounded px-2 py-1 no-spinner focus:ring-2 outline-none focus:ring-blue-400"
+                      className="mt-1 w-full text-xs border border-gray-200 rounded px-2 py-1 focus:ring-2 outline-none focus:ring-red-800"
                     />
                   </div>
                 ))}
-                {variants.length < 5 && (
+                {variants.length < 9 && (
                   <button
                     type="button"
                     onClick={handleAddVariant}
-                    className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:border-blue-400"
+                    className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-md text-sm text-gray-500 hover:border-red-800"
                   >
                     Tambah
                   </button>
@@ -520,13 +563,24 @@ export default function ProductForm() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center cursor-pointer gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition disabled:bg-gray-400"
-          >
-            <Save className="w-4 h-4" /> {isEditMode ? 'Update Produk' : 'Simpan Produk'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="px-4 py-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100"
+            >
+              Batal
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex items-center gap-2 bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900 transition disabled:bg-gray-400"
+            >
+              <Save className="w-4 h-4" />
+              {isEditMode ? 'Update' : 'Simpan'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

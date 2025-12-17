@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
-import { ChevronRight as Arrow } from 'lucide-react';
+import { ChevronRight as Arrow, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAlert } from '@/app/components/ui/Alert';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/app/components/ui/AuthContext';
@@ -99,6 +99,9 @@ export default function ProductDetailPage() {
   const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'detail' | 'info'>('detail');
+  const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
+
+  const THUMBNAILS_PER_PAGE = 4;
 
   useEffect(() => {
     if (productId) void fetchProduct()
@@ -184,6 +187,18 @@ export default function ProductDetailPage() {
   const truncatedName =
     product.name.length > 40 ? product.name.slice(0, 37).trim() + '...' : product.name;
 
+  const visibleThumbnails = allImages.slice(thumbnailStartIndex, thumbnailStartIndex + THUMBNAILS_PER_PAGE);
+  const canScrollLeft = thumbnailStartIndex > 0;
+  const canScrollRight = thumbnailStartIndex + THUMBNAILS_PER_PAGE < allImages.length;
+
+  const scrollThumbnails = (direction: 'left' | 'right') => {
+    if (direction === 'left') {
+      setThumbnailStartIndex(Math.max(0, thumbnailStartIndex - 1));
+    } else {
+      setThumbnailStartIndex(Math.min(allImages.length - THUMBNAILS_PER_PAGE, thumbnailStartIndex + 1));
+    }
+  };
+
   return (
     <section className="container px-10 py-40 mx-auto h-fit flex items-start justify-center">
       <div className="flex flex-col items-center gap-25">
@@ -211,23 +226,46 @@ export default function ProductDetailPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-5">
-                {allImages.slice(0, 4).map((img, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setSelectedImage(img)}
-                    className={`w-24 h-24 border-2 rounded-lg overflow-hidden cursor-pointer transition ${selectedImage === img ? 'border-red-800' : 'border-gray-200 hover:border-gray-400'
-                      }`}
+              <div className="relative flex items-center gap-3">
+                {canScrollLeft && (
+                  <button
+                    onClick={() => scrollThumbnails('left')}
+                    className="absolute left-0 z-10 bg-white/90 hover:bg-white shadow-md rounded-full p-2 transition -translate-x-3"
                   >
-                    <Image
-                      src={img}
-                      alt={`thumbnail ${index + 1}`}
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
+                    <ChevronLeft className="w-5 h-5 text-gray-700" />
+                  </button>
+                )}
+
+                <div className="flex items-center gap-5 overflow-hidden">
+                  {visibleThumbnails.map((img, index) => {
+                    const actualIndex = thumbnailStartIndex + index;
+                    return (
+                      <div
+                        key={actualIndex}
+                        onClick={() => setSelectedImage(img)}
+                        className={`w-24 h-24 border-2 rounded-lg overflow-hidden cursor-pointer transition flex-shrink-0 ${selectedImage === img ? 'border-red-800' : 'border-gray-200 hover:border-gray-400'
+                          }`}
+                      >
+                        <Image
+                          src={img}
+                          alt={`thumbnail ${actualIndex + 1}`}
+                          width={96}
+                          height={96}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {canScrollRight && (
+                  <button
+                    onClick={() => scrollThumbnails('right')}
+                    className="absolute right-0 z-10 bg-white/90 hover:bg-white shadow-md rounded-full p-2 transition translate-x-3"
+                  >
+                    <ChevronRight className="w-5 h-5 text-gray-700" />
+                  </button>
+                )}
               </div>
 
               <div className='w-full flex items-center gap-5'>
@@ -300,7 +338,7 @@ export default function ProductDetailPage() {
                 <>
                   <div className='flex flex-col gap-2'>
                     <h1 className='font-medium'>Pilih Warna:</h1>
-                    <div className='flex gap-2'>
+                    <div className='flex gap-2 flex-wrap'>
                       {product.variants.map((variant) => (
                         <button
                           key={variant.id}
