@@ -2,10 +2,10 @@
 import Link from 'next/link';
 import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
-import { getUserColor } from '@/utils/color';
-import { useAuth } from '@/app/components/ui/AuthContext';
 import { useParams } from 'next/navigation';
+import { getUserColor } from '@/utils/color';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
+import { useAuth } from '@/app/components/ui/AuthContext';
 import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 
 interface ForumUser {
@@ -492,21 +492,21 @@ export default function ForumDetailPage() {
                       href={`/user/forum/${otherForum.id}`}
                       className='block hover:bg-gray-50 transition'
                     >
-                      <div className='p-4 space-y-2.5'>
-                        <div className='flex items-start gap-2'>
-                          <div className={`w-7 h-7 ${getUserColor(otherForum.user.username)} rounded-full flex items-center justify-center shrink-0`}>
+                      <div className='flex items-center justify-between p-4'>
+                        <div className='flex items-center gap-3'>
+                          <div className={`w-8 h-8 ${getUserColor(otherForum.user.username)} rounded-full flex items-center justify-center shrink-0`}>
                             <span className="text-xs font-semibold text-black">
                               {otherForum.user.username[0].toUpperCase()}
                             </span>
                           </div>
-                          <div className='flex-1 min-w-0'>
+                          <div className='leading-5'>
                             <h4 className='font-medium text-sm text-gray-900 line-clamp-2 hover:text-red-800 transition'>
                               {otherForum.title}
                             </h4>
+                            <span className='text-xs text-gray-500 font-light '>{otherForum.user.username}</span>
                           </div>
                         </div>
-                        <div className='flex items-center justify-between text-xs text-gray-500 ml-9'>
-                          <span className='font-medium'>{otherForum.user.username}</span>
+                        <div className='flex items-center justify-between text-xs text-gray-500'>
                           <div className='flex items-center gap-1.5'>
                             <MessagesSquare className='w-3.5 h-3.5' />
                             <span>{otherForum._count.replies}</span>
