@@ -4,7 +4,6 @@ import Image from 'next/image'
 import api from '../../../lib/axios'
 import { BiTrash } from 'react-icons/bi'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAlert } from '../../components/ui/Alert'
 import { useConfirm } from '../../components/ui/Confirm'
 import { useAuth } from '@/app/components/ui/AuthContext'
@@ -59,7 +58,6 @@ function SkeletonGrid() {
 }
 
 export default function FavoritesPage() {
-  const router = useRouter()
   const { user } = useAuth()
   const { showAlert } = useAlert()
   const { confirmDialog } = useConfirm()

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import api from '../../../../lib/axios'
 import { useState, useEffect } from 'react'
-import { getAuth } from '../../../../lib/auth'
+import { useAuth } from '@/app/components/ui/AuthContext'
 import { ChevronRight as Arrow } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
@@ -40,7 +40,7 @@ export default function CategoryPage() {
   const params = useParams()
   const router = useRouter()
   const categoryId = params.id
-  const { user } = getAuth()
+  const { user } = useAuth()
 
   const [category, setCategory] = useState<Category | null>(null)
   const [products, setProducts] = useState<Product[]>([])
@@ -53,6 +53,7 @@ export default function CategoryPage() {
       void fetchCategoryAndProducts()
       if (user) void fetchFavorites()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId])
 
   const fetchCategoryAndProducts = async () => {

@@ -66,6 +66,7 @@ export default function ForumPage() {
 
     useEffect(() => {
         fetchForums()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const getErrorMessage = (err: unknown): string => {
