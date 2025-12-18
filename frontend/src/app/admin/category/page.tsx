@@ -4,7 +4,7 @@ import api from '../../../lib/axios';
 import { useState, useEffect } from 'react';
 import { useAlert } from '@/app/components/ui/Alert';
 import { useConfirm } from '@/app/components/ui/Confirm';
-import { Search, MoreVertical, Edit2, Trash2, Filter, Plus, X, Upload, ImagePlus, Save } from 'lucide-react';
+import { Search, MoreVertical, Edit2, Trash2, Filter, Plus, X, ImagePlus, Save } from 'lucide-react';
 
 interface Category {
   id: number;
@@ -35,6 +35,7 @@ export default function CategoryPage() {
 
   useEffect(() => {
     filterAndSortCategories();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories, searchQuery, sortOrder]);
 
   const fetchCategories = async () => {
@@ -82,6 +83,7 @@ export default function CategoryPage() {
 
   const toggleSelectItem = (id: number) => {
     const newSelected = new Set(selectedItems);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id);
     setSelectedItems(newSelected);
   };
@@ -106,7 +108,8 @@ export default function CategoryPage() {
 
   const handleDeleteAllSelected = async () => {
     if (selectedItems.size === 0) return;
-    if (!confirm(`Yakin ingin menghapus ${selectedItems.size} kategori?`)) return;
+    const ok = await confirmDialog(`Yakin ingin menghapus ${selectedItems.size} kategori?`)
+    if (!ok) return
 
     try {
       await Promise.all(
@@ -115,7 +118,7 @@ export default function CategoryPage() {
       setCategories((prev) => prev.filter((cat) => !selectedItems.has(cat.id)));
       setSelectedItems(new Set());
       setOpenMenuId(null);
-      alert('Semua kategori terpilih berhasil dihapus!');
+      showAlert('Semua kategori terpilih berhasil dihapus!');
     } catch (err: unknown) {
       const message =
         (err && typeof err === 'object' && 'response' in err
@@ -218,7 +221,7 @@ export default function CategoryPage() {
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
+                className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})
@@ -250,39 +253,41 @@ export default function CategoryPage() {
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-gray-300 accent-red-800 cursor-pointer"
                   />
                 </th>
+                <th className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
-                <th className="w-12 px-4 py-3"></th>
+                <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                     Loading...
                   </td>
                 </tr>
               ) : filteredCategories.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
                     Tidak ada data
                   </td>
                 </tr>
               ) : (
-                filteredCategories.map((category) => (
+                filteredCategories.map((category, index) => (
                   <tr key={category.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-4">
                       <input
                         type="checkbox"
                         checked={selectedItems.has(category.id)}
                         onChange={() => toggleSelectItem(category.id)}
-                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        className="w-4 h-4 rounded border-gray-300 accent-red-800 cursor-pointer"
                       />
                     </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">{index + 1}</td>
                     <td className="px-4 py-4 text-sm font-medium text-gray-900">{category.name}</td>
                     <td className="px-4 py-4">
                       {category.imageUrl ? (
@@ -294,10 +299,10 @@ export default function CategoryPage() {
                       )}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-600">{category._count?.products || 0}</td>
-                    <td className="px-4 py-4 text-right relative">
+                    <td className="px-4 py-4 text-center relative">
                       <button
                         onClick={() => setOpenMenuId(openMenuId === category.id ? null : category.id)}
-                        className="p-1 hover:bg-gray-100 cursor-pointer rounded transition-colors"
+                        className="p-1 hover:bg-gray-100 cursor-pointer rounded transition-colors mx-auto"
                       >
                         <MoreVertical className="w-5 h-5 text-gray-400" />
                       </button>

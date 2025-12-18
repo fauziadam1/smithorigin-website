@@ -72,6 +72,7 @@ export default function ProductForm() {
   useEffect(() => {
     fetchCategories()
     if (isEditMode && productIdParam) fetchProduct(parseInt(productIdParam, 10))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productIdParam])
 
   useEffect(() => {

@@ -105,6 +105,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (productId) void fetchProduct()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId])
 
   const fetchProduct = async (): Promise<void> => {
@@ -243,7 +244,7 @@ export default function ProductDetailPage() {
                       <div
                         key={actualIndex}
                         onClick={() => setSelectedImage(img)}
-                        className={`w-24 h-24 border-2 rounded-lg overflow-hidden cursor-pointer transition flex-shrink-0 ${selectedImage === img ? 'border-red-800' : 'border-gray-200 hover:border-gray-400'
+                        className={`w-24 h-24 border-2 rounded-lg overflow-hidden cursor-pointer transition shrink-0 ${selectedImage === img ? 'border-red-800' : 'border-gray-200 hover:border-gray-400'
                           }`}
                       >
                         <Image

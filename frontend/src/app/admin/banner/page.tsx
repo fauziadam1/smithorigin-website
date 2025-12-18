@@ -31,6 +31,7 @@ export default function BannerPage() {
 
   useEffect(() => {
     filterAndSortBanners();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [banners, searchQuery, sortOrder]);
 
   const fetchBanners = async () => {
@@ -78,6 +79,7 @@ export default function BannerPage() {
 
   const toggleSelectItem = (id: number) => {
     const newSet = new Set(selectedItems);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     newSet.has(id) ? newSet.delete(id) : newSet.add(id);
     setSelectedItems(newSet);
   };
@@ -193,7 +195,7 @@ export default function BannerPage() {
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})
@@ -225,8 +227,11 @@ export default function BannerPage() {
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-gray-300 accent-red-800 cursor-pointer"
                   />
+                </th>
+                <th className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  No
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Banner Image
@@ -234,32 +239,37 @@ export default function BannerPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Tanggal Ditambahkan
                 </th>
-                <th className="w-12 px-4 py-3"></th>
+                <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                     Loading...
                   </td>
                 </tr>
               ) : filteredBanners.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                     Tidak ada banner
                   </td>
                 </tr>
               ) : (
-                filteredBanners.map((banner) => (
+                filteredBanners.map((banner, index) => (
                   <tr key={banner.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-4">
                       <input
                         type="checkbox"
                         checked={selectedItems.has(banner.id)}
                         onChange={() => toggleSelectItem(banner.id)}
-                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        className="w-4 h-4 rounded border-gray-300 accent-red-800 cursor-pointer"
                       />
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-600">
+                      {index + 1}
                     </td>
                     <td className="px-4 py-4">
                       <Image
@@ -279,12 +289,12 @@ export default function BannerPage() {
                         })
                         : '-'}
                     </td>
-                    <td className="px-4 py-4 text-right relative">
+                    <td className="px-4 py-4 text-center relative">
                       <button
                         onClick={() =>
                           setOpenMenuId(openMenuId === banner.id ? null : banner.id)
                         }
-                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        className="p-1 hover:bg-gray-100 rounded transition-colors mx-auto"
                       >
                         <MoreVertical className="w-5 h-5 text-gray-400" />
                       </button>

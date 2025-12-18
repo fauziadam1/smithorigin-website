@@ -6,7 +6,7 @@ import { getUserColor } from '@/utils/color';
 import { useAuth } from '@/app/components/ui/AuthContext';
 import { useParams, useRouter } from 'next/navigation';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
-import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 
 interface ForumUser {
   id: number
@@ -29,6 +29,19 @@ interface ForumDetail {
   createdAt: string
   user: ForumUser
   replies: ForumReply[]
+}
+
+interface Forum {
+  id: number
+  title: string
+  createdAt: string
+  user: {
+    id: number
+    username: string
+  }
+  _count: {
+    replies: number
+  }
 }
 
 interface ApiResponse<T> {
@@ -182,6 +195,7 @@ export default function ForumDetailPage() {
   const forumId = params?.id as string | undefined
 
   const [forum, setForum] = useState<ForumDetail | null>(null)
+  const [otherForums, setOtherForums] = useState<Forum[]>([])
   const [mainReplyContent, setMainReplyContent] = useState('')
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
@@ -190,7 +204,10 @@ export default function ForumDetailPage() {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
-    if (forumId) fetchForumDetail()
+    if (forumId) {
+      fetchForumDetail()
+      fetchOtherForums()
+    }
   }, [forumId])
 
   const fetchForumDetail = async () => {
@@ -201,6 +218,16 @@ export default function ForumDetailPage() {
       setError('Gagal memuat forum')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchOtherForums = async () => {
+    try {
+      const response = await api.get<ApiResponse<Forum[]>>('/forums?limit=5')
+      const filtered = response.data.data.filter((f: Forum) => f.id !== parseInt(forumId || '0'))
+      setOtherForums(filtered.slice(0, 3))
+    } catch {
+      console.error('Gagal memuat forum lainnya')
     }
   }
 
@@ -258,6 +285,18 @@ export default function ForumDetailPage() {
       hour: '2-digit',
       minute: '2-digit',
     })
+  }
+
+  const formatTime = (date: string) => {
+    const now = new Date()
+    const then = new Date(date)
+    const diffMs = now.getTime() - then.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+
+    if (diffMins < 60) return `${diffMins}m`
+    if (diffHours < 24) return `${diffHours}h`
+    return `${Math.floor(diffHours / 24)}d`
   }
 
   if (loading) {
@@ -419,7 +458,7 @@ export default function ForumDetailPage() {
             </div>
           </div>
 
-          <div className='w-80'>
+          <div className='w-80 space-y-5'>
             <div className='border border-gray-200 rounded-xl p-6 bg-white'>
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageCirclePlus className='text-3xl text-red-800' />
@@ -435,8 +474,48 @@ export default function ForumDetailPage() {
               </Link>
             </div>
 
-            <div>
-
+            <div className='border border-gray-200 rounded-xl bg-white overflow-hidden'>
+              <div className='bg-gradient-to-r from-red-800 to-red-900 px-4 py-3'>
+                <h3 className='text-white font-semibold text-sm'>Diskusi Lainnya</h3>
+              </div>
+              
+              {otherForums.length === 0 ? (
+                <div className='p-4 text-center text-gray-400 text-xs'>
+                  Tidak ada diskusi lain
+                </div>
+              ) : (
+                <div className='divide-y divide-gray-100'>
+                  {otherForums.map((otherForum) => (
+                    <Link 
+                      key={otherForum.id} 
+                      href={`/user/forum/${otherForum.id}`}
+                      className='block hover:bg-gray-50 transition'
+                    >
+                      <div className='p-4 space-y-2.5'>
+                        <div className='flex items-start gap-2'>
+                          <div className={`w-7 h-7 ${getUserColor(otherForum.user.username)} rounded-full flex items-center justify-center flex-shrink-0`}>
+                            <span className="text-xs font-semibold text-black">
+                              {otherForum.user.username[0].toUpperCase()}
+                            </span>
+                          </div>
+                          <div className='flex-1 min-w-0'>
+                            <h4 className='font-medium text-sm text-gray-900 line-clamp-2 hover:text-red-800 transition'>
+                              {otherForum.title}
+                            </h4>
+                          </div>
+                        </div>
+                        <div className='flex items-center justify-between text-xs text-gray-500 ml-9'>
+                          <span className='font-medium'>{otherForum.user.username}</span>
+                          <div className='flex items-center gap-1.5'>
+                            <MessagesSquare className='w-3.5 h-3.5' />
+                            <span>{otherForum._count.replies}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

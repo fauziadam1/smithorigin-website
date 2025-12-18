@@ -45,10 +45,9 @@ export default function ProductPage() {
     fetchProducts()
   }, [])
 
-
-
   useEffect(() => {
     filterAndSortProducts()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products, searchQuery, sortOrder])
 
   const fetchProducts = async () => {
@@ -94,6 +93,7 @@ export default function ProductPage() {
 
   const toggleSelectItem = (id: number) => {
     const newSelected = new Set(selectedItems)
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id)
     setSelectedItems(newSelected)
   }
@@ -142,10 +142,10 @@ export default function ProductPage() {
 
   return (
     <div className="mx-auto p-6 relative">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-3 shrink-0">
               <button
                 onClick={() =>
                   setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
@@ -166,7 +166,7 @@ export default function ProductPage() {
                 placeholder="Cari produk..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
               />
             </div>
 
@@ -180,7 +180,7 @@ export default function ProductPage() {
               </button>
             ) : (
               <Link href="/admin/productForm">
-                <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <button className="flex items-center gap-2 px-4 py-2 bg-red-800 text-white cursor-pointer text-sm font-medium rounded-lg hover:bg-red-800 transition-colors">
                   <Plus className="w-4 h-4" />
                   Tambah Produk
                 </button>
@@ -204,8 +204,11 @@ export default function ProductPage() {
                     type="checkbox"
                     checked={allSelected}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-gray-300 accent-red-800 cursor-pointer"
                   />
+                </th>
+                <th className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  No
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nama Product
@@ -225,24 +228,26 @@ export default function ProductPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Best Seller
                 </th>
-                <th className="w-12 px-4 py-3"></th>
+                <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                     Loading...
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                     Tidak ada data
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product) => {
+                filteredProducts.map((product, index) => {
                   const finalPrice = calculateFinalPrice(product.price, product.discount)
 
                   return (
@@ -252,8 +257,12 @@ export default function ProductPage() {
                           type="checkbox"
                           checked={selectedItems.has(product.id)}
                           onChange={() => toggleSelectItem(product.id)}
-                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          className="w-4 h-4 rounded border-gray-300 accent-red-800 cursor-pointer"
                         />
+                      </td>
+
+                      <td className="px-4 py-4 text-sm text-gray-600">
+                        {index + 1}
                       </td>
 
                       <td className="px-4 py-4 text-sm font-medium text-gray-900">
@@ -314,12 +323,12 @@ export default function ProductPage() {
                         )}
                       </td>
 
-                      <td className="px-4 py-4 relative">
+                      <td className="px-4 py-4 text-center relative">
                         <button
                           onClick={() =>
                             setOpenMenuId(openMenuId === product.id ? null : product.id)
                           }
-                          className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors"
+                          className="p-1 hover:bg-gray-100 rounded cursor-pointer transition-colors mx-auto"
                         >
                           <MoreVertical className="w-5 h-5 text-gray-400" />
                         </button>

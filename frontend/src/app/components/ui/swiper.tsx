@@ -46,7 +46,7 @@ export default function Carousel() {
 
   return (
     <div className="w-full flex flex-col gap-6 relative">
-      <h1 className="text-center font-[700] text-2xl">What&apos;s New?</h1>
+      <h1 className="text-center font-bold text-2xl">What&apos;s New?</h1>
 
       {loading && (
         <div className="relative w-full max-w-[1440px] mx-auto aspect-2/1 bg-gray-200 rounded-lg animate-pulse" />
