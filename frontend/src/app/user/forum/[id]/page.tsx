@@ -4,7 +4,7 @@ import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
 import { getUserColor } from '@/utils/color';
 import { useAuth } from '@/app/components/ui/AuthContext';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
 import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 
@@ -110,7 +110,7 @@ function CommentItem({
     <div className={`${depth > 0 ? 'ml-10' : ''}`}>
       <div className={`p-3 rounded-lg ${isReplying ? 'bg-red-50 border border-red-200' : ''} transition-colors`}>
         <div className="flex gap-3">
-          <div className={`w-8 h-8 ${getUserColor(reply.user.username)} rounded-full flex items-center justify-center flex-shrink-0`}>
+          <div className={`w-8 h-8 ${getUserColor(reply.user.username)} rounded-full flex items-center justify-center shrink-0`}>
             <span className="text-sm font-semibold text-black">{reply.user.username[0].toUpperCase()}</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -118,7 +118,7 @@ function CommentItem({
               <span className="font-semibold text-sm text-gray-900">{reply.user.username}</span>
               <span className="text-xs text-gray-400">{formatDate(reply.createdAt)}</span>
             </div>
-            <p className="text-sm text-gray-800 whitespace-pre-line break-words">{reply.content}</p>
+            <p className="text-sm text-gray-800 whitespace-pre-line wrap-break-word">{reply.content}</p>
             <div className="flex items-center gap-3 mt-2">
               {user && (
                 <>
@@ -151,7 +151,7 @@ function CommentItem({
             Membalas ke <span className="font-semibold text-gray-800">@{reply.user.username}</span>
           </div>
           <div className="flex gap-3 bg-white rounded-b-md border border-t-0 border-gray-200 p-2">
-            <div className={`w-10 h-10 ${getUserColor(user.username)} rounded-full flex items-center justify-center flex-shrink-0`}>
+            <div className={`w-10 h-10 ${getUserColor(user.username)} rounded-full flex items-center justify-center shrink-0`}>
               <span className="text-sm font-semibold text-black">{user.username[0].toUpperCase()}</span>
             </div>
             <div className="flex-1">
@@ -208,6 +208,7 @@ export default function ForumDetailPage() {
       fetchForumDetail()
       fetchOtherForums()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forumId])
 
   const fetchForumDetail = async () => {
@@ -357,7 +358,7 @@ export default function ForumDetailPage() {
               {user ? (
                 <form onSubmit={handleMainReply} className="mb-6">
                   <div className="flex gap-3">
-                    <div className={`w-10 h-10 ${getUserColor(user.username)} rounded-full flex items-center justify-center flex-shrink-0`}>
+                    <div className={`w-10 h-10 ${getUserColor(user.username)} rounded-full flex items-center justify-center shrink-0`}>
                       <span className="text-sm font-semibold text-black">{user.username[0].toUpperCase()}</span>
                     </div>
                     <div className="flex-1">
@@ -475,10 +476,10 @@ export default function ForumDetailPage() {
             </div>
 
             <div className='border border-gray-200 rounded-xl bg-white overflow-hidden'>
-              <div className='bg-gradient-to-r from-red-800 to-red-900 px-4 py-3'>
+              <div className='bg-linear-to-r from-red-800 to-red-900 px-4 py-3'>
                 <h3 className='text-white font-semibold text-sm'>Diskusi Lainnya</h3>
               </div>
-              
+
               {otherForums.length === 0 ? (
                 <div className='p-4 text-center text-gray-400 text-xs'>
                   Tidak ada diskusi lain
@@ -486,14 +487,14 @@ export default function ForumDetailPage() {
               ) : (
                 <div className='divide-y divide-gray-100'>
                   {otherForums.map((otherForum) => (
-                    <Link 
-                      key={otherForum.id} 
+                    <Link
+                      key={otherForum.id}
                       href={`/user/forum/${otherForum.id}`}
                       className='block hover:bg-gray-50 transition'
                     >
                       <div className='p-4 space-y-2.5'>
                         <div className='flex items-start gap-2'>
-                          <div className={`w-7 h-7 ${getUserColor(otherForum.user.username)} rounded-full flex items-center justify-center flex-shrink-0`}>
+                          <div className={`w-7 h-7 ${getUserColor(otherForum.user.username)} rounded-full flex items-center justify-center shrink-0`}>
                             <span className="text-xs font-semibold text-black">
                               {otherForum.user.username[0].toUpperCase()}
                             </span>
