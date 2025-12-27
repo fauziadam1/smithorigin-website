@@ -1,13 +1,23 @@
 'use client'
 import { useState } from 'react';
 import api from '../../../lib/axios';
+import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation';
 import { saveAuth } from '../../../lib/auth';
 import { BiUser as User } from 'react-icons/bi';
 import { BiLockAlt as Lock } from 'react-icons/bi';
 import { HiOutlineMail as Mail } from 'react-icons/hi';
+import { useAuth } from '@/app/components/ui/authcontext';
+
+interface User {
+  id: number
+  username: string
+  email: string
+  isAdmin: boolean
+}
 
 export default function AuthPage() {
+    const { setUser } = useAuth()
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
 
@@ -30,11 +40,15 @@ export default function AuthPage() {
                 username: signInUsername,
                 password: signInPassword,
             });
-            const accessToken = response?.data?.data?.accessToken;
-            if (typeof accessToken !== 'string') throw new Error('Token tidak valid');
-            saveAuth(accessToken);
-            router.push('/user');
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const accessToken = response.data.data.accessToken
+
+            saveAuth(accessToken)
+
+            const decoded = jwtDecode<User>(accessToken)
+            setUser(decoded)
+
+            router.push('/user')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             const message = err?.response?.data?.message ?? err.message ?? 'Login gagal. Silakan coba lagi.';
             setError(message);
@@ -62,7 +76,7 @@ export default function AuthPage() {
             if (typeof accessToken !== 'string') throw new Error('Token tidak valid');
             saveAuth(accessToken);
             router.push('/user');
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             const message = err?.response?.data?.message ?? err.message ?? 'Registrasi gagal. Silakan coba lagi.';
             setError(message);

@@ -4,10 +4,10 @@ import Image from 'next/image';
 import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
 import { ChevronRight as Arrow, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useAlert } from '@/app/components/ui/Alert';
+import { useAlert } from '@/app/components/ui/alert';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '@/app/components/ui/AuthContext';
-import { useFavorite } from '@/app/components/ui/FavoriteContext';
+import { useAuth } from '@/app/components/ui/authcontext';
+import { useFavorite } from '@/app/components/ui/favoritecontext';
 import { AiOutlineHeart as HeartIcon, AiFillHeart as HeartFillIcon } from 'react-icons/ai';
 
 interface ProductVariant {
@@ -89,7 +89,6 @@ export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const productId = params.id;
-  const { user } = useAuth()
   const { favoriteIds, toggleFavorite } = useFavorite()
 
   const isFavorite = favoriteIds.includes(Number(productId))

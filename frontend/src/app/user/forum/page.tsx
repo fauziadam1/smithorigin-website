@@ -6,9 +6,9 @@ import { BiMessageRounded } from 'react-icons/bi'
 import { FiMoreVertical } from 'react-icons/fi'
 import React, { useState, useEffect } from 'react'
 import { getUserColor } from '../../../utils/color'
-import { useAlert } from '@/app/components/ui/Alert'
-import { useConfirm } from '@/app/components/ui/Confirm'
-import { useAuth } from '@/app/components/ui/AuthContext'
+import { useAlert } from '@/app/components/ui/alert'
+import { useConfirm } from '@/app/components/ui/confirm'
+import { useAuth } from '@/app/components/ui/authcontext'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { Info, MessageCircleMore, MessageCirclePlus, Clock } from 'lucide-react'
 
@@ -92,7 +92,7 @@ export default function ForumPage() {
     const handleLike = async (forumId: number) => {
         if (!user) {
             showAlert('Silakan login terlebih dahulu')
-            setTimeout(() => router.push('/auth/sign-in'), 3000)
+            setTimeout(() => router.push('/auth/login'), 3000)
             return
         }
 

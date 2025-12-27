@@ -2,8 +2,8 @@
 import Image from 'next/image';
 import api from '../../../lib/axios';
 import { useState, useEffect } from 'react';
-import { useAlert } from '@/app/components/ui/Alert';
-import { useConfirm } from '@/app/components/ui/Confirm';
+import { useAlert } from '@/app/components/ui/alert';
+import { useConfirm } from '@/app/components/ui/confirm';
 import { Search, MoreVertical, Edit2, Trash2, Filter, Plus, X, ImagePlus, Save } from 'lucide-react';
 
 interface Category {

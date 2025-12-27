@@ -2,8 +2,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Product } from '../../../lib/product'
+import { useFavorite } from './favoritecontext'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { useFavorite } from './FavoriteContext'
 
 export function ProductCard({ product }: { product: Product }) {
   const { favoriteIds, toggleFavorite } = useFavorite()

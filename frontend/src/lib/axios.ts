@@ -1,25 +1,27 @@
-import axios from 'axios';
+import axios from "axios";
+import { clearAuth } from "./auth";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
   withCredentials: true,
 });
 
 let isRefreshing = false;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let failedQueue: any[] = [];
+let failedQueue: {
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}[] = [];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach(prom => {
-    if (error) prom.reject(error);
-    else prom.resolve(token);
+const processQueue = (error: unknown, token?: string) => {
+  failedQueue.forEach(p => {
+    if (error) p.reject(error);
+    else if (token) p.resolve(token);
   });
   failedQueue = [];
 };
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -31,13 +33,20 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/auth/refresh")
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
+          failedQueue.push({
+            resolve: (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(api(originalRequest));
+            },
+            reject,
+          });
         });
       }
 
@@ -45,18 +54,17 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post('/auth/refresh');
-        const newAccessToken = res.data.data.accessToken;
+        const res = await api.post("/auth/refresh");
+        const newToken = res.data.data.accessToken;
 
-        localStorage.setItem('accessToken', newAccessToken);
-        api.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
+        localStorage.setItem("accessToken", newToken);
+        processQueue(null, newToken);
 
-        processQueue(null, newAccessToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (err) {
-        processQueue(err, null);
-        localStorage.removeItem('accessToken');
-        window.location.href = '/auth/sign-in';
+        processQueue(err);
+        clearAuth();
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

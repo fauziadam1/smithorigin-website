@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getUserColor } from '@/utils/color';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
-import { useAuth } from '@/app/components/ui/AuthContext';
+import { useAuth } from '@/app/components/ui/authcontext';
 import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 
 interface ForumUser {

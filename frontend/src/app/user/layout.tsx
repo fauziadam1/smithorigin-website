@@ -1,9 +1,9 @@
 'use client'
-import Header from "../components/navbar/Navbar";
-import Footer from "../components/footer/Footer";
+import Header from "../components/navbar/navbar";
+import Footer from "../components/footer/footer";
 import { usePathname } from "next/navigation";
-import { AuthProvider } from "../components/ui/AuthContext";
-import { FavoriteProvider } from "../components/ui/FavoriteContext";
+import { AuthProvider } from "../components/ui/authcontext";
+import { FavoriteProvider } from "../components/ui/favoritecontext";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

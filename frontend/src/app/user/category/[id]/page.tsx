@@ -3,11 +3,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import api from '../../../../lib/axios'
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/app/components/ui/AuthContext'
+import { useAuth } from '@/app/components/ui/authcontext'
 import { ChevronRight as Arrow } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { useAlert } from '../../../components/ui/Alert'
+import { useAlert } from '../../../components/ui/alert'
 import { isAxiosError } from 'axios'
 
 interface Product {
@@ -91,7 +91,7 @@ export default function CategoryPage() {
   const toggleFavorite = async (productId: number) => {
     if (!user) {
       showAlert('Silakan login untuk menambah ke wishlist')
-      setTimeout(() => router.push('/auth/sign-in'), 3000)
+      setTimeout(() => router.push('/auth/login'), 3000)
       return
     }
 

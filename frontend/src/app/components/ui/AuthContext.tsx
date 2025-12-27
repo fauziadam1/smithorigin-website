@@ -1,25 +1,28 @@
 'use client'
-
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
-import { getAuth } from '@/lib/auth'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
+import { getAuth, clearAuth } from '../../../lib/auth'
 
 interface User {
-  email: ReactNode
   id: number
   username: string
-  isAdmin?: boolean
+  email: string
+  isAdmin: boolean
 }
 
 interface AuthContextType {
   user: User | null
+  setUser: (user: User | null) => void
+  logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null
+  user: null,
+  setUser: () => {},
+  logout: () => {}
 })
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
@@ -30,15 +33,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const decoded = jwtDecode<User>(token)
       setUser(decoded)
     } catch {
+      clearAuth()
       setUser(null)
     }
   }, [])
 
+  const logout = () => {
+    clearAuth()
+    setUser(null)
+  }
+
   return (
-    <AuthContext.Provider value={{ user }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export const useAuth = () => useContext(AuthContext)
+export function useAuth() {
+  return useContext(AuthContext)
+}

@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import Link from "next/link"
 import Image from "next/image"
-import { useAuth } from "../ui/AuthContext"
+import { useAuth } from "../ui/authcontext"
 import { useState, useEffect } from "react"
 import { LogIn, Search } from 'lucide-react'
 import { clearAuth } from "../../../lib/auth"
@@ -200,7 +200,7 @@ export default function Header() {
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <span
+                                                {/* <span
                                                     className={clsx(
                                                         "inline-block px-2 py-0.5 rounded-full text-xs font-medium",
                                                         user?.isAdmin
@@ -209,7 +209,7 @@ export default function Header() {
                                                     )}
                                                 >
                                                     {user?.isAdmin ? "Admin" : "User"}
-                                                </span>
+                                                </span> */}
                                             </div>
 
                                             {user?.isAdmin && (
@@ -234,7 +234,7 @@ export default function Header() {
 
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-full font-medium cursor-pointer text-white py-2 px-3 rounded-lg bg-red-500 hover:bg-red-600 transition-colors text-sm"
+                                                className="w-full font-medium cursor-pointer text-white py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 transition-colors text-sm"
                                             >
                                                 Log Out
                                             </button>
