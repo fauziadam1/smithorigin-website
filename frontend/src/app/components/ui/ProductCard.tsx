@@ -25,11 +25,11 @@ export function ProductCard({ product }: { product: Product }) {
             className="object-cover group-hover:scale-105 transition duration-300"
           />
 
-          {product.isBestSeller && (
+          {/* {product.isBestSeller && (
             <div className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
               ⭐ Best
             </div>
-          )}
+          )} */}
 
           {hasDiscount && (
             <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">

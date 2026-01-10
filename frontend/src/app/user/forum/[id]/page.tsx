@@ -4,7 +4,6 @@ import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getUserColor } from '@/utils/color';
-import { useAlert } from '@/app/components/ui/alert';
 import { useConfirm } from '@/app/components/ui/confirm';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
 import { useAuth } from '@/app/components/ui/authcontext';
@@ -93,7 +92,6 @@ function CommentItem({
   const { reply, depth } = item
   const [localReplyContent, setLocalReplyContent] = useState('')
   const isReplying = replyingTo === reply.id
-  const { showAlert } = useAlert()
   const { confirmDialog } = useConfirm()
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -196,8 +194,6 @@ function CommentItem({
 export default function ForumDetailPage() {
   const { user } = useAuth()
   const params = useParams()
-  const { showAlert } = useAlert()
-  const { confirmDialog } = useConfirm()
   const forumId = params?.id as string | undefined
 
   const [forum, setForum] = useState<ForumDetail | null>(null)

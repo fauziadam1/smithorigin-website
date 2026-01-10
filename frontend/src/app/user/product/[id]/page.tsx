@@ -2,12 +2,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import api from '../../../../lib/axios';
+import { Product } from '@/lib/product';
 import { useState, useEffect } from 'react';
-import { ChevronRight as Arrow, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAlert } from '@/app/components/ui/alert';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '@/app/components/ui/authcontext';
+import { motion } from 'framer-motion';
+import { ProductCard } from '@/app/components/ui/productcard';
 import { useFavorite } from '@/app/components/ui/favoritecontext';
+import { ChevronRight as Arrow, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AiOutlineHeart as HeartIcon, AiFillHeart as HeartFillIcon } from 'react-icons/ai';
 
 interface ProductVariant {
@@ -22,18 +24,18 @@ interface ProductCategory {
   name: string;
 }
 
-interface Product {
+interface ProductDetail {
   id: number;
   name: string;
-  description: string;
   price: number;
   discount: number | null;
   imageUrl: string;
-  categoryId: number | null;
-  category: ProductCategory | null;
+  categoryId: number;
+  description?: string;
   variants: ProductVariant[];
-  shopeeUrl?: string | null;
-  tokopediaUrl?: string | null;
+  category?: ProductCategory;
+  shopeeUrl?: string;
+  tokopediaUrl?: string;
 }
 
 function SkeletonMain() {
@@ -92,25 +94,41 @@ export default function ProductDetailPage() {
   const { favoriteIds, toggleFavorite } = useFavorite()
 
   const isFavorite = favoriteIds.includes(Number(productId))
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductDetail | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedImage, setSelectedImage] = useState('');
   const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'detail' | 'info'>('detail');
   const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
+  const [showStickyTitle, setShowStickyTitle] = useState(false);
 
   const THUMBNAILS_PER_PAGE = 4;
 
   useEffect(() => {
     if (productId) void fetchProduct()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 120) {
+        setShowStickyTitle(true);
+      } else {
+        setShowStickyTitle(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
 
   const fetchProduct = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await api.get<{ data: Product }>(`/products/${productId}`);
+      const response = await api.get<{ data: ProductDetail }>(`/products/${productId}`);
       const data = response.data.data;
       setProduct(data);
       setSelectedImage(data.imageUrl || '');
@@ -131,12 +149,12 @@ export default function ProductDetailPage() {
   const fetchRelatedProducts = async (categoryId: number, excludeId?: number): Promise<void> => {
     try {
       const response = await api.get<{ data: Product[] }>(
-        `/products?categoryId=${categoryId}&limit=6`
+        `/products?categoryId=${categoryId}&limit=13`
       );
       const filtered = response.data.data.filter(
         (p) => p.id !== (excludeId ? excludeId : parseInt(productId))
       );
-      setRelatedProducts(filtered.slice(0, 5));
+      setRelatedProducts(filtered.slice(0, 12));
     } catch (error) {
       console.error('Error fetching related products:', error);
       setRelatedProducts([]);
@@ -178,11 +196,11 @@ export default function ProductDetailPage() {
     return <div className="min-h-screen flex items-center justify-center">Produk tidak ditemukan</div>;
   }
 
-  const variantSelectedObj = product.variants.find((v) => v.id === selectedVariant) || null;
+  const variantSelectedObj = product.variants?.find((v) => v.id === selectedVariant) || null;
   const displayPrice = variantSelectedObj?.price ?? product.price;
   const finalPrice = calculateFinalPrice(displayPrice, product.discount);
 
-  const allImages = [product.imageUrl, ...product.variants.map((v) => v.imageUrl).filter(Boolean)].filter(Boolean) as string[];
+  const allImages = [product.imageUrl, ...(product.variants || []).map((v) => v.imageUrl).filter(Boolean)].filter(Boolean) as string[];
 
   const truncatedName =
     product.name.length > 40 ? product.name.slice(0, 37).trim() + '...' : product.name;
@@ -200,23 +218,42 @@ export default function ProductDetailPage() {
   };
 
   return (
-    <section className="container px-10 py-40 mx-auto h-fit flex items-start justify-center">
-      <div className="flex flex-col items-center gap-25">
-        <div className="flex flex-col items-center gap-5 w-full">
-          <div className="w-full flex items-center text-sm text-gray-600">
-            <Link href="/" className="hover:text-red-800 cursor-pointer">
-              Home
-            </Link>
-            <span className="mx-2">
-              <Arrow className="w-4 h-4 translate-y-0.5" />
-            </span>
-            <span className="text-gray-900 truncate max-w-60" title={product.name}>
-              {truncatedName}
+    <section className="container px-10 py-40 mx-auto h-fit">
+      {showStickyTitle && (
+        <motion.div
+          initial={{ y: -60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -60, opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="fixed top-[90px] left-0 right-0 z-40 bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto mt-10 px-2 py-3 flex items-center justify-between ">
+            <h1 className="font-bold text-[18px] truncate max-w-[70%]">
+              {product.name}
+            </h1>
+
+            <span className="text-button font-semibold text-[16px]">
+              Rp {finalPrice.toLocaleString('id-ID')}
             </span>
           </div>
-
+        </motion.div>
+      )}
+      <div className="max-w-7xl mx-auto flex flex-col gap-25">
+        <div className="flex flex-col gap-5 w-full">
           <div className="w-full flex items-start gap-10">
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5 sticky top-33">
+
+              <div className="w-full flex items-center text-sm text-gray-600">
+                <Link href="/" className="hover:text-red-800 cursor-pointer">
+                  Home
+                </Link>
+                <span className="mx-2">
+                  <Arrow className="w-4 h-4 translate-y-0.5" />
+                </span>
+                <span className="text-gray-900 truncate max-w-60" title={product.name}>
+                  {truncatedName}
+                </span>
+              </div>
+
               <div className="relative w-md h-112 border border-gray-200 rounded-xl overflow-hidden">
                 <Image
                   src={selectedImage || '/placeholder.jpg'}
@@ -302,62 +339,59 @@ export default function ProductDetailPage() {
 
             </div>
 
-            <div className='w-160'>
-              <div className='flex items-start justify-between'>
-                <div className='flex flex-col gap-3'>
-                  <h1 className='text-2xl font-medium max-w-140'>{product.name}</h1>
-                  <div className='flex items-center gap-3'>
-                    {product.discount && (
-                      <span className='text-lg text-gray-400 line-through'>
-                        Rp {displayPrice.toLocaleString('id-ID')}
-                      </span>
-                    )}
-                    <p className='text-4xl font-medium text-button'>
-                      Rp {finalPrice?.toLocaleString('id-ID')}
-                    </p>
-                    {product.discount && (
-                      <span className='bg-red-500 text-white text-sm px-2 py-1 rounded'>
-                        -{product.discount}%
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <button onClick={() => toggleFavorite(Number(productId))} className='p-3 cursor-pointer hover:bg-gray-100 rounded-full transition'>
-                  {isFavorite ? (
-                    <HeartFillIcon className='w-7 h-7 text-red-500' />
-                  ) : (
-                    <HeartIcon className='w-7 h-7 text-gray-400' />
-                  )}
-                </button>
-              </div>
-
-              <div className='w-full h-px rounded-full bg-gray-200 my-8' />
-
-              {product.variants.length > 0 && (
-                <>
-                  <div className='flex flex-col gap-2'>
-                    <h1 className='font-medium'>Pilih Warna:</h1>
-                    <div className='flex gap-2 flex-wrap'>
-                      {product.variants.map((variant) => (
-                        <button
-                          key={variant.id}
-                          onClick={() => selectVariant(variant)}
-                          className={`px-4 py-2 border cursor-pointer rounded-lg transition ${selectedVariant === variant.id
-                            ? 'border-red-800 bg-red-100 text-button'
-                            : 'border-gray-300 hover:border-gray-400'
-                            }`}
-                        >
-                          {variant.color}
-                        </button>
-                      ))}
+            <div className='w-160 flex flex-col'>
+              <div className='bg-white z-20 pb-4'>
+                <div className='flex items-start justify-between'>
+                  <div className='flex flex-col gap-3'>
+                    <h1 className='text-2xl font-medium max-w-140'>{product.name}</h1>
+                    <div className='flex items-center gap-3'>
+                      {product.discount && (
+                        <span className='text-lg text-gray-400 line-through'>
+                          Rp {displayPrice.toLocaleString('id-ID')}
+                        </span>
+                      )}
+                      <p className='text-4xl font-medium text-button'>
+                        Rp {finalPrice?.toLocaleString('id-ID')}
+                      </p>
+                      {product.discount && (
+                        <span className='bg-red-500 text-white text-sm px-2 py-1 rounded'>
+                          -{product.discount}%
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className='w-full h-px rounded-full bg-gray-200 my-8' />
-                </>
+
+                  <button onClick={() => toggleFavorite(Number(productId))} className='p-3 cursor-pointer hover:bg-gray-100 rounded-full transition'>
+                    {isFavorite ? (
+                      <HeartFillIcon className='w-7 h-7 text-red-500' />
+                    ) : (
+                      <HeartIcon className='w-7 h-7 text-gray-400' />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {product.variants && product.variants.length > 0 && (
+                <div className='flex flex-col gap-2 bg-white mt-4'>
+                  <h1 className='font-medium'>Pilih Warna:</h1>
+                  <div className='flex gap-2 flex-wrap'>
+                    {product.variants.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => selectVariant(variant)}
+                        className={`px-4 py-2 border cursor-pointer rounded-lg transition ${selectedVariant === variant.id
+                          ? 'border-red-800 bg-red-100 text-button'
+                          : 'border-gray-300 hover:border-gray-400'
+                          }`}
+                      >
+                        {variant.color}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
 
-              <div>
+              <div className='bg-white z-10 mt-4'>
                 <div className='flex border-b border-gray-200'>
                   <button
                     onClick={() => setActiveTab('detail')}
@@ -368,30 +402,21 @@ export default function ProductDetailPage() {
                   >
                     Detail
                   </button>
-                  <button
-                    onClick={() => setActiveTab('info')}
-                    className={`px-4 py-2 font-medium cursor-pointer transition ${activeTab === 'info'
-                      ? 'border-b-2 border-button text-button'
-                      : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                  >
-                    Info Penting
-                  </button>
                 </div>
+              </div>
 
-                <div className='py-4'>
-                  {activeTab === 'detail' ? (
-                    <div className='text-gray-700 whitespace-pre-line'>
-                      {product.description || 'Tidak ada deskripsi'}
-                    </div>
-                  ) : (
-                    <div className='text-gray-700'>
-                      <p>Kategori: {product.category?.name || '-'}</p>
-                      <p>Garansi Toko</p>
-                      <p>Produk Original</p>
-                    </div>
-                  )}
-                </div>
+              <div className='mt-4'>
+                {activeTab === 'detail' ? (
+                  <div className='text-gray-700 whitespace-pre-line pb-20'>
+                    {product.description || 'Tidak ada deskripsi'}
+                  </div>
+                ) : (
+                  <div className='text-gray-700 pb-20'>
+                    <p>Kategori: {product.category?.name || '-'}</p>
+                    <p>Garansi Toko</p>
+                    <p>Produk Original</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -403,78 +428,29 @@ export default function ProductDetailPage() {
               <h1 className='font-semibold text-xl'>Mungkin Anda Tertarik</h1>
               {product.category && (
                 <Link
-                  href={`/user?category=${product.categoryId}`}
-                  className='text-sm text-button hover:underline'
+                  href={`/user/store?category=${product.categoryId}`}
+                  className='text-md font-bold text-button text-red-800 hover:text-red-700'
                 >
-                  Lihat semua di {product.category.name}
+                  Lihat semua 
                 </Link>
               )}
             </div>
 
-            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5'>
-              {relatedProducts.map((relatedProduct) => {
-                const relatedFinalPrice = calculateFinalPrice(
-                  relatedProduct.price,
-                  relatedProduct.discount
-                );
-                const hasDiscount = relatedProduct.discount && relatedProduct.discount > 0;
-
-                return (
-                  <Link
-                    key={relatedProduct.id}
-                    href={`/user/product/${relatedProduct.id}`}
-                    className='group'
-                  >
-                    <div className='bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300'>
-                      <div className='relative w-full aspect-square overflow-hidden'>
-                        <Image
-                          src={relatedProduct.imageUrl || '/placeholder.jpg'}
-                          alt={relatedProduct.name}
-                          fill
-                          className='object-cover group-hover:scale-105 transition-transform duration-300'
-                        />
-
-                        {hasDiscount && (
-                          <div className='absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded'>
-                            -{relatedProduct.discount}%
-                          </div>
-                        )}
-                      </div>
-
-                      <div className='p-4'>
-                        <h3 className='text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-button transition-colors'>
-                          {relatedProduct.name}
-                        </h3>
-
-                        <div className='flex items-baseline gap-2'>
-                          <span className='text-lg font-bold text-button'>
-                            Rp {relatedFinalPrice.toLocaleString('id-ID')}
-                          </span>
-                          {hasDiscount && (
-                            <span className='text-xs text-gray-400 line-through'>
-                              Rp {relatedProduct.price.toLocaleString('id-ID')}
-                            </span>
-                          )}
-                        </div>
-
-                        {relatedProduct.category && (
-                          <p className='text-xs text-gray-500 mt-2'>
-                            {relatedProduct.category.name}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+            <div className='grid grid-cols-5 gap-5'>
+              {relatedProducts.map((relatedProduct) => (
+                <ProductCard
+                  key={relatedProduct.id}
+                  product={relatedProduct}
+                />
+              ))}
             </div>
           </div>
         )}
 
         {relatedProducts.length === 0 && product.category && (
-          <div className='w-full flex flex-col items-center gap-3 mt-10 py-10 bg-gray-50 rounded-xl'>
+          <div className='w-full flex flex-col items-center gap-3 mt-10 py-10 rounded-xl'>
             <p className='text-gray-500'>Belum ada produk lain dalam kategori {product.category.name}</p>
-            <Link href='/user/store'>
+            <Link href={`/user/store?category=${product.categoryId}`}>
               <button className='px-6 py-2 bg-button cursor-pointer text-white rounded-full hover:opacity-90 transition'>
                 Lihat Semua Produk
               </button>
