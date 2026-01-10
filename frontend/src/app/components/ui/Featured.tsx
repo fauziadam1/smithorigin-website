@@ -44,24 +44,34 @@ function SkeletonGrid() {
   );
 }
 
+// Fisher-Yates shuffle algorithm
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export default function FeaturedProduct() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [productsByCategory, setProductsByCategory] = useState<ProductsByCategory>({});
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<"best-seller" | "new-product" | "all">(
-    "best-seller"
+  const [activeTab, setActiveTab] = useState<"all" | "best-seller" | "new-product">(
+    "all"
   );
 
   const PRODUCTS_PER_ROW = 6;
   const MAX_ROWS = 7;
   const MAX_PRODUCTS = PRODUCTS_PER_ROW * MAX_ROWS;
 
-  const tabItems: { id: "best-seller" | "new-product" | "all"; label: string }[] = [
+  const tabItems: { id: "all" | "best-seller" | "new-product"; label: string }[] = [
+    { id: "all", label: "All" },
     { id: "best-seller", label: "Best Seller" },
     { id: "new-product", label: "New Product" },
-    { id: "all", label: "All" },
   ];
 
   useEffect(() => {
@@ -78,11 +88,13 @@ export default function FeaturedProduct() {
       const products = productsRes.data.data;
       const cats = categoriesRes.data.data;
 
-      setAllProducts(products);
+      // Shuffle products setiap kali fetch
+      const shuffledProducts = shuffleArray(products);
+      setAllProducts(shuffledProducts);
       setCategories(cats);
 
       const grouped: ProductsByCategory = {};
-      for (const p of products) {
+      for (const p of shuffledProducts) {
         if (typeof p.categoryId !== "number") continue;
         if (!grouped[p.categoryId]) grouped[p.categoryId] = [];
         grouped[p.categoryId].push(p);

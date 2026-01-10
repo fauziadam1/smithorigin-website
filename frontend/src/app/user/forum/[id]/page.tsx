@@ -108,6 +108,8 @@ function CommentItem({
     }
   }
 
+
+
   return (
     <div className={`${depth > 0 ? 'ml-10' : ''}`}>
       <div className={`p-3 rounded-lg ${isReplying ? 'bg-red-50 border border-red-200' : ''} transition-colors`}>
@@ -285,14 +287,48 @@ export default function ForumDetailPage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+  const formatDate = (dateString: string): string => {
+    const now = new Date()
+    const date = new Date(dateString)
+
+    const diffMs = now.getTime() - date.getTime()
+    const diffSeconds = Math.floor(diffMs / 1000)
+    const diffMinutes = Math.floor(diffSeconds / 60)
+    const diffHours = Math.floor(diffMinutes / 60)
+    const diffDays = Math.floor(diffHours / 24)
+    const diffWeeks = Math.floor(diffDays / 7)
+
+    if (diffSeconds < 60) {
+      return `${diffSeconds} dtk`
+    }
+
+    if (diffMinutes < 60) {
+      return `${diffMinutes} mnt`
+    }
+
+    if (diffHours < 24) {
+      return `${diffHours} j`
+    }
+
+    if (diffDays < 7) {
+      return `${diffDays} h`
+    }
+
+    if (diffWeeks < 4) {
+      return `${diffWeeks} m`
+    }
+
+    const sameYear = now.getFullYear() === date.getFullYear()
+
+    const dd = String(date.getDate()).padStart(2, '0')
+    const mm = String(date.getMonth() + 1).padStart(2, '0')
+    const yyyy = date.getFullYear()
+
+    if (sameYear) {
+      return `${dd}-${mm}`
+    }
+
+    return `${yyyy}-${mm}-${dd}`
   }
 
   const formatTime = (date: string) => {
