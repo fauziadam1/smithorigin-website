@@ -112,8 +112,6 @@ export class ForumController {
   }
 
 
-  // ================= REPLY =================
-
   static async createReply(req: Request, res: Response) {
     try {
       if (!req.user) return res.status(401).json({ message: 'Tidak terautentikasi' });
