@@ -3,14 +3,13 @@ import Link from 'next/link'
 import api from '../../../lib/axios'
 import { useRouter } from 'next/navigation'
 import { BiMessageRounded } from 'react-icons/bi'
-import { FiMoreVertical } from 'react-icons/fi'
 import React, { useState, useEffect } from 'react'
 import { getUserColor } from '../../../utils/color'
 import { useAlert } from '@/app/components/ui/alert'
 import { useConfirm } from '@/app/components/ui/confirm'
 import { useAuth } from '@/app/components/ui/authcontext'
 import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { Info, MessageCircleMore, MessageCirclePlus, Clock } from 'lucide-react'
+import { Info, MessageCircleMore, MessageCirclePlus, Clock, Trash2, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Forum {
     id: number
@@ -53,7 +52,6 @@ function ForumSkeleton() {
     )
 }
 
-
 export default function ForumPage() {
     const { showAlert } = useAlert()
     const { confirmDialog } = useConfirm()
@@ -61,12 +59,15 @@ export default function ForumPage() {
     const [forums, setForums] = useState<Forum[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
-    const [openMenuId, setOpenMenuId] = useState<number | null>(null)
     const { user } = useAuth()
+
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
 
     useEffect(() => {
         fetchForums()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const getErrorMessage = (err: unknown): string => {
@@ -80,7 +81,7 @@ export default function ForumPage() {
 
     const fetchForums = async () => {
         try {
-            const response = await api.get('/forums?limit=20')
+            const response = await api.get('/forums?limit=100')
             setForums(response.data.data)
         } catch (err: unknown) {
             setError(getErrorMessage(err) || 'Gagal memuat forum')
@@ -131,8 +132,12 @@ export default function ForumPage() {
         }
     }
 
-    const handleReport = (forumId: number) => {
-        showAlert(`Melaporkan thread ID: ${forumId}`)
+    const canDelete = (createdAt: string): boolean => {
+        const now = new Date()
+        const created = new Date(createdAt)
+        const diffMs = now.getTime() - created.getTime()
+        const diffHours = diffMs / 3600000
+        return diffHours <= 1
     }
 
     const formatTime = (date: string) => {
@@ -145,6 +150,90 @@ export default function ForumPage() {
         if (diffMins < 60) return `${diffMins} menit yang lalu`
         if (diffHours < 24) return `${diffHours} jam yang lalu`
         return `${Math.floor(diffHours / 24)} hari yang lalu`
+    }
+
+    const totalPages = Math.ceil(forums.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const currentForums = forums.slice(startIndex, endIndex)
+
+    const goToPage = (page: number) => {
+        setCurrentPage(page)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    const Pagination = () => {
+        if (forums.length <= itemsPerPage) return null
+
+        const getPageNumbers = () => {
+            const pages = []
+            const maxVisible = 5
+
+            if (totalPages <= maxVisible) {
+                for (let i = 1; i <= totalPages; i++) {
+                    pages.push(i)
+                }
+            } else {
+                if (currentPage <= 3) {
+                    for (let i = 1; i <= 4; i++) pages.push(i)
+                    pages.push('...')
+                    pages.push(totalPages)
+                } else if (currentPage >= totalPages - 2) {
+                    pages.push(1)
+                    pages.push('...')
+                    for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i)
+                } else {
+                    pages.push(1)
+                    pages.push('...')
+                    pages.push(currentPage - 1)
+                    pages.push(currentPage)
+                    pages.push(currentPage + 1)
+                    pages.push('...')
+                    pages.push(totalPages)
+                }
+            }
+
+            return pages
+        }
+
+        return (
+            <div className="flex items-center justify-center gap-2 mt-8">
+                <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border cursor-pointer border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                {getPageNumbers().map((page, index) => (
+                    page === '...' ? (
+                        <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-400">
+                            ...
+                        </span>
+                    ) : (
+                        <button
+                            key={page}
+                            onClick={() => goToPage(page as number)}
+                            className={`min-w-10 h-10 px-3 rounded-lg font-medium cursor-pointer transition ${currentPage === page
+                                ? 'bg-red-800 text-white'
+                                : 'border border-gray-200 hover:bg-gray-50 text-gray-700'
+                                }`}
+                        >
+                            {page}
+                        </button>
+                    )
+                ))}
+
+                <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border cursor-pointer border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+            </div>
+        )
     }
 
     return (
@@ -185,82 +274,66 @@ export default function ForumPage() {
                                 </div>
                             </div>
                         ) : (
-                            forums.map((forum) => {
-                                const isLiked = user ? forum.likes?.some(like => like.userId === user.id) ?? false : false;
-                                const isOwner = user?.id === forum.user.id;
-                                const isMenuOpen = openMenuId === forum.id;
+                            <>
+                                {currentForums.map((forum) => {
+                                    const isLiked = user ? forum.likes?.some(like => like.userId === user.id) ?? false : false;
+                                    const isOwner = user?.id === forum.user.id;
+                                    const isDeletable = isOwner && canDelete(forum.createdAt);
 
-                                return (
-                                    <div key={forum.id} className='bg-white border border-gray-200 rounded-xl hover:shadow-md transition relative'>
-                                        <div className='flex items-start gap-4 border-b border-gray-200 p-5 bg-red-100/20'>
-                                            <div className="flex-1 flex items-start gap-4">
-                                                <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
-                                                    <span className="text-sm font-semibold">{forum.user.username[0].toUpperCase()}</span>
-                                                </div>
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="font-semibold text-sm">{forum.user.username}</span>
-                                                    <span className="text-xs flex items-center gap-1 text-gray-400"><Clock className='w-3 h-3' />{formatTime(forum.createdAt)}</span>
-                                                </div>
-                                            </div>
-                                            <div className="relative">
-                                                <button
-                                                    onClick={() => setOpenMenuId(isMenuOpen ? null : forum.id)}
-                                                    className="p-1 hover:bg-gray-200 cursor-pointer rounded-full"
-                                                >
-                                                    <FiMoreVertical className="w-5 h-5" />
-                                                </button>
-
-                                                {isMenuOpen && (
-                                                    <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                                                        {isOwner && (
-                                                            <button
-                                                                onClick={() => { handleDelete(forum.id); setOpenMenuId(null); }}
-                                                                className="w-full text-left cursor-pointer px-3 py-2 hover:bg-red-100 text-red-500"
-                                                            >
-                                                                Hapus
-                                                            </button>
-                                                        )}
-                                                        <button
-                                                            onClick={() => { handleReport(forum.id); setOpenMenuId(null); }}
-                                                            className="w-full text-left cursor-pointer px-3 py-2 hover:bg-gray-100"
-                                                        >
-                                                            Laporkan
-                                                        </button>
+                                    return (
+                                        <div key={forum.id} className='bg-white border border-gray-200 rounded-xl hover:shadow-md transition relative'>
+                                            <div className='flex items-start gap-4 border-b border-gray-200 p-5 bg-red-100/20'>
+                                                <div className="flex-1 flex items-start gap-4">
+                                                    <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
+                                                        <span className="text-sm font-semibold">{forum.user.username[0].toUpperCase()}</span>
                                                     </div>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="font-semibold text-sm">{forum.user.username}</span>
+                                                        <span className="text-xs flex items-center gap-1 text-gray-400"><Clock className='w-3 h-3' />{formatTime(forum.createdAt)}</span>
+                                                    </div>
+                                                </div>
+                                                {isDeletable && (
+                                                    <button
+                                                        onClick={() => handleDelete(forum.id)}
+                                                        className="p-2 hover:bg-red-100 cursor-pointer rounded-full text-red-500 transition"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
                                                 )}
                                             </div>
 
-                                        </div>
-
-                                        <Link href={`/user/forum/${forum.id}`} className='border-b border-gray-200 p-5 flex flex-col gap-2'>
-                                            <h3 className='text-xl font-semibold text-gray-900 hover:text-red-800 transition cursor-pointer'>
-                                                {forum.title}
-                                            </h3>
-                                            <p className='text-sm text-gray-600 line-clamp-2'>
-                                                {forum.content}
-                                            </p>
-                                        </Link>
-
-                                        <div className='flex items-center gap-4 p-5 text-sm text-gray-500'>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    handleLike(forum.id)
-                                                }}
-                                                className={`flex items-center gap-1 cursor-pointer hover:text-red-800 transition ${isLiked ? 'text-red-800' : ''}`}
-                                            >
-                                                {isLiked ? <AiFillHeart className="w-5 h-5" /> : <AiOutlineHeart className="w-5 h-5" />}
-                                                <span className="font-medium">{forum._count.likes}</span>
-                                            </button>
-
-                                            <Link href={`/user/forum/${forum.id}`} className="flex items-center gap-1 hover:text-red-800">
-                                                <BiMessageRounded className="w-5 h-5" />
-                                                <span>{forum._count.replies} Komentar</span>
+                                            <Link href={`/user/forum/${forum.id}`} className='border-b border-gray-200 p-5 flex flex-col gap-2'>
+                                                <h3 className='text-xl font-semibold text-gray-900 hover:text-red-800 transition cursor-pointer'>
+                                                    {forum.title}
+                                                </h3>
+                                                <p className='text-sm text-gray-600 line-clamp-2'>
+                                                    {forum.content}
+                                                </p>
                                             </Link>
+
+                                            <div className='flex items-center gap-4 p-5 text-sm text-gray-500'>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        handleLike(forum.id)
+                                                    }}
+                                                    className={`flex items-center gap-1 cursor-pointer hover:text-red-800 transition ${isLiked ? 'text-red-800' : ''}`}
+                                                >
+                                                    {isLiked ? <AiFillHeart className="w-5 h-5" /> : <AiOutlineHeart className="w-5 h-5" />}
+                                                    <span className="font-medium">{forum._count.likes}</span>
+                                                </button>
+
+                                                <Link href={`/user/forum/${forum.id}`} className="flex items-center gap-1 hover:text-red-800">
+                                                    <BiMessageRounded className="w-5 h-5" />
+                                                    <span>{forum._count.replies} Komentar</span>
+                                                </Link>
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                            })
+                                    )
+                                })}
+
+                                <Pagination />
+                            </>
                         )}
                     </div>
                     <div className='w-80 space-y-5'>
@@ -278,9 +351,54 @@ export default function ForumPage() {
                                 </button>
                             </Link>
                         </div>
+
+                        {forums.length > 0 && (
+                            <div className='border border-gray-200 rounded-xl p-6 bg-white space-y-4'>
+                                <h3 className='font-semibold text-gray-900 flex items-center gap-2'>
+                                    <span className='text-red-800'>🔥</span> Diskusi Trending
+                                </h3>
+                                <div className='space-y-3'>
+                                    {forums
+                                        .sort((a, b) => (b._count.likes + b._count.replies) - (a._count.likes + a._count.replies))
+                                        .slice(0, 5)
+                                        .map((forum, index) => (
+                                            <Link
+                                                key={forum.id}
+                                                href={`/user/forum/${forum.id}`}
+                                                className='block p-3 rounded-lg hover:bg-gray-50 hover:border-gray-200 transition border border-gray-100'
+                                            >
+                                                <div className='flex items-start gap-3'>
+                                                    <span
+                                                        className={`text-lg font-bold min-w-6 ${index === 0 && 'text-yellow-500'} ${index === 1 && 'text-blue-500'} ${index === 2 && 'text-red-500'} ${index > 2 && 'text-gray-300'}`}>
+                                                        {index + 1}
+                                                    </span>
+
+                                                    <div className='flex-1 min-w-0'>
+                                                        <h4 className='text-[13px] font-medium text-gray-900 line-clamp-2 hover:text-red-800 transition'>
+                                                            {forum.title}
+                                                        </h4>
+                                                        <div className='flex items-center gap-3 mt-2 text-[11px] text-gray-500'>
+                                                            <span className='flex items-center gap-1'>
+                                                                <AiOutlineHeart className='w-3 h-3' />
+                                                                {forum._count.likes}
+                                                            </span>
+                                                            <span className='flex items-center gap-1'>
+                                                                <BiMessageRounded className='w-3 h-3' />
+                                                                {forum._count.replies}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                </div>
+                            </div>
+                        )}
+
                         <div className='border border-gray-200 rounded-xl p-6 space-y-5 bg-white'>
                             <div className='flex items-center gap-4'>
                                 <Info className='w-8 h-8 text-red-800' />
+
                                 <h1 className='text-red-800 font-semibold'>Pedoman Komunitas</h1>
                             </div>
                             <div>

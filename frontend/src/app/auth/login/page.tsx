@@ -4,10 +4,9 @@ import api from '../../../lib/axios';
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation';
 import { saveAuth } from '../../../lib/auth';
-import { BiUser as User } from 'react-icons/bi';
-import { BiLockAlt as Lock } from 'react-icons/bi';
-import { HiOutlineMail as Mail } from 'react-icons/hi';
+import { UserRound, Lock, Mail } from 'lucide-react';
 import { useAuth } from '@/app/components/ui/authcontext';
+
 
 interface User {
   id: number
@@ -109,8 +108,8 @@ export default function AuthPage() {
                     {activeTab === 'signin' && (
                         <form onSubmit={handleSignIn} className="space-y-4 w-110">
                             <div className="relative">
-                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signin-username">
-                                    <User />
+                                <label className="absolute top-5 left-5 cursor-pointer text-gray-400" htmlFor="signin-username">
+                                    <UserRound className='w-5 h-5'/>
                                 </label>
                                 <input
                                     id="signin-username"
@@ -124,8 +123,8 @@ export default function AuthPage() {
                                 />
                             </div>
                             <div className="relative">
-                                <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signin-password">
-                                    <Lock />
+                                <label className="absolute top-5 left-5 cursor-pointer text-gray-400" htmlFor="signin-password">
+                                    <Lock className='w-5 h-5'/>
                                 </label>
                                 <input
                                     id="signin-password"
@@ -152,7 +151,7 @@ export default function AuthPage() {
                         <form onSubmit={handleSignUp} className="space-y-4 w-110">
                             <div className="relative">
                                 <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signup-username">
-                                    <User />
+                                    <UserRound />
                                 </label>
                                 <input
                                     id="signup-username"
@@ -167,7 +166,7 @@ export default function AuthPage() {
                             </div>
                             <div className="relative">
                                 <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signup-email">
-                                    <Mail />
+                                    <Mail className='w-5 h-5'/>
                                 </label>
                                 <input
                                     id="signup-email"
@@ -182,7 +181,7 @@ export default function AuthPage() {
                             </div>
                             <div className="relative">
                                 <label className="absolute top-5 left-5 text-xl cursor-pointer text-gray-400" htmlFor="signup-password">
-                                    <Lock />
+                                    <Lock className='w-5 h-5'/>
                                 </label>
                                 <input
                                     id="signup-password"

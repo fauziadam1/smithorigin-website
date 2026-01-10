@@ -4,6 +4,8 @@ import api from '../../../../lib/axios';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getUserColor } from '@/utils/color';
+import { useAlert } from '@/app/components/ui/alert';
+import { useConfirm } from '@/app/components/ui/confirm';
 import { BsArrowLeft as ArrowIcon } from 'react-icons/bs';
 import { useAuth } from '@/app/components/ui/authcontext';
 import { MessagesSquare, MessageCirclePlus, ChevronDown, ChevronUp, Clock } from 'lucide-react';
@@ -91,6 +93,8 @@ function CommentItem({
   const { reply, depth } = item
   const [localReplyContent, setLocalReplyContent] = useState('')
   const isReplying = replyingTo === reply.id
+  const { showAlert } = useAlert()
+  const { confirmDialog } = useConfirm()
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -101,7 +105,7 @@ function CommentItem({
   }
 
   const handleDelete = async () => {
-    if (confirm('Apakah Anda yakin ingin menghapus komentar ini?')) {
+    if (await confirmDialog('Apakah Anda yakin ingin menghapus komentar ini?')) {
       await onDeleteReply(reply.id)
     }
   }
@@ -192,6 +196,8 @@ function CommentItem({
 export default function ForumDetailPage() {
   const { user } = useAuth()
   const params = useParams()
+  const { showAlert } = useAlert()
+  const { confirmDialog } = useConfirm()
   const forumId = params?.id as string | undefined
 
   const [forum, setForum] = useState<ForumDetail | null>(null)
@@ -202,6 +208,7 @@ export default function ForumDetailPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [expanded, setExpanded] = useState<Record<number, boolean>>({})
+  const [showAllForums, setShowAllForums] = useState(false)
 
   useEffect(() => {
     if (forumId) {
@@ -224,9 +231,13 @@ export default function ForumDetailPage() {
 
   const fetchOtherForums = async () => {
     try {
-      const response = await api.get<ApiResponse<Forum[]>>('/forums?limit=5')
+      const response = await api.get<ApiResponse<Forum[]>>('/forums?limit=50')
       const filtered = response.data.data.filter((f: Forum) => f.id !== parseInt(forumId || '0'))
-      setOtherForums(filtered.slice(0, 3))
+
+      // Shuffle array untuk random order
+      const shuffled = filtered.sort(() => Math.random() - 0.5)
+
+      setOtherForums(shuffled.slice(0, 10))
     } catch {
       console.error('Gagal memuat forum lainnya')
     }
@@ -295,9 +306,9 @@ export default function ForumDetailPage() {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
 
-    if (diffMins < 60) return `${diffMins}m`
-    if (diffHours < 24) return `${diffHours}h`
-    return `${Math.floor(diffHours / 24)}d`
+    if (diffMins < 60) return `${diffMins} menit yang lalu`
+    if (diffHours < 24) return `${diffHours} jam yang lalu`
+    return `${Math.floor(diffHours / 24)} hari yang lalu`
   }
 
   if (loading) {
@@ -310,7 +321,7 @@ export default function ForumDetailPage() {
         <div className="text-center">
           <p className="text-red-500 mb-4">{error || 'Forum tidak ditemukan'}</p>
           <Link href="/user/forum" className="text-red-800 hover:underline">
-            Kembali ke Forum
+            Kembali
           </Link>
         </div>
       </div>
@@ -324,6 +335,8 @@ export default function ForumDetailPage() {
 
   const flat = flattenReplies(sortedReplies)
 
+  const displayedForums = showAllForums ? otherForums : otherForums.slice(0, 5)
+
   return (
     <div className="min-h-screen mt-40">
       <section className="w-full container mx-auto px-10 flex flex-col gap-5 pb-20">
@@ -333,23 +346,28 @@ export default function ForumDetailPage() {
             <h1 className='text-3xl font-bold text-red-800'>Detail Diskusi</h1>
           </div>
           <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-red-800 mb-6 transition">
-            <ArrowIcon /> Kembali ke Forum
+            <ArrowIcon /> Kembali
           </Link>
         </div>
 
         <div className='flex items-stretch gap-10'>
           <div className='flex-1 flex-col'>
-            <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-              <h1 className="text-2xl font-bold mb-2">{forum.title}</h1>
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <div className={`w-6 h-6 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
-                  <span className="text-xs font-semibold text-black">{forum.user.username[0].toUpperCase()}</span>
+            <div className="bg-white rounded-xl border border-gray-200 mb-6">
+              <div className="flex items-center bg-red-100/20 gap-2 text-sm p-6 border-b border-gray-200">
+                <div className='flex items-center gap-3'>
+                  <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
+                    <span className="text-sm font-semibold text-black">{forum.user.username[0].toUpperCase()}</span>
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='font-bold text-[15px]'>{forum.user.username}</span>
+                    <span className="text-xs flex items-center gap-1 text-gray-400"><Clock className='w-3 h-3' />{formatTime(forum.createdAt)}</span>
+                  </div>
                 </div>
-                <span>{forum.user.username}</span>
-                <span>•</span>
-                <span>{formatDate(forum.createdAt)}</span>
               </div>
-              <p className="text-gray-700 whitespace-pre-line">{forum.content}</p>
+              <div className='p-6'>
+                <h1 className="text-2xl font-bold">{forum.title}</h1>
+                <p className="text-gray-700 whitespace-pre-line">{forum.content}</p>
+              </div>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-200 p-5">
@@ -485,37 +503,53 @@ export default function ForumDetailPage() {
                   Tidak ada diskusi lain
                 </div>
               ) : (
-                <div className='divide-y divide-gray-100'>
-                  {otherForums.map((otherForum) => (
-                    <Link
-                      key={otherForum.id}
-                      href={`/user/forum/${otherForum.id}`}
-                      className='block hover:bg-gray-50 transition'
-                    >
-                      <div className='flex items-center justify-between p-4'>
-                        <div className='flex items-center gap-3'>
-                          <div className={`w-8 h-8 ${getUserColor(otherForum.user.username)} rounded-full flex items-center justify-center shrink-0`}>
-                            <span className="text-xs font-semibold text-black">
-                              {otherForum.user.username[0].toUpperCase()}
-                            </span>
+                <>
+                  <div className='divide-y divide-gray-100'>
+                    {displayedForums.map((otherForum) => (
+                      <Link
+                        key={otherForum.id}
+                        href={`/user/forum/${otherForum.id}`}
+                        className='block hover:bg-gray-50 transition'
+                      >
+                        <div className='flex items-center justify-between p-4'>
+                          <div className='flex items-center gap-3 flex-1 min-w-0'>
+                            <div className={`w-8 h-8 ${getUserColor(otherForum.user.username)} rounded-full flex items-center justify-center shrink-0`}>
+                              <span className="text-xs font-semibold text-black">
+                                {otherForum.user.username[0].toUpperCase()}
+                              </span>
+                            </div>
+                            <div className='leading-5 max-w-45'>
+                              <h4
+                                title={otherForum.title}
+                                className='font-medium text-sm text-gray-900 truncate hover:text-red-800 transition'
+                              >
+                                {otherForum.title}
+                              </h4>
+                              <span className='text-xs text-gray-500 font-light '>{otherForum.user.username}</span>
+                            </div>
                           </div>
-                          <div className='leading-5'>
-                            <h4 className='font-medium text-sm text-gray-900 line-clamp-2 hover:text-red-800 transition'>
-                              {otherForum.title}
-                            </h4>
-                            <span className='text-xs text-gray-500 font-light '>{otherForum.user.username}</span>
+                          <div className='flex items-center justify-between text-xs text-gray-500'>
+                            <div className='flex items-center gap-1.5'>
+                              <MessagesSquare className='w-3.5 h-3.5' />
+                              <span>{otherForum._count.replies}</span>
+                            </div>
                           </div>
                         </div>
-                        <div className='flex items-center justify-between text-xs text-gray-500'>
-                          <div className='flex items-center gap-1.5'>
-                            <MessagesSquare className='w-3.5 h-3.5' />
-                            <span>{otherForum._count.replies}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {otherForums.length > 5 && (
+                    <div className='p-3 border-t border-gray-100'>
+                      <button
+                        onClick={() => setShowAllForums(!showAllForums)}
+                        className='w-full text-center text-xs cursor-pointer text-red-800 hover:text-red-900 font-medium transition'
+                      >
+                        {showAllForums ? 'Tampilkan Lebih Sedikit' : `Lihat Semua (${otherForums.length})`}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

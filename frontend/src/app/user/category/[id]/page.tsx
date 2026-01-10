@@ -1,14 +1,14 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
+import { isAxiosError } from 'axios'
 import api from '../../../../lib/axios'
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/app/components/ui/authcontext'
 import { ChevronRight as Arrow } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation'
-import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { useAlert } from '../../../components/ui/alert'
-import { isAxiosError } from 'axios'
+import { useAuth } from '@/app/components/ui/authcontext'
+import { AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 
 interface Product {
   id: number
@@ -175,7 +175,7 @@ export default function CategoryPage() {
 
   return (
     <div>
-      <section className="container px-10 py-40 mx-auto h-fit flex items-start justify-center">
+      <section className="container px-10 py-40 mx-auto min-h-screen flex items-start justify-center">
         <div className="w-full flex flex-col gap-10">
           <div className="w-full flex item-center text-sm text-gray-600">
             <Link href="/" className="hover:text-red-800 cursor-pointer">Home</Link>
@@ -204,7 +204,7 @@ export default function CategoryPage() {
           </div>
 
           {products.length === 0 ? (
-            <div className="text-center py-20">
+            <div className="text-center py-45">
               <p className="text-gray-500 text-lg">Belum ada produk di kategori ini</p>
             </div>
           ) : (

@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react'
 import { useAlert } from '../../components/ui/alert'
 import { useConfirm } from '../../components/ui/confirm'
 import { useAuth } from '@/app/components/ui/authcontext'
-import { BsArrowLeft as ArrowIcon } from 'react-icons/bs'
 import { AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai'
 
 interface Category {
@@ -147,13 +146,6 @@ export default function FavoritesPage() {
               </p>
             </div>
           </div>
-
-          <Link href="/user">
-            <button className="flex items-center gap-2 px-4 py-2 hover:text-red-800 cursor-pointer transition">
-              <ArrowIcon />
-              Kembali
-            </button>
-          </Link>
         </div>
 
         {error && (
