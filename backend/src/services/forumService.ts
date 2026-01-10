@@ -173,8 +173,6 @@ export class ForumService {
     return { forumId, liked: !existingLike, likeCount };
   }
 
-  // ===== REPLY (HASIL GABUNGAN) =====
-
   static async createReply(
     forumId: number,
     userId: number,

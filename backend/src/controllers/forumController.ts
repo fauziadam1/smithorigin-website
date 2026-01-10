@@ -3,8 +3,6 @@ import { ForumService } from '../services/forumService';
 
 export class ForumController {
 
-  // ================= FORUM =================
-
   static async getAll(req: Request, res: Response) {
     try {
       const page = parseInt(req.query.page as string) || 1;
