@@ -239,7 +239,7 @@ export default function Header() {
                                                 <div
                                                     key={product.id}
                                                     onClick={() => handleProductClick(product.id)}
-                                                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-b-0"
+                                                    className="px-3 py-2 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-b-0"
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-13 h-13 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
