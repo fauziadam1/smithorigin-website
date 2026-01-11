@@ -232,7 +232,6 @@ export default function ForumDetailPage() {
       const response = await api.get<ApiResponse<Forum[]>>('/forums?limit=50')
       const filtered = response.data.data.filter((f: Forum) => f.id !== parseInt(forumId || '0'))
 
-      // Shuffle array untuk random order
       const shuffled = filtered.sort(() => Math.random() - 0.5)
 
       setOtherForums(shuffled.slice(0, 10))

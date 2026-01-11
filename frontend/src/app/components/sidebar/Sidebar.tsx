@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import  Image  from "next/image";
-import { ChevronLeft, Package, Image as Img, MoveLeft, FolderTree, Store } from "lucide-react";
+import { ChevronLeft, Package, Image as Img, MoveLeft, FolderTree } from "lucide-react";
 
 const AdminLayout = ({
   children,
