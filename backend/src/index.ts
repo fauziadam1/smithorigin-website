@@ -1,9 +1,9 @@
+import 'dotenv/config';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/auth';
-import cookieParser from 'cookie-parser';
 import forumRouter from './routes/forum';
 import uploadRoutes from './routes/upload';
 import bannerRouter from './routes/banner';
@@ -11,8 +11,6 @@ import productRoutes from './routes/product';
 import variantRouter from './routes/variant';
 import favoriteRouter from './routes/favorite';
 import categoryRoutes from './routes/category';
-
-dotenv.config();
 
 const app = express();
 

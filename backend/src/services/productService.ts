@@ -2,7 +2,12 @@ import { prisma } from '../lib/prisma'
 import { FileHelper } from '../lib/helper'
 
 export class ProductService {
-  static async getAll(page = 1, limit = 10, categoryId?: number, search?: string) {
+  static async getAll(
+    page = 1,
+    limit = 10,
+    categoryId?: number,
+    search?: string
+  ) {
     const skip = (page - 1) * limit
     const where: Record<string, unknown> = {}
 

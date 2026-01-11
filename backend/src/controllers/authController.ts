@@ -159,34 +159,4 @@ export class AuthController {
       });
     }
   }
-
-  static async resetPassword(req: Request, res: Response) {
-    try {
-      const adminId = req.user?.id;
-      const { targetUserId, newPassword } = req.body;
-
-      if (!adminId) {
-        return res.status(401).json({
-          message: 'Admin tidak terautentikasi'
-        });
-      }
-
-      if (!targetUserId || !newPassword) {
-        return res.status(400).json({
-          message: 'Target user ID dan password baru harus diisi'
-        });
-      }
-
-      await AuthService.resetPassword(adminId, parseInt(targetUserId), newPassword);
-
-      res.status(200).json({
-        message: 'Password berhasil direset',
-      });
-    } catch (error) {
-      console.error('Reset password error:', error);
-      res.status(400).json({
-        message: (error as Error).message || 'Gagal reset password'
-      });
-    }
-  }
 }

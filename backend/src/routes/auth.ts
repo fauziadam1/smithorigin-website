@@ -126,30 +126,6 @@ router.post('/change-password', authMiddleware, async (req: Request, res: Respon
   }
 });
 
-router.post('/reset-password', authMiddleware, async (req: Request, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Tidak terautentikasi' });
-    }
-
-    const { userId, newPassword } = req.body;
-
-    if (!userId || !newPassword) {
-      return res.status(400).json({ message: 'User ID dan password baru harus diisi' });
-    }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: 'Password minimal 6 karakter' });
-    }
-
-    await AuthService.resetPassword(req.user.id, userId, newPassword);
-    res.status(200).json({ message: 'Password berhasil direset' });
-  } catch (error) {
-    res.status(403).json({ message: (error as Error).message });
-  }
-});
-
-
 router.post('/create-admin', async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
