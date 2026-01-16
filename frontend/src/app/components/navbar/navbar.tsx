@@ -1,28 +1,50 @@
 import clsx from "clsx"
 import Link from "next/link"
 import Image from "next/image"
-import { Product } from "@/lib/product"
+import SearchBar from "../ui/searchbar"
 import { useAuth } from "../ui/authcontext"
 import { clearAuth } from "../../../lib/auth"
-import { LogIn, Search, X } from 'lucide-react'
+import { LogIn, Menu, X } from 'lucide-react'
 import { getUserColor } from "../../../utils/color"
 import { useState, useEffect, useRef } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { AiOutlineHeart as FavoriteIcon } from 'react-icons/ai'
+import { motion, AnimatePresence, Variants } from "framer-motion"
+
+const menuVariants: Variants = {
+    hidden: { x: "100%", opacity: 0 },
+    visible: {
+        x: 0,
+        opacity: 1,
+        transition: {
+            type: "spring" as const,
+            stiffness: 260,
+            damping: 25
+        }
+    },
+    exit: {
+        x: "100%",
+        opacity: 0,
+        transition: { duration: 0.25 }
+    }
+}
+
+const overlayVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 }
+}
 
 export default function Header() {
     const pathname = usePathname()
     const router = useRouter()
     const { user } = useAuth()
-    const searchRef = useRef<HTMLDivElement>(null)
+    const mobileMenuRef = useRef<HTMLDivElement>(null)
 
     const [navbarScrolled, setNavbarScrolled] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [isOpened, setIsOpened] = useState(false)
-    const [searchQuery, setSearchQuery] = useState("")
-    const [searchResults, setSearchResults] = useState<Product[]>([])
-    const [showSearchResults, setShowSearchResults] = useState(false)
-    const [isSearching, setIsSearching] = useState(false)
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const isAuthenticated = !!user
     const isHome = mounted && pathname === "/user"
@@ -50,8 +72,8 @@ export default function Header() {
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-                setShowSearchResults(false)
+            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+                setIsMobileMenuOpen(false)
             }
         }
 
@@ -60,65 +82,29 @@ export default function Header() {
     }, [])
 
     useEffect(() => {
-        const searchProducts = async () => {
-            if (searchQuery.trim().length < 2) {
-                setSearchResults([])
-                setShowSearchResults(false)
-                return
-            }
+        setIsMobileMenuOpen(false)
+    }, [pathname])
 
-            setIsSearching(true)
-            try {
-                const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/products?search=${encodeURIComponent(searchQuery)}&limit=5`
-                )
-                const result = await response.json()
-
-                if (result.data) {
-                    setSearchResults(result.data)
-                    setShowSearchResults(true)
-                }
-            } catch (error) {
-                console.error("Search error:", error)
-                setSearchResults([])
-            } finally {
-                setIsSearching(false)
-            }
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
         }
-
-        const debounceTimer = setTimeout(searchProducts, 300)
-        return () => clearTimeout(debounceTimer)
-    }, [searchQuery])
+        return () => {
+            document.body.style.overflow = 'unset'
+        }
+    }, [isMobileMenuOpen])
 
     const handleLogout = () => {
         clearAuth()
         setIsOpened(false)
+        setIsMobileMenuOpen(false)
         router.push('/')
     }
 
-    const handleProductClick = (productId: number) => {
-        router.push(`/user/product/${productId}`)
-        setShowSearchResults(false)
-        setSearchQuery("")
-    }
-
-    const clearSearch = () => {
-        setSearchQuery("")
-        setSearchResults([])
-        setShowSearchResults(false)
-    }
-
-    const formatPrice = (price: number, discount?: number) => {
-        const finalPrice = discount ? price - (price * discount / 100) : price
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(finalPrice)
-    }
-
     const navClass = clsx(
-        "fixed z-[1000] w-full mx-auto py-6 transition-colors duration-300",
+        "fixed z-[1000] w-full mx-auto py-4 md:py-6 transition-colors duration-300",
         isHome
             ? navbarScrolled
                 ? "bg-white text-foreground border-b border-gray-200"
@@ -135,12 +121,12 @@ export default function Header() {
 
     return (
         <nav className={navClass}>
-            <div className="container mx-auto px-10 flex items-center justify-between">
+            <div className="container mx-auto px-4 md:px-10 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2">
-                    <Image src="/LogoMain.png" alt="Logo" width={50} height={50} />
+                    <Image src="/LogoMain.png" alt="Logo" width={50} height={50} className="w-10 h-10 md:w-[50px] md:h-[50px]" />
                     <h1
                         className={clsx(
-                            "font-extrabold text-[15px] leading-5 transition-colors",
+                            "font-extrabold text-[13px] md:text-[15px] leading-4 md:leading-5 transition-colors",
                             isHome && !navbarScrolled ? "text-white" : "text-black"
                         )}
                     >
@@ -148,7 +134,7 @@ export default function Header() {
                     </h1>
                 </Link>
 
-                <div className="flex items-center gap-7">
+                <div className="hidden lg:flex items-center gap-7">
                     <ul className="flex items-center gap-7 font-medium">
                         {navItems.map((item) => {
                             const isActive =
@@ -176,130 +162,7 @@ export default function Header() {
                         })}
                     </ul>
 
-                    <div ref={searchRef} className="relative">
-                        <div
-                            className={clsx(
-                                "bg-white/30 py-3 px-5 text-[12px] flex items-center gap-3 rounded-full",
-                                isHome && !navbarScrolled
-                                    ? "border-none text-white"
-                                    : "border border-gray-200 text-black"
-                            )}
-                        >
-                            <label htmlFor="search">
-                                <Search
-                                    className={clsx(
-                                        "w-4 h-4 cursor-pointer",
-                                        isHome && !navbarScrolled ? "text-white" : "text-gray-500"
-                                    )}
-                                />
-                            </label>
-                            <input
-                                type="text"
-                                placeholder="Cari product"
-                                id="search"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
-                                className={clsx(
-                                    "outline-none border-none bg-transparent pr-5 w-50",
-                                    isHome && !navbarScrolled
-                                        ? "text-white placeholder-white/70"
-                                        : "text-black placeholder-gray-600"
-                                )}
-                            />
-                            {searchQuery && (
-                                <button
-                                    type="button"
-                                    onClick={clearSearch}
-                                    className={clsx(
-                                        "hover:opacity-70 cursor-pointer absolute right-5 transition-opacity",
-                                        isHome && !navbarScrolled ? "text-white" : "text-gray-500"
-                                    )}
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
-
-                        {showSearchResults && (
-                            <div className="absolute top-full mt-2 w-full min-w-[380px] bg-white rounded-xl border border-gray-200 z-50 max-h-[450px] no-scrollbar overflow-y-auto">
-                                {isSearching ? (
-                                    <div className="p-6 text-center">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-800 mx-auto mb-2"></div>
-                                        <p className="text-gray-500 text-sm">Mencari Product...</p>
-                                    </div>
-                                ) : searchResults.length > 0 ? (
-                                    <div className="py-2">
-                                        {searchResults.map((product) => {
-                                            const finalPrice = product.discount && product.discount > 0
-                                                ? product.price - (product.price * product.discount / 100)
-                                                : product.price;
-
-                                            return (
-                                                <div
-                                                    key={product.id}
-                                                    onClick={() => handleProductClick(product.id)}
-                                                    className="px-3 py-2 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-b-0"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-13 h-13 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-200">
-                                                            {product.imageUrl ? (
-                                                                <Image
-                                                                    src={product.imageUrl}
-                                                                    alt={product.name}
-                                                                    width={1200}
-                                                                    height={1200}
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center">
-                                                                    <Search className="w-6 h-6 text-gray-400" />
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="font-semibold text-sm text-black truncate mb-1">
-                                                                {product.name}
-                                                            </p>
-
-                                                            <div className="flex items-center gap-2">
-                                                                <p className="font-bold text-sm text-red-800">
-                                                                    {formatPrice(finalPrice)}
-                                                                </p>
-                                                                {product.discount && product.discount > 0 && (
-                                                                    <>
-                                                                        <p className="text-xs text-gray-400 line-through">
-                                                                            {formatPrice(product.price)}
-                                                                        </p>
-                                                                        <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-600 font-semibold">
-                                                                            -{product.discount}%
-                                                                        </span>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                ) : (
-                                    <div className="p-6 text-center">
-                                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                            <Search className="w-8 h-8 text-gray-400" />
-                                        </div>
-                                        <p className="text-gray-500 text-sm font-medium mb-1">
-                                            Maaf yang kamu cari tidak ada
-                                        </p>
-                                        <p className="text-gray-400 text-xs">
-                                            Coba pakai kata kunci lain untuk mencari
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                    <SearchBar isHome={isHome} navbarScrolled={navbarScrolled} />
 
                     {!isAuthenticated && (
                         <Link href="/auth/login">
@@ -400,7 +263,141 @@ export default function Header() {
                         </>
                     )}
                 </div>
+
+                <div className="flex lg:hidden items-center gap-2">
+                    <SearchBar isHome={isHome} navbarScrolled={navbarScrolled} isMobile />
+
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className={clsx(
+                            "p-2 cursor-pointer rounded-full transition-colors",
+                            isHome && !navbarScrolled
+                                ? "text-white hover:bg-white/20"
+                                : "text-black hover:bg-gray-100"
+                        )}
+                    >
+                        <Menu className="w-6 h-6" />
+                    </button>
+                </div>
             </div>
+
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <>
+                        <motion.div
+                            variants={overlayVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="fixed inset-0 bg-black/50 z-999 lg:hidden"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        />
+
+                        <motion.div
+                            ref={mobileMenuRef}
+                            variants={menuVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="fixed top-0 right-0 h-full w-[280px] bg-white z-1000 shadow-2xl lg:hidden transform transition-transform duration-300 ease-out"
+                        >
+                            <div className="flex flex-col h-full">
+                                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                                    <h2 className="font-bold text-lg">Menu</h2>
+                                    <button
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="p-2 cursor-pointer hover:bg-gray-100 rounded-full transition-colors"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                {isAuthenticated && user && (
+                                    <div className="p-4 border-b border-gray-200">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-12 h-12 ${getUserColor(user.username || '')} rounded-full flex items-center justify-center`}>
+                                                <span className="text-lg font-semibold text-black">
+                                                    {user.username?.[0]?.toUpperCase() || 'U'}
+                                                </span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold text-sm truncate">{user.username}</p>
+                                                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex-1 overflow-y-auto py-2">
+                                    {navItems.map((item) => {
+                                        const isActive =
+                                            pathname === item.href ||
+                                            (item.href !== "/user" && pathname.startsWith(item.href))
+                                        return (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className={clsx(
+                                                    "block px-4 py-3 font-medium transition-colors",
+                                                    isActive
+                                                        ? "text-red-800 bg-red-50"
+                                                        : "text-black hover:bg-gray-50"
+                                                )}
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        )
+                                    })}
+
+                                    {isAuthenticated && (
+                                        <Link
+                                            href="/user/favorites"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className={clsx(
+                                                "block px-4 py-3 font-medium transition-colors",
+                                                pathname === "/user/favorites"
+                                                    ? "text-red-800 bg-red-50"
+                                                    : "text-black hover:bg-gray-50"
+                                            )}
+                                        >
+                                            Wishlist
+                                        </Link>
+                                    )}
+
+                                    {isAuthenticated && user?.isAdmin && (
+                                        <Link
+                                            href="/admin"
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className="block px-4 py-3 font-medium text-blue-600 hover:bg-blue-50 transition-colors"
+                                        >
+                                            Admin Dashboard
+                                        </Link>
+                                    )}
+                                </div>
+
+                                <div className="p-4 border-t border-gray-200">
+                                    {!isAuthenticated ? (
+                                        <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <button className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium bg-red-800 text-white hover:bg-red-900 transition-colors">
+                                                <LogIn className="w-5 h-5" />
+                                                <span>Log In</span>
+                                            </button>
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium bg-red-600 text-white hover:bg-red-700 transition-colors"
+                                        >
+                                            <span>Log Out</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </nav>
     )
 }

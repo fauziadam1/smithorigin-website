@@ -112,7 +112,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 120) {
+      if (window.scrollY > 110) {
         setShowStickyTitle(true);
       } else {
         setShowStickyTitle(false);
@@ -224,7 +224,7 @@ export default function ProductDetailPage() {
           initial={{ y: -60, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -60, opacity: 0 }}
-          transition={{ duration: 0.1, ease: 'easeOut' }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
           className="fixed top-[90px] left-0 right-0 z-40 bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto mt-10 px-2 py-3 flex items-center justify-between ">
             <h1 className="font-bold text-[18px] truncate max-w-[70%]">
@@ -428,7 +428,7 @@ export default function ProductDetailPage() {
               <h1 className='font-semibold text-xl'>Mungkin Anda Tertarik</h1>
               {product.category && (
                 <Link
-                  href={`/user/store?category=${product.categoryId}`}
+                  href={`/user/category/${product.categoryId}`}
                   className='text-md font-bold text-button text-red-800 hover:text-red-700'
                 >
                   Lihat semua 
