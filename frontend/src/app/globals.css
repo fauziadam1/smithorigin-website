@@ -19,7 +19,7 @@ main {
 }
 
 .bg-hero {
-  background-image: url('/Hero.jpg');
+  background-image: url("/Hero.jpg");
   position: relative;
 }
 
@@ -44,4 +44,55 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+.category-swiper .swiper-scrollbar {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  left: 1rem !important;
+  right: 1rem !important;
+  width: auto !important;
+}
+
+.category-swiper:hover .swiper-scrollbar,
+.category-swiper.swiper-scrollbar-drag .swiper-scrollbar {
+  opacity: 1;
+}
+
+.category-swiper .swiper-scrollbar-drag {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+}
+
+.category-swiper .swiper-scrollbar {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

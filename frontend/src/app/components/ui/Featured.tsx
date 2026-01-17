@@ -1,8 +1,9 @@
-'use client';
+"use client";
 import Link from "next/link";
 import api from "../../../lib/axios";
-import { ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { ProductCard } from "./productcard";
+import { ChevronRight } from "lucide-react";
 import { Product } from "../../../lib/product";
 import React, { useState, useEffect } from "react";
 
@@ -24,7 +25,7 @@ interface ApiResponse<T> {
 function ProductSkeleton() {
   return (
     <div className="flex flex-col gap-2 animate-pulse">
-      <div className="relative w-full h-[180px] bg-gray-200 rounded-lg overflow-hidden">
+      <div className="relative w-full aspect-square bg-gray-200 rounded-lg overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent animate-[shimmer_1.5s_infinite]" />
       </div>
       <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
@@ -36,7 +37,7 @@ function ProductSkeleton() {
 
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
       {[...Array(12)].map((_, i) => (
         <ProductSkeleton key={i} />
       ))}
@@ -44,7 +45,6 @@ function SkeletonGrid() {
   );
 }
 
-// Fisher-Yates shuffle algorithm
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -57,18 +57,22 @@ function shuffleArray<T>(array: T[]): T[] {
 export default function FeaturedProduct() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [productsByCategory, setProductsByCategory] = useState<ProductsByCategory>({});
+  const [productsByCategory, setProductsByCategory] =
+    useState<ProductsByCategory>({});
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<"all" | "best-seller" | "new-product">(
-    "all"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "all" | "best-seller" | "new-product"
+  >("all");
 
   const PRODUCTS_PER_ROW = 6;
   const MAX_ROWS = 7;
   const MAX_PRODUCTS = PRODUCTS_PER_ROW * MAX_ROWS;
 
-  const tabItems: { id: "all" | "best-seller" | "new-product"; label: string }[] = [
+  const tabItems: {
+    id: "all" | "best-seller" | "new-product";
+    label: string;
+  }[] = [
     { id: "all", label: "All" },
     { id: "best-seller", label: "Best Seller" },
     { id: "new-product", label: "New Product" },
@@ -88,7 +92,6 @@ export default function FeaturedProduct() {
       const products = productsRes.data.data;
       const cats = categoriesRes.data.data;
 
-      // Shuffle products setiap kali fetch
       const shuffledProducts = shuffleArray(products);
       setAllProducts(shuffledProducts);
       setCategories(cats);
@@ -115,7 +118,8 @@ export default function FeaturedProduct() {
 
       case "new-product":
         return [...allProducts].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
 
       default:
@@ -124,36 +128,63 @@ export default function FeaturedProduct() {
   })();
 
   return (
-    <div className="space-y-12" id="featured-product">
-      <h1 className="font-bold text-2xl mb-2">Featured Product</h1>
+    <div
+      className="space-y-8 sm:space-y-10 lg:space-y-12"
+      id="featured-product"
+    >
+      <h1 className="font-bold text-xl sm:text-2xl mb-2 px-4 sm:px-0">
+        Featured Product
+      </h1>
 
-      <div className="flex gap-5 border-b border-gray-200 mb-4">
-        {tabItems.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`pb-2 cursor-pointer relative text-base font-medium transition-colors ${activeTab === tab.id
-                ? 'text-red-800 after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-red-800'
-                : "text-gray-500 hover:text-red-800"
-              }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="space-y-6">
+        <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide px-4 sm:px-0">
+          <div className="flex gap-4 sm:gap-6 min-w-max sm:min-w-0">
+            {tabItems.map((tab) => (
+              <motion.button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pb-2 sm:pb-3 cursor-pointer relative text-sm sm:text-base font-medium transition-colors whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? "text-red-800"
+                    : "text-gray-500 hover:text-red-800"
+                }`}
+                whileHover={{ scale: 1.05 }}
+              >
+                {tab.label}
+
+                {activeTab === tab.id && (
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-800"
+                    layoutId="activeTab"
+                    transition={{
+                      type: "spring",
+                      stiffness: 380,
+                      damping: 30,
+                    }}
+                  />
+                )}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 px-4 sm:px-0"
+        >
+          {loading
+            ? [...Array(12)].map((_, i) => <ProductSkeleton key={i} />)
+            : filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+        </motion.div>
       </div>
 
-      <div
-        key={activeTab}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-3 animate-fadeIn"
-      >
-        {loading
-          ? [...Array(12)].map((_, i) => <ProductSkeleton key={i} />)
-          : filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-      </div>
-
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-10 lg:space-y-12">
         {categories.map((category) => {
           const products = productsByCategory[category.id] || [];
           if (products.length === 0) return null;
@@ -162,13 +193,17 @@ export default function FeaturedProduct() {
           const visibleProducts = products.slice(0, MAX_PRODUCTS);
 
           return (
-            <div key={category.id}>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">{category.name}</h2>
+            <div key={category.id} className="space-y-4 sm:space-y-6">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 px-4 sm:px-0">
+                {category.name}
+              </h2>
 
               {loading ? (
-                <SkeletonGrid />
+                <div className="px-4 sm:px-0">
+                  <SkeletonGrid />
+                </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5 px-4 sm:px-0">
                   {visibleProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
@@ -176,14 +211,17 @@ export default function FeaturedProduct() {
               )}
 
               {showAll && (
-                <div className="mt-8 text-center">
+                <div className="mt-6 sm:mt-8 text-center px-4 sm:px-0">
                   <Link href={`/user/store/category/${category.id}`}>
-                    <button className="px-8 py-3 bg-red-800 text-white rounded-full hover:bg-red-900 transition-all font-semibold flex items-center gap-2 mx-auto">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-red-800 text-white rounded-full hover:bg-red-900 transition-colors font-semibold text-sm sm:text-base flex items-center justify-center gap-2 mx-auto"
+                    >
                       <span>
-                        View All {products.length} {category.name} Products
+                        View All {products.length} {category.name}
                       </span>
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </motion.button>
                   </Link>
                 </div>
               )}
@@ -191,30 +229,6 @@ export default function FeaturedProduct() {
           );
         })}
       </div>
-
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(5px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-in-out;
-        }
-      `}</style>
     </div>
   );
 }

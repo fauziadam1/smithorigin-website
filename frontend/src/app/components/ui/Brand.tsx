@@ -5,7 +5,7 @@ export function BrandCard() {
   return (
     <section className="max-w-5xl mx-auto py-12 px-4">
       <div className="text-center mb-6">
-        <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
+        <h1 className="font-bold text-xl md:text-2xl text-gray-800">
           Brands We Had
         </h1>
       </div>
