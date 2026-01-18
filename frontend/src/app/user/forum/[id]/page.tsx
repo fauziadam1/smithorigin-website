@@ -122,7 +122,7 @@ function CommentItem({
               <span className="font-semibold text-sm text-gray-900">{reply.user.username}</span>
               <span className="text-xs text-gray-400">{formatDate(reply.createdAt)}</span>
             </div>
-            <p className="text-sm text-gray-800 whitespace-pre-line break-words">{reply.content}</p>
+            <p className="text-sm text-gray-800 whitespace-pre-line wrap-break-word">{reply.content}</p>
             <div className="flex items-center gap-3 mt-2">
               {user && (
                 <>
@@ -369,20 +369,20 @@ export default function ForumDetailPage() {
   const displayedForums = showAllForums ? otherForums : otherForums.slice(0, 5)
 
   return (
-    <div className="min-h-screen mt-20 md:mt-40">
+    <div className="min-h-screen mt-25 md:mt-40">
       <section className="w-full container mx-auto px-4 md:px-10 flex flex-col gap-5 pb-20">
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between py-2'>
           <div className='flex items-center gap-2 md:gap-3'>
             <MessagesSquare className='w-5 h-5 md:w-6 md:h-6 text-red-800' />
             <h1 className='text-xl md:text-3xl font-bold text-red-800'>Detail Diskusi</h1>
           </div>
-          <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-red-800 mb-6 transition text-sm md:text-base">
-            <ArrowIcon className="w-4 h-4 md:w-5 md:h-5" /> <span className="hidden sm:inline">Kembali</span>
+          <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-red-800 transition text-sm md:text-base">
+            <ArrowIcon className="w-4 h-4 md:w-5 md:h-5" /> 
+            Kembali
           </Link>
         </div>
 
         <div className='flex flex-col lg:flex-row items-stretch gap-6 lg:gap-10'>
-          {/* Main Content */}
           <div className='flex-1 flex-col'>
             <div className="bg-white rounded-xl border border-gray-200 mb-6">
               <div className="flex items-center bg-red-100/20 gap-2 text-sm p-4 md:p-6 border-b border-gray-200">
@@ -398,7 +398,7 @@ export default function ForumDetailPage() {
               </div>
               <div className='p-4 md:p-6'>
                 <h1 className="text-xl md:text-2xl font-bold mb-2">{forum.title}</h1>
-                <p className="text-gray-700 whitespace-pre-line break-words">{forum.content}</p>
+                <p className="text-gray-700 whitespace-pre-line wrap-break-word">{forum.content}</p>
               </div>
             </div>
 
@@ -527,7 +527,7 @@ export default function ForumDetailPage() {
             </div>
 
             <div className='border border-gray-200 rounded-xl bg-white overflow-hidden'>
-              <div className='bg-gradient-to-r from-red-800 to-red-900 px-4 py-3'>
+              <div className='bg-linear-to-r from-red-800 to-red-900 px-4 py-3'>
                 <h3 className='text-white font-semibold text-sm'>Diskusi Lainnya</h3>
               </div>
 

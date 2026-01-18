@@ -34,7 +34,7 @@ function SkeletonCard() {
   return (
     <div className="bg-white rounded-xl border border-gray-200 animate-pulse">
       <div className="aspect-square bg-gray-200 rounded-t-xl" />
-      <div className="p-4 space-y-3">
+      <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
         <div className="h-4 bg-gray-200 rounded w-3/4" />
         <div className="h-3 bg-gray-200 rounded w-1/2" />
         <div className="flex gap-2">
@@ -48,7 +48,7 @@ function SkeletonCard() {
 
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
       {Array.from({ length: 4 }).map((_, i) => (
         <SkeletonCard key={i} />
       ))}
@@ -75,7 +75,6 @@ export default function FavoritesPage() {
     }
 
     void fetchFavorites()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn])
 
   const fetchFavorites = async (): Promise<void> => {
@@ -111,6 +110,7 @@ export default function FavoritesPage() {
     try {
       await api.delete(`/favorites/${productId}`)
       setFavorites((prev) => prev.filter((fav) => fav.productId !== productId))
+      showAlert('Produk berhasil dihapus dari wishlist')
     } catch (err) {
       if (
         typeof err === 'object' &&
@@ -119,7 +119,7 @@ export default function FavoritesPage() {
         typeof (err as { response?: { data?: { message?: string } } }).response?.data
           ?.message === 'string'
       ) {
-        alert(
+        showAlert(
           (err as { response: { data: { message: string } } }).response.data.message,
         )
       } else {
@@ -132,16 +132,16 @@ export default function FavoritesPage() {
     discount ? price - price * (discount / 100) : price
 
   return (
-    <div className="min-h-screen py-40">
-      <div className="container mx-auto px-10">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-              <AiFillHeart className="w-8 h-8 text-red-500" />
+    <div className="min-h-screen mt-25 sm:mt-30 md:mt-40">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-red-100 rounded-full flex items-center justify-center">
+              <AiFillHeart className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-red-500" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">My Wishlist</h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">
                 {favorites.length} {favorites.length === 1 ? 'item' : 'items'} saved
               </p>
             </div>
@@ -157,27 +157,27 @@ export default function FavoritesPage() {
         {loading ? (
           <SkeletonGrid />
         ) : favorites.length === 0 ? (
-          <div className='flex items-center justify-center min-h-[80vh]'>
-            <div className="text-center max-w-md w-full">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AiFillHeart className="w-12 h-12 text-gray-300" />
+          <div className='flex items-center justify-center min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh]'>
+            <div className="text-center max-w-md w-full px-4">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <AiFillHeart className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300" />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-lg sm:text-2xl font-semibold text-gray-900 mb-2">
                 Your Wishlist is Empty
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-xs sm:text-base text-gray-600 mb-6">
                 Start adding your favorite products to keep track of them!
               </p>
               <Link
                 href="/user/store"
-                className="inline-block bg-red-800 text-white px-6 py-3 rounded-full font-medium hover:bg-red-900 transition"
+                className="inline-block bg-red-800 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full font-medium hover:bg-red-900 transition text-sm sm:text-base"
               >
                 Browse Products
               </Link>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
             {favorites.map((favorite) => {
               const { product } = favorite
               const finalPrice = calculateFinalPrice(product.price, product.discount)
@@ -202,43 +202,43 @@ export default function FavoritesPage() {
                         className="object-cover group-hover:scale-105 transition duration-300"
                       />
                       {hasDiscount && (
-                        <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                           -{product.discount}%
                         </div>
                       )}
                     </div>
                   </Link>
 
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     <Link
                       href={`/user/product/${product.id}`}
                       onClick={() =>
                         sessionStorage.setItem('previousPage', window.location.pathname)
                       }
                     >
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-red-500 transition">
+                      <h3 className="font-semibold text-gray-900 mb-1.5 sm:mb-2 line-clamp-2 hover:text-red-500 transition text-xs sm:text-sm md:text-base">
                         {product.name}
                       </h3>
                     </Link>
 
                     {product.category && (
-                      <p className="text-xs text-gray-500 mb-3">
+                      <p className="text-[10px] sm:text-xs text-gray-500 mb-2 sm:mb-3">
                         {product.category.name}
                       </p>
                     )}
 
-                    <div className="flex items-baseline gap-2 mb-4">
+                    <div className="flex items-baseline gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                       {hasDiscount ? (
                         <>
-                          <span className="text-lg font-bold text-gray-900">
+                          <span className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
                             Rp {finalPrice.toLocaleString('id-ID')}
                           </span>
-                          <span className="text-sm text-gray-400 line-through">
+                          <span className="text-[10px] sm:text-xs md:text-sm text-gray-400 line-through">
                             Rp {product.price.toLocaleString('id-ID')}
                           </span>
                         </>
                       ) : (
-                        <span className="text-lg font-bold text-gray-900">
+                        <span className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
                           Rp {product.price.toLocaleString('id-ID')}
                         </span>
                       )}
@@ -247,9 +247,9 @@ export default function FavoritesPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => removeFavorite(product.id)}
-                        className="flex-1 flex cursor-pointer items-center justify-center gap-2 border border-red-300 text-red-500 py-2 rounded-lg hover:bg-red-50 transition text-sm font-medium"
+                        className="flex-1 flex cursor-pointer items-center justify-center gap-1 sm:gap-2 border border-red-300 text-red-500 py-1.5 sm:py-2 rounded-lg hover:bg-red-50 transition text-[10px] sm:text-xs md:text-sm font-medium"
                       >
-                        <BiTrash className="w-4 h-4" />
+                        <BiTrash className="w-3 h-3 sm:w-4 sm:h-4" />
                         Remove
                       </button>
                       <Link
@@ -257,9 +257,9 @@ export default function FavoritesPage() {
                         onClick={() =>
                           sessionStorage.setItem('previousPage', window.location.pathname)
                         }
-                        className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition text-sm font-medium"
+                        className="flex-1 flex items-center justify-center gap-1 sm:gap-2 bg-red-500 text-white py-1.5 sm:py-2 rounded-lg hover:bg-red-600 transition text-[10px] sm:text-xs md:text-sm font-medium"
                       >
-                        <AiOutlineShoppingCart className="w-4 h-4" />
+                        <AiOutlineShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
                         View
                       </Link>
                     </div>

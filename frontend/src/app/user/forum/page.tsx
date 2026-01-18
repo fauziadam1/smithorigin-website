@@ -66,6 +66,7 @@ export default function ForumPage() {
 
     useEffect(() => {
         fetchForums()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const getErrorMessage = (err: unknown): string => {
@@ -333,7 +334,7 @@ export default function ForumPage() {
                 <div className='flex flex-col gap-3'>
                     <div className='space-y-2 md:space-y-3'>
                         <div className="flex items-center gap-3 md:gap-4">
-                            <MessageCircleMore className='w-8 h-8 md:w-10 md:h-10 text-red-800' />
+                            <MessageCircleMore className='w-10 h-10 md:w-12 md:h-12 p-2 bg-red-50 rounded-lg text-red-800' />
                             <h1 className='text-2xl md:text-3xl lg:text-4xl font-bold'>Forum Komunitas Smith Origin</h1>
                         </div>
                         <div className='space-y-2'>
