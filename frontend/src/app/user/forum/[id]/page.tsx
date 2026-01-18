@@ -111,7 +111,7 @@ function CommentItem({
 
 
   return (
-    <div className={`${depth > 0 ? 'ml-10' : ''}`}>
+    <div className={`${depth > 0 ? 'ml-6 md:ml-10' : ''}`}>
       <div className={`p-3 rounded-lg ${isReplying ? 'bg-red-50 border border-red-200' : ''} transition-colors`}>
         <div className="flex gap-3">
           <div className={`w-8 h-8 ${getUserColor(reply.user.username)} rounded-full flex items-center justify-center shrink-0`}>
@@ -122,7 +122,7 @@ function CommentItem({
               <span className="font-semibold text-sm text-gray-900">{reply.user.username}</span>
               <span className="text-xs text-gray-400">{formatDate(reply.createdAt)}</span>
             </div>
-            <p className="text-sm text-gray-800 whitespace-pre-line wrap-break-word">{reply.content}</p>
+            <p className="text-sm text-gray-800 whitespace-pre-line break-words">{reply.content}</p>
             <div className="flex items-center gap-3 mt-2">
               {user && (
                 <>
@@ -136,7 +136,7 @@ function CommentItem({
                   {user && (user.id === reply.user.id || user.isAdmin) && (
                     <button
                       onClick={handleDelete}
-                      className="text-xs text-gray-500 hover:text-red-800 font-medium transition"
+                      className="text-xs cursor-pointer text-gray-500 hover:text-red-800 font-medium transition"
                     >
                       Hapus
                     </button>
@@ -369,40 +369,41 @@ export default function ForumDetailPage() {
   const displayedForums = showAllForums ? otherForums : otherForums.slice(0, 5)
 
   return (
-    <div className="min-h-screen mt-40">
-      <section className="w-full container mx-auto px-10 flex flex-col gap-5 pb-20">
+    <div className="min-h-screen mt-20 md:mt-40">
+      <section className="w-full container mx-auto px-4 md:px-10 flex flex-col gap-5 pb-20">
         <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <MessagesSquare className='w-6 h-6 text-red-800' />
-            <h1 className='text-3xl font-bold text-red-800'>Detail Diskusi</h1>
+          <div className='flex items-center gap-2 md:gap-3'>
+            <MessagesSquare className='w-5 h-5 md:w-6 md:h-6 text-red-800' />
+            <h1 className='text-xl md:text-3xl font-bold text-red-800'>Detail Diskusi</h1>
           </div>
-          <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-red-800 mb-6 transition">
-            <ArrowIcon /> Kembali
+          <Link href="/user/forum" className="inline-flex items-center gap-2 text-gray-600 hover:text-red-800 mb-6 transition text-sm md:text-base">
+            <ArrowIcon className="w-4 h-4 md:w-5 md:h-5" /> <span className="hidden sm:inline">Kembali</span>
           </Link>
         </div>
 
-        <div className='flex items-stretch gap-10'>
+        <div className='flex flex-col lg:flex-row items-stretch gap-6 lg:gap-10'>
+          {/* Main Content */}
           <div className='flex-1 flex-col'>
             <div className="bg-white rounded-xl border border-gray-200 mb-6">
-              <div className="flex items-center bg-red-100/20 gap-2 text-sm p-6 border-b border-gray-200">
+              <div className="flex items-center bg-red-100/20 gap-2 text-sm p-4 md:p-6 border-b border-gray-200">
                 <div className='flex items-center gap-3'>
                   <div className={`w-10 h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center`}>
                     <span className="text-sm font-semibold text-black">{forum.user.username[0].toUpperCase()}</span>
                   </div>
                   <div className='flex flex-col'>
-                    <span className='font-bold text-[15px]'>{forum.user.username}</span>
+                    <span className='font-bold text-sm md:text-[15px]'>{forum.user.username}</span>
                     <span className="text-xs flex items-center gap-1 text-gray-400"><Clock className='w-3 h-3' />{formatTime(forum.createdAt)}</span>
                   </div>
                 </div>
               </div>
-              <div className='p-6'>
-                <h1 className="text-2xl font-bold">{forum.title}</h1>
-                <p className="text-gray-700 whitespace-pre-line">{forum.content}</p>
+              <div className='p-4 md:p-6'>
+                <h1 className="text-xl md:text-2xl font-bold mb-2">{forum.title}</h1>
+                <p className="text-gray-700 whitespace-pre-line break-words">{forum.content}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900">Komentar ({totalComments})</h2>
+            <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5">
+              <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-900">Komentar ({totalComments})</h2>
 
               {user ? (
                 <form onSubmit={handleMainReply} className="mb-6">
@@ -423,7 +424,7 @@ export default function ForumDetailPage() {
                         <button
                           type="submit"
                           disabled={submitting}
-                          className="bg-red-800 text-white px-6 py-2 rounded-full hover:bg-red-900 transition disabled:opacity-50 text-sm font-medium"
+                          className="bg-red-800 text-white px-4 md:px-6 py-2 rounded-full hover:bg-red-900 transition disabled:opacity-50 text-sm font-medium"
                         >
                           {submitting ? 'Mengirim...' : 'Kirim'}
                         </button>
@@ -434,7 +435,7 @@ export default function ForumDetailPage() {
               ) : (
                 <div className="bg-gray-50 rounded-xl border border-gray-200 p-6 text-center mb-6">
                   <p className="text-gray-600 mb-4">Silakan login untuk berkomentar</p>
-                  <Link href="/auth/sign-in" className="text-red-800 hover:underline font-medium">Login Sekarang</Link>
+                  <Link href="/auth/login" className="text-red-800 hover:underline font-medium">Login Sekarang</Link>
                 </div>
               )}
               <div>
@@ -508,24 +509,25 @@ export default function ForumDetailPage() {
             </div>
           </div>
 
-          <div className='w-80 space-y-5'>
-            <div className='border border-gray-200 rounded-xl p-6 bg-white'>
+          {/* Sidebar - Muncul di bawah pada mobile */}
+          <div className='w-full lg:w-80 space-y-5'>
+            <div className='border border-gray-200 rounded-xl p-4 md:p-6 bg-white'>
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageCirclePlus className='text-3xl text-red-800' />
               </div>
               <div className='text-center mb-4'>
-                <h3 className='font-semibold text-[19px] text-gray-900 mb-2'>Punya Topik lain?</h3>
-                <p className='text-[12px] text-gray-500'>Mulai percakapan baru kapan saja saat anda membutuhkannya.</p>
+                <h3 className='font-semibold text-base md:text-[19px] text-gray-900 mb-2'>Punya Topik lain?</h3>
+                <p className='text-xs md:text-[12px] text-gray-500'>Mulai percakapan baru kapan saja saat anda membutuhkannya.</p>
               </div>
               <Link href='/user/forumForm'>
-                <button className="w-full bg-red-800 text-white text-[13px] font-medium py-3 px-6 rounded-full hover:bg-red-900 cursor-pointer transition">
+                <button className="w-full bg-red-800 text-white text-xs md:text-[13px] font-medium py-3 px-6 rounded-full hover:bg-red-900 cursor-pointer transition">
                   Mulai Diskusi Baru
                 </button>
               </Link>
             </div>
 
             <div className='border border-gray-200 rounded-xl bg-white overflow-hidden'>
-              <div className='bg-linear-to-r from-red-800 to-red-900 px-4 py-3'>
+              <div className='bg-gradient-to-r from-red-800 to-red-900 px-4 py-3'>
                 <h3 className='text-white font-semibold text-sm'>Diskusi Lainnya</h3>
               </div>
 
@@ -549,17 +551,17 @@ export default function ForumDetailPage() {
                                 {otherForum.user.username[0].toUpperCase()}
                               </span>
                             </div>
-                            <div className='leading-5 max-w-45'>
+                            <div className='leading-5 flex-1 min-w-0'>
                               <h4
                                 title={otherForum.title}
                                 className='font-medium text-sm text-gray-900 truncate hover:text-red-800 transition'
                               >
                                 {otherForum.title}
                               </h4>
-                              <span className='text-xs text-gray-500 font-light '>{otherForum.user.username}</span>
+                              <span className='text-xs text-gray-500 font-light'>{otherForum.user.username}</span>
                             </div>
                           </div>
-                          <div className='flex items-center justify-between text-xs text-gray-500'>
+                          <div className='flex items-center justify-between text-xs text-gray-500 ml-2'>
                             <div className='flex items-center gap-1.5'>
                               <MessagesSquare className='w-3.5 h-3.5' />
                               <span>{otherForum._count.replies}</span>

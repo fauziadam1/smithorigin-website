@@ -1,5 +1,4 @@
 'use client'
-
 import Image from "next/image"
 import Link from "next/link"
 import { Instagram, Youtube, Music2, ChevronDown } from "lucide-react"
@@ -40,7 +39,7 @@ export default function Footer() {
       <section className="container mx-auto px-6 py-14">
         <div className="hidden lg:grid lg:grid-cols-5 gap-10">
           <div className="sm:col-span-2 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start mb-4">
+            <div className="flex items-center justify-start -translate-x-3.5 mb-4">
               <Image
                 src="/LogoWhite.png"
                 alt="Logo"
@@ -124,8 +123,8 @@ export default function Footer() {
         </div>
 
         <div className="lg:hidden">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-4">
+          <div className="flex flex-col items-start justify-start mb-8">
+            <div className="flex items-center justify-center mb-4 -translate-x-3.5">
               <Image
                 src="/LogoWhite.png"
                 alt="Logo"
@@ -137,7 +136,7 @@ export default function Footer() {
                 SMITH <br /> ORIGIN
               </h1>
             </div>
-            <p className="text-sm text-gray-100 max-w-xs mx-auto leading-relaxed">
+            <p className="text-sm text-gray-100 max-w-xs leading-relaxed">
               Thank you for visiting our official website. We hope you are satisfied with our service and products.
             </p>
           </div>

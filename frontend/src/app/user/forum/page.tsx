@@ -150,17 +150,12 @@ export default function ForumPage() {
         return `${Math.floor(diffHours / 24)} hari yang lalu`
     }
 
-    const totalPages = Math.ceil(forums.length / itemsPerPage)
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    const currentForums = forums.slice(startIndex, endIndex)
-
     const goToPage = (page: number) => {
         setCurrentPage(page)
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    const Pagination = () => {
+    const Pagination = ({ totalPages }: { totalPages: number }) => {
         if (forums.length <= itemsPerPage) return null
 
         const getPageNumbers = () => {
@@ -234,6 +229,104 @@ export default function ForumPage() {
         )
     }
 
+    const renderForumList = () => {
+        if (loading) {
+            return (
+                <div className="flex flex-col gap-4 md:gap-5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <ForumSkeleton key={i} />
+                    ))}
+                </div>
+            )
+        }
+
+        if (error) {
+            return <div className="text-center py-10 text-red-500 text-sm md:text-base">{error}</div>
+        }
+
+        if (forums.length === 0) {
+            return (
+                <div className="flex items-center justify-center mt-20 md:mt-50">
+                    <div className="text-center text-gray-500">
+                        <h1 className='font-medium text-sm md:text-base'>Belum ada diskusi</h1>
+                        <p className='text-xs'>Jadilah yang pertama</p>
+                    </div>
+                </div>
+            )
+        }
+
+        const totalPages = Math.ceil(forums.length / itemsPerPage)
+        const startIndex = (currentPage - 1) * itemsPerPage
+        const endIndex = startIndex + itemsPerPage
+        const currentForums = forums.slice(startIndex, endIndex)
+
+        return (
+            <>
+                {currentForums.map((forum) => {
+                    const isLiked = user ? forum.likes?.some(like => like.userId === user.id) ?? false : false;
+                    const isOwner = user?.id === forum.user.id;
+                    const isDeletable = isOwner && canDelete(forum.createdAt);
+
+                    return (
+                        <div key={forum.id} className='bg-white border border-gray-200 rounded-xl hover:shadow-md transition relative'>
+                            <div className='flex items-start gap-3 md:gap-4 border-b border-gray-200 p-4 md:p-5 bg-red-100/20'>
+                                <div className="flex-1 flex items-start gap-3 md:gap-4">
+                                    <div className={`w-8 h-8 md:w-10 md:h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center shrink-0`}>
+                                        <span className="text-xs md:text-sm font-semibold">{forum.user.username[0].toUpperCase()}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="font-semibold text-xs md:text-sm">{forum.user.username}</span>
+                                        <span className="text-[10px] md:text-xs flex items-center gap-1 text-gray-400">
+                                            <Clock className='w-3 h-3' />
+                                            {formatTime(forum.createdAt)}
+                                        </span>
+                                    </div>
+                                </div>
+                                {isDeletable && (
+                                    <button
+                                        onClick={() => handleDelete(forum.id)}
+                                        className="p-1.5 md:p-2 hover:bg-red-100 cursor-pointer rounded-full text-red-500 transition shrink-0"
+                                    >
+                                        <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
+                                    </button>
+                                )}
+                            </div>
+
+                            <Link href={`/user/forum/${forum.id}`} className='border-b border-gray-200 p-4 md:p-5 flex flex-col gap-2'>
+                                <h3 className='md:text-lg lg:text-xl font-semibold  text-gray-900 hover:text-red-800 transition cursor-pointer truncate'>
+                                    {forum.title}
+                                </h3>
+                                <p className='text-xs md:text-sm text-gray-600 line-clamp-2 truncate'>
+                                    {forum.content}
+                                </p>
+                            </Link>
+
+                            <div className='flex items-center gap-3 md:gap-4 p-4 md:p-5 text-xs md:text-sm text-gray-500'>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleLike(forum.id)
+                                    }}
+                                    className={`flex items-center gap-1 cursor-pointer hover:text-red-800 transition ${isLiked ? 'text-red-800' : ''}`}
+                                >
+                                    {isLiked ? <AiFillHeart className="w-4 h-4 md:w-5 md:h-5" /> : <AiOutlineHeart className="w-4 h-4 md:w-5 md:h-5" />}
+                                    <span className="font-medium">{forum._count.likes}</span>
+                                </button>
+
+                                <Link href={`/user/forum/${forum.id}`} className="flex items-center gap-1 hover:text-red-800">
+                                    <BiMessageRounded className="w-4 h-4 md:w-5 md:h-5" />
+                                    <span>{forum._count.replies} Komentar</span>
+                                </Link>
+                            </div>
+                        </div>
+                    )
+                })}
+
+                <Pagination totalPages={totalPages} />
+            </>
+        )
+    }
+
     return (
         <div className="min-h-screen mt-24 md:mt-32 lg:mt-40">
             <section className='w-full container mx-auto px-4 md:px-6 lg:px-10 flex flex-col gap-6 md:gap-8 lg:gap-10'>
@@ -250,95 +343,16 @@ export default function ForumPage() {
                 </div>
 
                 <div className='flex flex-col lg:flex-row items-start gap-6 lg:gap-10'>
-                    <div className='w-full lg:flex-1 flex flex-col gap-4 md:gap-5'>
+                    <div className='w-full lg:flex-1 min-w-0 flex flex-col gap-4 md:gap-5'>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <h2 className="text-lg md:text-xl font-semibold">Diskusi terbaru</h2>
-                            <p className="text-xs md:text-sm text-gray-500">{forums.length} Diskusi aktif</p>
+                            {!loading && <p className="text-xs md:text-sm text-gray-500">{forums.length} Diskusi aktif</p>}
                         </div>
 
-                        {loading ? (
-                            <div className="flex flex-col gap-4 md:gap-5">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <ForumSkeleton key={i} />
-                                ))}
-                            </div>
-                        ) : error ? (
-                            <div className="text-center py-10 text-red-500 text-sm md:text-base">{error}</div>
-                        ) : forums.length === 0 ? (
-                            <div className="flex items-center justify-center mt-20 md:mt-50">
-                                <div className="text-center text-gray-500">
-                                    <h1 className='font-medium text-sm md:text-base'>Belum ada diskusi</h1>
-                                    <p className='text-xs'>Jadilah yang pertama</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <>
-                                {currentForums.map((forum) => {
-                                    const isLiked = user ? forum.likes?.some(like => like.userId === user.id) ?? false : false;
-                                    const isOwner = user?.id === forum.user.id;
-                                    const isDeletable = isOwner && canDelete(forum.createdAt);
-
-                                    return (
-                                        <div key={forum.id} className='bg-white border border-gray-200 rounded-xl hover:shadow-md transition relative'>
-                                            <div className='flex items-start gap-3 md:gap-4 border-b border-gray-200 p-4 md:p-5 bg-red-100/20'>
-                                                <div className="flex-1 flex items-start gap-3 md:gap-4">
-                                                    <div className={`w-8 h-8 md:w-10 md:h-10 ${getUserColor(forum.user.username)} rounded-full flex items-center justify-center shrink-0`}>
-                                                        <span className="text-xs md:text-sm font-semibold">{forum.user.username[0].toUpperCase()}</span>
-                                                    </div>
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="font-semibold text-xs md:text-sm">{forum.user.username}</span>
-                                                        <span className="text-[10px] md:text-xs flex items-center gap-1 text-gray-400">
-                                                            <Clock className='w-3 h-3' />
-                                                            {formatTime(forum.createdAt)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                {isDeletable && (
-                                                    <button
-                                                        onClick={() => handleDelete(forum.id)}
-                                                        className="p-1.5 md:p-2 hover:bg-red-100 cursor-pointer rounded-full text-red-500 transition shrink-0"
-                                                    >
-                                                        <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
-                                                    </button>
-                                                )}
-                                            </div>
-
-                                            <Link href={`/user/forum/${forum.id}`} className='border-b border-gray-200 p-4 md:p-5 flex flex-col gap-2'>
-                                                <h3 className='text-base md:text-lg lg:text-xl font-semibold text-gray-900 hover:text-red-800 transition cursor-pointer'>
-                                                    {forum.title}
-                                                </h3>
-                                                <p className='text-xs md:text-sm text-gray-600 line-clamp-2'>
-                                                    {forum.content}
-                                                </p>
-                                            </Link>
-
-                                            <div className='flex items-center gap-3 md:gap-4 p-4 md:p-5 text-xs md:text-sm text-gray-500'>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        handleLike(forum.id)
-                                                    }}
-                                                    className={`flex items-center gap-1 cursor-pointer hover:text-red-800 transition ${isLiked ? 'text-red-800' : ''}`}
-                                                >
-                                                    {isLiked ? <AiFillHeart className="w-4 h-4 md:w-5 md:h-5" /> : <AiOutlineHeart className="w-4 h-4 md:w-5 md:h-5" />}
-                                                    <span className="font-medium">{forum._count.likes}</span>
-                                                </button>
-
-                                                <Link href={`/user/forum/${forum.id}`} className="flex items-center gap-1 hover:text-red-800">
-                                                    <BiMessageRounded className="w-4 h-4 md:w-5 md:h-5" />
-                                                    <span>{forum._count.replies} Komentar</span>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-
-                                <Pagination />
-                            </>
-                        )}
+                        {renderForumList()}
                     </div>
 
-                    <div className='w-full lg:w-80 space-y-4 md:space-y-5'>
+                    <div className='w-full lg:w-80 shrink-0 space-y-4 md:space-y-5'>
                         <div className='border border-gray-200 rounded-xl p-5 md:p-6 bg-white'>
                             <div className="w-14 h-14 md:w-16 md:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                                 <MessageCirclePlus className='text-2xl md:text-3xl text-red-800' />
@@ -354,7 +368,7 @@ export default function ForumPage() {
                             </Link>
                         </div>
 
-                        {forums.length > 0 && (
+                        {!loading && forums.length > 0 && (
                             <div className='border border-gray-200 rounded-xl p-5 md:p-6 bg-white space-y-3 md:space-y-4'>
                                 <h3 className='font-semibold text-sm md:text-base text-gray-900 flex items-center gap-2'>
                                     <span className='text-red-800'>🔥</span> Diskusi Trending
