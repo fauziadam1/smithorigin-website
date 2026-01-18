@@ -64,7 +64,7 @@ export class AuthService {
         JWT_REFRESH_SECRET
       ) as JwtPayload
     } catch {
-      throw new Error('Refresh token tidak valid')
+      throw new Error('Sesi anda berakhir. Silahkan login kembali')
     }
 
     const user = await prisma.user.findUnique({
@@ -72,7 +72,7 @@ export class AuthService {
     })
 
     if (!user || user.refreshToken !== oldRefreshToken) {
-      throw new Error('Refresh token tidak valid')
+      throw new Error('Sesi anda berakhir. Silahkan login kembali')
     }
 
     return this.issueTokens(user)
