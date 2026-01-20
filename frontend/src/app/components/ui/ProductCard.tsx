@@ -47,15 +47,15 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="py-2 sm:py-3 space-y-0.5 sm:space-y-1">
-          <p className="text-sm sm:text-[15px] line-clamp-2 leading-snug">
+          <p className="text-xs sm:text-sm lg:text-[15px] line-clamp-2 leading-snug">
             {product.name}
           </p>
-          <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
-            <h1 className="font-semibold text-base sm:text-lg md:text-base">
+          <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
+            <h1 className="font-semibold text-sm sm:text-base lg:text-lg">
               Rp {discountedPrice.toLocaleString("id-ID")}
             </h1>
             {hasDiscount && (
-              <h1 className="text-xs sm:text-sm line-through text-gray-400">
+              <h1 className="text-[10px] sm:text-xs lg:text-sm line-through text-gray-400">
                 Rp {product.price.toLocaleString("id-ID")}
               </h1>
             )}
@@ -65,7 +65,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <button
         onClick={handleWishlistToggle}
-        className="w-full cursor-pointer bg-white border border-gray-300 rounded-full py-2 mt-1 flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-gray-50 active:scale-95 transition-all duration-200"
+        className="w-full cursor-pointer bg-white border border-gray-300 rounded-full py-1.5 sm:py-2 mt-1 flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-gray-50 active:scale-95 transition-all duration-200"
         aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
       >
         {isFavorite ? (
@@ -73,7 +73,7 @@ export function ProductCard({ product }: { product: Product }) {
         ) : (
           <AiOutlineHeart className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
         )}
-        <span className="text-xs sm:text-sm font-medium">Wishlist</span>
+        <span className="text-[11px] sm:text-sm font-medium">Wishlist</span>
       </button>
     </div>
   );
