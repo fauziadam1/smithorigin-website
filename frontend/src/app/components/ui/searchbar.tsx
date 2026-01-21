@@ -237,10 +237,10 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
                 <Search className={clsx("text-gray-400", isMobile ? "w-6 h-6" : "w-8 h-8")} />
               </div>
               <p className={clsx("text-gray-500 font-medium mb-1", isMobile ? "text-xs" : "text-sm")}>
-                Maaf yang kamu cari tidak ada
+ Nothing Found
               </p>
               <p className={clsx("text-gray-400", isMobile ? "text-[10px]" : "text-xs")}>
-                Coba pakai kata kunci lain untuk mencari
+Try a different keyword
               </p>
             </div>
           )}

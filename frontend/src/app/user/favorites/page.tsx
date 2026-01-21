@@ -132,7 +132,7 @@ export default function FavoritesPage() {
     discount ? price - price * (discount / 100) : price
 
   return (
-    <div className="min-h-screen mt-25 sm:mt-30 md:mt-40">
+    <div className="min-h-screen mt-25 sm:mt-30 md:mt-35">
       <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -168,12 +168,6 @@ export default function FavoritesPage() {
               <p className="text-xs sm:text-base text-gray-600 mb-6">
                 Start adding your favorite products to keep track of them!
               </p>
-              <Link
-                href="/user/store"
-                className="inline-block bg-red-800 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full font-medium hover:bg-red-900 transition text-sm sm:text-base"
-              >
-                Browse Products
-              </Link>
             </div>
           </div>
         ) : (
