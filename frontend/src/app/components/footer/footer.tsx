@@ -58,7 +58,7 @@ export default function Footer() {
 
           <div className="text-center sm:text-left">
             <h2 className="font-semibold text-lg mb-4">Links</h2>
-            <ul className="space-y-3 text-sm text-gray-100">
+            <ul className="text-sm text-gray-100">
               <li>
                 <Link href="/" className="inline-block py-1 hover:underline hover:text-white">
                   Home
@@ -74,7 +74,7 @@ export default function Footer() {
 
           <div className="text-center sm:text-left">
             <h2 className="font-semibold text-lg mb-4">Category</h2>
-            <ul className="space-y-3 text-sm text-gray-100">
+            <ul className="text-sm text-gray-100">
               {loading ? (
                 <>
                   <li className="animate-pulse bg-white/20 h-3 w-32 rounded mx-auto sm:mx-0"></li>
@@ -104,18 +104,18 @@ export default function Footer() {
             <h2 className="font-semibold text-lg mb-4">Follow Us</h2>
             <ul className="space-y-4 text-sm text-gray-100 flex flex-col items-center sm:items-start">
               <li>
-                <Link href="#" className="flex items-center gap-2 hover:text-white">
-                  <Youtube size={18} /> SMITHORIGIN.ID
+                <Link href="https://www.youtube.com/@smithorigin" className="flex items-center gap-2 hover:text-white">
+                  <Youtube size={18} /> SmithOrigin
                 </Link>
               </li>
               <li>
-                <Link href="#" className="flex items-center gap-2 hover:text-white">
-                  <Instagram size={18} /> SMITHORIGIN
+                <Link href="https://www.instagram.com/smithorigin.id/" className="flex items-center gap-2 hover:text-white">
+                  <Instagram size={18} /> smithorigin.id
                 </Link>
               </li>
               <li>
-                <Link href="#" className="flex items-center gap-2 hover:text-white">
-                  <Music2 size={18} /> SMITHORIGIN.ID
+                <Link href="https://www.tiktok.com/@smithorigin" className="flex items-center gap-2 hover:text-white">
+                  <Music2 size={18} /> smithorigin
                 </Link>
               </li>
             </ul>
@@ -160,7 +160,7 @@ export default function Footer() {
                   openDropdown === 'links' ? 'max-h-40 mb-4' : 'max-h-0'
                 }`}
               >
-                <ul className="space-y-3 text-sm text-gray-100 pl-2">
+                <ul className="space-y-2 text-sm text-gray-100 pl-2">
                   <li>
                     <Link href="/" className="inline-block py-1 hover:underline hover:text-white">
                       Home
@@ -240,18 +240,18 @@ export default function Footer() {
               >
                 <ul className="space-y-4 text-sm text-gray-100 pl-2">
                   <li>
-                    <Link href="#" className="flex items-center gap-2 hover:text-white">
-                      <Youtube size={18} /> SMITHORIGIN.ID
+                    <Link href="https://www.youtube.com/@smithorigin" className="flex items-center gap-2 hover:text-white">
+                      <Youtube size={18} /> SmithOrigin
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="flex items-center gap-2 hover:text-white">
-                      <Instagram size={18} /> SMITHORIGIN
+                    <Link href="https://www.instagram.com/smithorigin.id/" className="flex items-center gap-2 hover:text-white">
+                      <Instagram size={18} /> smithorigin.id
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="flex items-center gap-2 hover:text-white">
-                      <Music2 size={18} /> SMITHORIGIN.ID
+                    <Link href="https://www.tiktok.com/@smithorigin" className="flex items-center gap-2 hover:text-white">
+                      <Music2 size={18} /> smithorigin
                     </Link>
                   </li>
                 </ul>

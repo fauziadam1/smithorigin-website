@@ -87,10 +87,10 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
     <div ref={searchRef} className="relative">
       <form
         className={clsx(
-          "text-[12px] flex items-center gap-2 rounded-full",
+          "flex items-center gap-2 rounded-full",
           isMobile 
-            ? "py-2 px-3 gap-2" 
-            : "py-3 px-5 gap-3",
+            ? "py-2 px-3" 
+            : "py-3 px-5",
           isHome && !navbarScrolled
             ? "border border-white/30 text-white"
             : "border border-gray-200 text-black"
@@ -99,7 +99,8 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
         <label htmlFor={isMobile ? "mobile-search" : "search"}>
           <Search
             className={clsx(
-              "w-4 h-4 cursor-pointer shrink-0",
+              "cursor-pointer shrink-0",
+              isMobile ? "w-4 h-4" : "w-4 h-4",
               isHome && !navbarScrolled ? "text-white/60" : "text-gray-500"
             )}
           />
@@ -114,8 +115,8 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
           className={clsx(
             "outline-none border-none bg-transparent",
             isMobile 
-              ? "w-27 xs:w-24 sm:w-32" 
-              : "pr-5 w-50",
+              ? "w-27 xs:w-24 sm:w-32 text-[12px]" 
+              : "pr-5 w-50 text-[12px]",
             isHome && !navbarScrolled
               ? "text-white placeholder-white/70"
               : "text-black placeholder-gray-600"
@@ -126,8 +127,7 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
             type="button"
             onClick={clearSearch}
             className={clsx(
-              "hover:opacity-70 cursor-pointer transition-opacity shrink-0",
-              !isMobile && "absolute right-5",
+              "hover:opacity-70 cursor-pointer transition-opacity shrink-0 ml-auto",
               isHome && !navbarScrolled ? "text-white" : "text-gray-500"
             )}
           >
@@ -138,18 +138,23 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
 
       {showSearchResults && (
         <div className={clsx(
-          "absolute top-full mt-2 bg-white rounded-xl border border-gray-200 z-50 max-h-[450px] overflow-y-auto shadow-lg",
+          "absolute top-full mt-2 bg-white rounded-xl border border-gray-200 z-50 overflow-y-auto shadow-lg",
           isMobile 
-            ? "right-0 w-[85vw] sm:w-[380px]" 
-            : "w-full min-w-[380px]"
+            ? "right-0 w-[280px] max-h-[400px]" 
+            : "w-full min-w-[380px] max-h-[450px]"
         )}>
           {isSearching ? (
-            <div className="p-6 text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-800 mx-auto mb-2"></div>
-              <p className="text-gray-500 text-sm">Mencari Product...</p>
+            <div className={clsx("text-center", isMobile ? "p-4" : "p-6")}>
+              <div className={clsx(
+                "animate-spin rounded-full border-b-2 border-red-800 mx-auto mb-2",
+                isMobile ? "h-6 w-6" : "h-8 w-8"
+              )}></div>
+              <p className={clsx("text-gray-500", isMobile ? "text-xs" : "text-sm")}>
+                Mencari Product...
+              </p>
             </div>
           ) : searchResults.length > 0 ? (
-            <div className="py-2">
+            <div className="py-1">
               {searchResults.map((product) => {
                 const finalPrice =
                   product.discount && product.discount > 0
@@ -161,51 +166,57 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
                     key={product.id}
                     onClick={() => handleProductClick(product.id)}
                     className={clsx(
-                      "hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-50 last:border-b-0",
-                      isMobile ? "px-3 py-3" : "px-3 py-2"
+                      "hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0",
+                      isMobile ? "px-2.5 py-2" : "px-3 py-2"
                     )}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className={clsx("flex items-center", isMobile ? "gap-2" : "gap-3")}>
                       <div className={clsx(
                         "rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-200",
-                        isMobile ? "w-14 h-14 sm:w-16 sm:h-16" : "w-13 h-13"
+                        isMobile ? "w-11 h-11" : "w-13 h-13"
                       )}>
                         {product.imageUrl ? (
                           <Image
                             src={product.imageUrl}
                             alt={product.name}
-                            width={1200}
-                            height={1200}
+                            width={80}
+                            height={80}
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <Search className="w-6 h-6 text-gray-400" />
+                            <Search className={clsx("text-gray-400", isMobile ? "w-5 h-5" : "w-6 h-6")} />
                           </div>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <p className={clsx(
-                          "font-semibold text-sm text-black mb-1",
-                          isMobile ? "line-clamp-2" : "truncate"
+                          "font-semibold text-black line-clamp-2",
+                          isMobile ? "text-[11px] mb-0.5 leading-tight" : "text-sm mb-1"
                         )}>
                           {product.name}
                         </p>
 
-                        <div className={clsx(
-                          "flex items-center gap-2",
-                          isMobile && "flex-wrap"
-                        )}>
-                          <p className="font-bold text-sm text-red-800">
+                        <div className={clsx("flex items-center flex-wrap", isMobile ? "gap-1" : "gap-2")}>
+                          <p className={clsx(
+                            "font-bold text-red-800 whitespace-nowrap",
+                            isMobile ? "text-[11px]" : "text-sm"
+                          )}>
                             {formatPrice(finalPrice)}
                           </p>
                           {product.discount && product.discount > 0 && (
                             <>
-                              <p className="text-xs text-gray-400 line-through">
+                              <p className={clsx(
+                                "text-gray-400 line-through whitespace-nowrap",
+                                isMobile ? "text-[9px]" : "text-xs"
+                              )}>
                                 {formatPrice(product.price)}
                               </p>
-                              <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-600 font-semibold">
+                              <span className={clsx(
+                                "rounded bg-red-100 text-red-600 font-semibold whitespace-nowrap",
+                                isMobile ? "text-[9px] px-1 py-0.5" : "text-xs px-1.5 py-0.5"
+                              )}>
                                 -{product.discount}%
                               </span>
                             </>
@@ -218,14 +229,17 @@ export default function SearchBar({ isHome, navbarScrolled, isMobile = false }: 
               })}
             </div>
           ) : (
-            <div className="p-6 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Search className="w-8 h-8 text-gray-400" />
+            <div className={clsx("text-center", isMobile ? "p-4" : "p-6")}>
+              <div className={clsx(
+                "bg-gray-100 rounded-full flex items-center justify-center mx-auto",
+                isMobile ? "w-12 h-12 mb-2" : "w-16 h-16 mb-3"
+              )}>
+                <Search className={clsx("text-gray-400", isMobile ? "w-6 h-6" : "w-8 h-8")} />
               </div>
-              <p className="text-gray-500 text-sm font-medium mb-1">
+              <p className={clsx("text-gray-500 font-medium mb-1", isMobile ? "text-xs" : "text-sm")}>
                 Maaf yang kamu cari tidak ada
               </p>
-              <p className="text-gray-400 text-xs">
+              <p className={clsx("text-gray-400", isMobile ? "text-[10px]" : "text-xs")}>
                 Coba pakai kata kunci lain untuk mencari
               </p>
             </div>

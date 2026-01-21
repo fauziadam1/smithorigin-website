@@ -34,7 +34,7 @@ export default function FilterSidebar({
           </h2>
           <button
             onClick={resetFilters}
-            className="text-sm text-red-800 hover:underline font-medium"
+            className="text-sm cursor-pointer text-red-800 hover:underline font-medium"
           >
             Reset
           </button>

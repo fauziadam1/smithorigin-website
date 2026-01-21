@@ -165,15 +165,15 @@ export default function BannerPage() {
     selectedItems.size === filteredBanners.length && filteredBanners.length > 0;
 
   return (
-    <div className="mx-auto p-6 relative">
+    <div className="mx-auto p-3 md:p-6 relative">
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-3 md:p-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <button
               onClick={() =>
                 setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
               }
-              className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors w-full md:w-auto justify-center md:justify-start"
             >
               <Filter className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -195,7 +195,7 @@ export default function BannerPage() {
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors w-full md:w-auto justify-center"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})
@@ -203,7 +203,7 @@ export default function BannerPage() {
             ) : (
               <button
                 onClick={() => setIsMakeBannerOpen(true)}
-                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-800 text-white text-sm font-medium rounded-lg hover:bg-red-900 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-800 text-white text-sm font-medium rounded-lg hover:bg-red-900 transition-colors w-full md:w-auto justify-center"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Banner
@@ -218,7 +218,8 @@ export default function BannerPage() {
           )}
         </div>
 
-        <div className="relative">
+        {/* Desktop Table */}
+        <div className="relative hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -323,14 +324,88 @@ export default function BannerPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden">
+          {isLoading ? (
+            <div className="p-8 text-center text-gray-500">Loading...</div>
+          ) : filteredBanners.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">Tidak ada banner</div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {filteredBanners.map((banner, index) => (
+                <div key={banner.id} className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(banner.id)}
+                      onChange={() => toggleSelectItem(banner.id)}
+                      className="w-4 h-4 mt-1 rounded border-gray-300 accent-red-800 cursor-pointer shrink-0"
+                    />
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+                        <button
+                          onClick={() =>
+                            setOpenMenuId(openMenuId === banner.id ? null : banner.id)
+                          }
+                          className="p-1 hover:bg-gray-100 rounded transition-colors shrink-0"
+                        >
+                          <MoreVertical className="w-5 h-5 text-gray-400" />
+                        </button>
+                      </div>
+
+                      <Image
+                        src={banner.imageUrl}
+                        alt="Banner"
+                        width={320}
+                        height={192}
+                        className="w-full h-40 rounded-lg object-cover border mb-3"
+                      />
+
+                      <div className="text-sm text-gray-600">
+                        {banner.createdAt
+                          ? new Date(banner.createdAt).toLocaleDateString('id-ID', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })
+                          : '-'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {openMenuId === banner.id && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setOpenMenuId(null)}
+                      />
+                      <div className="absolute right-4 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                        <button
+                          onClick={() => handleDelete(banner.id)}
+                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Hapus
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {isMakeBannerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 border border-gray-200 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-4 md:p-6 border border-gray-200 relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsMakeBannerOpen(false)}
-              className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100"
+              className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 z-10"
             >
               <X className="w-5 h-5 text-gray-600" />
             </button>
@@ -411,7 +486,7 @@ function MakeBannerForm({
             setIsDragging(false);
           }}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${isDragging
+          className={`relative border-2 border-dashed rounded-lg p-4 md:p-6 text-center transition-all ${isDragging
             ? 'border-red-800 bg-blue-50'
             : 'border-gray-300 hover:border-red-800'
             }`}
@@ -423,7 +498,7 @@ function MakeBannerForm({
                 alt="Preview"
                 width={150}
                 height={100}
-                className="w-40 h-28 mx-auto object-cover rounded-lg mb-3"
+                className="w-32 md:w-40 h-20 md:h-28 mx-auto object-cover rounded-lg mb-3"
               />
               <button
                 type="button"
@@ -432,15 +507,15 @@ function MakeBannerForm({
                   setImageFile(null);
                   setImageUrl('');
                 }}
-                className="absolute top-0 right-1/2 translate-x-16 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                className="absolute top-0 right-1/2 translate-x-16 md:translate-x-16 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
             <div className="py-4">
-              <ImagePlus className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-1">
+              <ImagePlus className="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-xs md:text-sm text-gray-600 mb-1">
                 {isDragging ? 'Lepaskan file di sini' : 'Drag & drop gambar atau klik untuk upload'}
               </p>
               <p className="text-xs text-gray-400">PNG, JPG, GIF (Max 5MB)</p>
@@ -479,7 +554,7 @@ function MakeBannerForm({
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           type="button"
           onClick={onCancel}

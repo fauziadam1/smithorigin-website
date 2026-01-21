@@ -191,15 +191,15 @@ export default function CategoryPage() {
   const allSelected = selectedItems.size === filteredCategories.length && filteredCategories.length > 0;
 
   return (
-    <div className="mx-auto p-6 relative">
+    <div className="mx-auto p-3 md:p-6 relative">
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-3 md:p-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <button
               onClick={() =>
                 setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')
               }
-              className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center cursor-pointer gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors w-full md:w-auto justify-center md:justify-start"
             >
               <Filter className="w-4 h-4" />
               <span className="text-sm font-medium">
@@ -221,7 +221,7 @@ export default function CategoryPage() {
             {selectedItems.size > 0 ? (
               <button
                 onClick={handleDeleteAllSelected}
-                className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                className="flex items-center gap-2 cursor-pointer px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors w-full md:w-auto justify-center"
               >
                 <Trash2 className="w-4 h-4" />
                 Hapus Terpilih ({selectedItems.size})
@@ -229,7 +229,7 @@ export default function CategoryPage() {
             ) : (
               <button
                 onClick={handleAddCategory}
-                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-800 text-white text-sm font-medium rounded-lg hover:bg-red-900 transition-colors"
+                className="flex items-center cursor-pointer gap-2 px-4 py-2 bg-red-800 text-white text-sm font-medium rounded-lg hover:bg-red-900 transition-colors w-full md:w-auto justify-center"
               >
                 <Plus className="w-4 h-4" />
                 Tambah Category
@@ -244,7 +244,8 @@ export default function CategoryPage() {
           )}
         </div>
 
-        <div className="relative">
+        {/* Desktop Table */}
+        <div className="relative hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -347,14 +348,114 @@ export default function CategoryPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden">
+          {isLoading ? (
+            <div className="p-8 text-center text-gray-500">Loading...</div>
+          ) : filteredCategories.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">Tidak ada data</div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {filteredCategories.map((category, index) => (
+                <div key={category.id} className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(category.id)}
+                      onChange={() => toggleSelectItem(category.id)}
+                      className="w-4 h-4 mt-1 rounded border-gray-300 accent-red-800 cursor-pointer flex-shrink-0"
+                    />
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          {category.imageUrl ? (
+                            <Image 
+                              src={category.imageUrl} 
+                              width={60} 
+                              height={60} 
+                              alt={category.name} 
+                              className="w-14 h-14 rounded-lg object-cover flex-shrink-0" 
+                            />
+                          ) : (
+                            <div className="w-14 h-14 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xs text-gray-400">No img</span>
+                            </div>
+                          )}
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{category.name}</p>
+                                <p className="text-xs text-gray-500 mt-1">#{index + 1}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => setOpenMenuId(openMenuId === category.id ? null : category.id)}
+                          className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                        >
+                          <MoreVertical className="w-5 h-5 text-gray-400" />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-xs text-gray-600 pl-[68px]">
+                        <span className="flex items-center gap-1">
+                          <span className="font-medium">{category._count?.products || 0}</span> Produk
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {openMenuId === category.id && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                      <div className="absolute right-4 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                        {selectedItems.size > 1 ? (
+                          <button
+                            onClick={handleDeleteAllSelected}
+                            className="w-full px-4 py-2 cursor-pointer text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Hapus {selectedItems.size} Item
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleEditCategory(category)}
+                              className="w-full px-4 py-2 text-left cursor-pointer text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(category.id)}
+                              className="w-full px-4 py-2 text-left cursor-pointer text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {isMakeCategoryOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6 border border-gray-200 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-4 md:p-6 border border-gray-200 relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsMakeCategoryOpen(false)}
-              className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100"
+              className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 z-10"
             >
               <X className="w-5 h-5 text-gray-600" />
             </button>
@@ -476,7 +577,7 @@ function MakeCategoryForm({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all ${isDragging
+          className={`relative border-2 border-dashed rounded-lg p-4 md:p-6 text-center transition-all ${isDragging
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300 hover:border-red-800'
             }`}
@@ -488,7 +589,7 @@ function MakeCategoryForm({
                 alt="Preview"
                 width={100}
                 height={100}
-                className="w-32 h-32 mx-auto object-cover rounded-lg mb-3"
+                className="w-24 h-24 md:w-32 md:h-32 mx-auto object-cover rounded-lg mb-3"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/128?text=Error';
                 }}
@@ -500,15 +601,15 @@ function MakeCategoryForm({
                   setImageUrl('');
                   setPreview('');
                 }}
-                className="absolute top-0 right-1/2 translate-x-16 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                className="absolute top-0 right-1/2 translate-x-12 md:translate-x-16 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
             <div className="py-4">
-              <ImagePlus className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 mb-1">
+              <ImagePlus className="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-2" />
+              <p className="text-xs md:text-sm text-gray-600 mb-1">
                 {isDragging ? 'Lepaskan file di sini' : 'Drag & drop gambar atau klik untuk upload'}
               </p>
               <p className="text-xs text-gray-400">PNG, JPG, GIF (Max 5MB)</p>
@@ -540,7 +641,7 @@ function MakeCategoryForm({
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           type="button"
           onClick={onCancel}

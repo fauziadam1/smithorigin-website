@@ -28,7 +28,7 @@ export default function HeaderSection() {
                     </div>
 
                     <Image
-                        src="/Logo.png"
+                        src="/LogoMain.png"
                         alt="Logo"
                         width={330}
                         height={330}
