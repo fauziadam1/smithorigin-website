@@ -219,7 +219,7 @@ export default function BannerPage() {
         </div>
 
         {/* Desktop Table */}
-        <div className="relative hidden md:block overflow-x-auto">
+        <div className="relative hidden md:block">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>

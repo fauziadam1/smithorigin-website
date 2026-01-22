@@ -244,8 +244,7 @@ export default function CategoryPage() {
           )}
         </div>
 
-        {/* Desktop Table */}
-        <div className="relative hidden md:block overflow-x-auto">
+        <div className="relative hidden md:block z-0">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -310,8 +309,8 @@ export default function CategoryPage() {
 
                       {openMenuId === category.id && (
                         <>
-                          <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                          <div className="relative inset-0 z-999" onClick={() => setOpenMenuId(null)} />
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                             {selectedItems.size > 1 ? (
                               <button
                                 onClick={handleDeleteAllSelected}

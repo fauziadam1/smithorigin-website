@@ -195,8 +195,7 @@ export default function ProductPage() {
           )}
         </div>
 
-        {/* Desktop Table */}
-        <div className="relative hidden md:block overflow-x-auto">
+        <div className="relative hidden md:block">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -379,7 +378,6 @@ export default function ProductPage() {
           </table>
         </div>
 
-        {/* Mobile Cards */}
         <div className="md:hidden">
           {isLoading ? (
             <div className="p-8 text-center text-gray-500">Loading...</div>
@@ -397,7 +395,7 @@ export default function ProductPage() {
                         type="checkbox"
                         checked={selectedItems.has(product.id)}
                         onChange={() => toggleSelectItem(product.id)}
-                        className="w-4 h-4 mt-1 rounded border-gray-300 accent-red-800 cursor-pointer flex-shrink-0"
+                        className="w-4 h-4 mt-1 rounded border-gray-300 accent-red-800 cursor-pointer shrink-0"
                       />
                       
                       <div className="flex-1 min-w-0">
@@ -408,10 +406,10 @@ export default function ProductPage() {
                               alt={product.name}
                               width={80}
                               height={80}
-                              className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
+                              className="w-20 h-20 rounded-lg object-cover shrink-0"
                             />
                           ) : (
-                            <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                            <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center shrink-0">
                               <span className="text-xs text-gray-400">No img</span>
                             </div>
                           )}
@@ -429,7 +427,7 @@ export default function ProductPage() {
                                 onClick={() =>
                                   setOpenMenuId(openMenuId === product.id ? null : product.id)
                                 }
-                                className="p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                className="p-1 hover:bg-gray-100 rounded transition-colors shrink-0"
                               >
                                 <MoreVertical className="w-5 h-5 text-gray-400" />
                               </button>

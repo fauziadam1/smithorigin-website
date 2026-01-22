@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const bannerController_1 = require("../controllers/bannerController");
+const auth_1 = require("../middleware/auth");
+const bannerRouter = (0, express_1.Router)();
+bannerRouter.get('/', bannerController_1.BannerController.getAll);
+bannerRouter.get('/:id', bannerController_1.BannerController.getById);
+bannerRouter.post('/', auth_1.authMiddleware, auth_1.adminMiddleware, bannerController_1.BannerController.create);
+bannerRouter.put('/:id', auth_1.authMiddleware, auth_1.adminMiddleware, bannerController_1.BannerController.update);
+bannerRouter.delete('/:id', auth_1.authMiddleware, auth_1.adminMiddleware, bannerController_1.BannerController.delete);
+exports.default = bannerRouter;

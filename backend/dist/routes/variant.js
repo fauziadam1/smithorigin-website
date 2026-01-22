@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const variantController_1 = require("../controllers/variantController");
+const auth_1 = require("../middleware/auth");
+const variantRouter = (0, express_1.Router)();
+variantRouter.get('/products/:productId/variants', variantController_1.VariantController.getByProductId);
+variantRouter.post('/products/:productId/variants', auth_1.authMiddleware, auth_1.adminMiddleware, variantController_1.VariantController.create);
+variantRouter.put('/variants/:id', auth_1.authMiddleware, auth_1.adminMiddleware, variantController_1.VariantController.update);
+variantRouter.delete('/products/:productId/variants/:id', auth_1.authMiddleware, auth_1.adminMiddleware, variantController_1.VariantController.delete);
+exports.default = variantRouter;
